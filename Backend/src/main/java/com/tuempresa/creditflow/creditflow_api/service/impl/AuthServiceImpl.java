@@ -1,5 +1,14 @@
 package com.tuempresa.creditflow.creditflow_api.service.impl;
 
+import com.tuempresa.creditflow.creditflow_api.dtos.BaseResponse;
+import com.tuempresa.creditflow.creditflow_api.dtos.ExtendedBaseResponse;
+import com.tuempresa.creditflow.creditflow_api.dtos.user.AuthResponseDto;
+import com.tuempresa.creditflow.creditflow_api.dtos.user.LoginRequestDto;
+import com.tuempresa.creditflow.creditflow_api.dtos.user.RegisterRequestDto;
+import com.tuempresa.creditflow.creditflow_api.mapper.UserMapper;
+import com.tuempresa.creditflow.creditflow_api.model.User;
+import com.tuempresa.creditflow.creditflow_api.repository.UserRepository;
+import com.tuempresa.creditflow.creditflow_api.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
