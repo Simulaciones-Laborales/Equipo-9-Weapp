@@ -109,7 +109,7 @@ public class UserServiceImpl implements UserService {
         return ExtendedBaseResponse.of(BaseResponse.ok("Usuarios encontrados"), userMapper.entityListToDtoList(users));
     }
 
-    @Override
+  /*  @Override
     @Transactional
     public ExtendedBaseResponse<UserDto> changeUserStatus(UserStatusRequest data) {
         User user = userRepository.findById(data.id()).orElseThrow(() ->
@@ -117,7 +117,7 @@ public class UserServiceImpl implements UserService {
         user.setIsActive(data.status());
         User savedUser = userRepository.save(user);
         return ExtendedBaseResponse.of(BaseResponse.ok("Estado del usuario actualizado"), userMapper.toDto(savedUser));
-    }
+    }*/
 
     @Override
     @Transactional
@@ -128,7 +128,7 @@ public class UserServiceImpl implements UserService {
         return ExtendedBaseResponse.of(BaseResponse.ok("Usuario eliminado exitosamente"), null);
     }
 
-    private String uploadSingleImage(MultipartFile image) {
+   /* private String uploadSingleImage(MultipartFile image) {
         return imageService.uploadImage(image);
     }
 
@@ -138,7 +138,7 @@ public class UserServiceImpl implements UserService {
         } catch (Exception e) {
             throw new RuntimeException("Error al eliminar la imagen", e);
         }
-    }
+    }*/
 
     @Override
     public UUID getUserIdByEmail(String email) {

@@ -1,5 +1,6 @@
 package com.tuempresa.creditflow.creditflow_api.configs;
 
+import com.tuempresa.creditflow.creditflow_api.exception.userExc.EmailNotFoundException;
 import com.tuempresa.creditflow.creditflow_api.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
