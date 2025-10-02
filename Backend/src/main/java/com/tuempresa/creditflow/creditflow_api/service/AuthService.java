@@ -1,5 +1,8 @@
 package com.tuempresa.creditflow.creditflow_api.service;
 
+import com.tuempresa.creditflow.creditflow_api.dtos.ExtendedBaseResponse;
+import com.tuempresa.creditflow.creditflow_api.dtos.user.*;
+
 public interface AuthService {
     ExtendedBaseResponse<AuthResponseDto> login(LoginRequestDto request);
 
@@ -7,6 +10,6 @@ public interface AuthService {
 
     ExtendedBaseResponse<String> generatePasswordResetToken(EmailDto email);
 
-    void resetPassword(ResetPasswordRequest request);
+    void resetPassword(ResetPasswordRequestDto request);
 }
 

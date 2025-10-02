@@ -1,9 +1,13 @@
 package com.tuempresa.creditflow.creditflow_api.mapper;
 
+import com.tuempresa.creditflow.creditflow_api.dtos.user.AuthResponseDto;
+import com.tuempresa.creditflow.creditflow_api.dtos.user.UpdateUserDto;
+import com.tuempresa.creditflow.creditflow_api.dtos.user.UserDto;
+import com.tuempresa.creditflow.creditflow_api.dtos.user.UserRolDto;
 import com.tuempresa.creditflow.creditflow_api.model.User;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.ReportingPolicy;
-import org.springframework.web.bind.annotation.Mapping;
 import org.mapstruct.Mapper;
 import java.util.List;
 
@@ -19,7 +23,7 @@ public interface UserMapper {
 
     @Mapping(source = "id", target = "userId")
     @Mapping(target = "username", expression = "java(mapUsername(user))")
-    UpdatedUserDto toUpdatedUser(User user);
+    UpdateUserDto toUpdatedUser(User user);
 
     @Mapping(source = "id", target = "id")
     @Mapping(target = "username", expression = "java(mapUsername(user))")

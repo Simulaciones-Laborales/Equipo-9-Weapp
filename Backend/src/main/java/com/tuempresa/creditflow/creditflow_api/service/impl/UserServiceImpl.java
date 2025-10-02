@@ -1,5 +1,14 @@
 package com.tuempresa.creditflow.creditflow_api.service.impl;
 
+import com.tuempresa.creditflow.creditflow_api.dtos.BaseResponse;
+import com.tuempresa.creditflow.creditflow_api.dtos.ExtendedBaseResponse;
+import com.tuempresa.creditflow.creditflow_api.dtos.user.ChangeUserRoleDto;
+import com.tuempresa.creditflow.creditflow_api.dtos.user.UpdateUserDto;
+import com.tuempresa.creditflow.creditflow_api.dtos.user.UserDto;
+import com.tuempresa.creditflow.creditflow_api.dtos.user.UserRolDto;
+import com.tuempresa.creditflow.creditflow_api.exception.userExc.UserNotFoundException;
+import com.tuempresa.creditflow.creditflow_api.mapper.UserMapper;
+import com.tuempresa.creditflow.creditflow_api.model.User;
 import com.tuempresa.creditflow.creditflow_api.repository.UserRepository;
 import com.tuempresa.creditflow.creditflow_api.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +29,7 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
 
-    @Override
+   /* @Override
     @Transactional
     public ExtendedBaseResponse<String> upDateImagesUser(UpDateImagesUserDto upDateImagesUser) {
         String newImageUrl = uploadSingleImage(upDateImagesUser.getImage());
@@ -34,7 +43,7 @@ public class UserServiceImpl implements UserService {
         user.setUserImage(newImageUrl);
         User savedUser = userRepository.save(user);
         return ExtendedBaseResponse.of(BaseResponse.created("Imagen actualizada/cargada correctamente"), savedUser.getUserImage());
-    }
+    }*/
 
 
     @Override
@@ -48,11 +57,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public ExtendedBaseResponse<UpdatedUserDto> updateUser(UpdateUserDto updateUserDto) {
+    public ExtendedBaseResponse<UpdateUserDto> updateUser(UpdateUserDto updateUserDto) {
         User user = userRepository.findById(updateUserDto.userId())
                 .orElseThrow(() -> new UserNotFoundException("Este usuario no existe con ese ID: " + updateUserDto.userId()));
-        if (updateUserDto.username() != null && !updateUserDto.username().isBlank()) {
-            user.setUsername(updateUserDto.username());
+        if (updateUserDto.firstName() != null && !updateUserDto.firstName().isBlank()) {
+            user.setFirstName(updateUserDto.firstName());
+        }
+        if (updateUserDto.lastName() != null && !updateUserDto.lastName().isBlank()) {
+            user.setLastName(updateUserDto.lastName());
         }
         if (updateUserDto.email() != null && !updateUserDto.email().isBlank()) {
             user.setEmail(updateUserDto.email());
@@ -67,7 +79,7 @@ public class UserServiceImpl implements UserService {
             user.setWantsEmailNotifications(updateUserDto.wantsEmailNotifications());
         }
         userRepository.save(user);
-        UpdatedUserDto updatedUserDto = userMapper.toUpdatedUser(user);
+        UpdateUserDto updatedUserDto = userMapper.toUpdatedUser(user);
         return ExtendedBaseResponse.of(BaseResponse.ok("Usuario actualizado"), updatedUserDto);
     }
 

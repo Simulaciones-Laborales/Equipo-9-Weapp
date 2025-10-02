@@ -2,13 +2,16 @@ package com.tuempresa.creditflow.creditflow_api.service.impl;
 
 import com.tuempresa.creditflow.creditflow_api.dtos.BaseResponse;
 import com.tuempresa.creditflow.creditflow_api.dtos.ExtendedBaseResponse;
-import com.tuempresa.creditflow.creditflow_api.dtos.user.AuthResponseDto;
-import com.tuempresa.creditflow.creditflow_api.dtos.user.LoginRequestDto;
-import com.tuempresa.creditflow.creditflow_api.dtos.user.RegisterRequestDto;
+import com.tuempresa.creditflow.creditflow_api.dtos.user.*;
+import com.tuempresa.creditflow.creditflow_api.exception.userExc.EmailNotFoundException;
+import com.tuempresa.creditflow.creditflow_api.exception.userExc.InvalidCredentialsException;
+import com.tuempresa.creditflow.creditflow_api.exception.userExc.UserDisabledException;
+import com.tuempresa.creditflow.creditflow_api.jwt.JwtService;
 import com.tuempresa.creditflow.creditflow_api.mapper.UserMapper;
 import com.tuempresa.creditflow.creditflow_api.model.User;
 import com.tuempresa.creditflow.creditflow_api.repository.UserRepository;
 import com.tuempresa.creditflow.creditflow_api.service.AuthService;
+import com.tuempresa.creditflow.creditflow_api.service.api.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -48,7 +51,7 @@ public class AuthServiceImpl implements AuthService {
 
         return ExtendedBaseResponse.of(
                 BaseResponse.ok("Login exitoso."),
-                new AuthResponseDto(response.id(), response.username(), token, response.role(), response.userImage())
+                new AuthResponseDto(response.id(), response.firstName(),response.lastName(), token, response.role())
         );
     }
 
@@ -65,14 +68,13 @@ public class AuthServiceImpl implements AuthService {
 
         // 2. Crear el usuario con esa contraseña
         User user = User.builder()
-                .username(request.username())
+                .firstName(request.firstName())
+                .lastName(request.lastName())
                 .password(passwordEncoder.encode(generatedPassword))
                 .email(request.email())
                 .contact(request.contact())
                 .isActive(Boolean.TRUE)
                 .role(User.Role.CLIENT)
-                .type(request.type())
-                .subscribedToNewsletter(Boolean.TRUE)
                 .wantsEmailNotifications(Boolean.TRUE)
                 .build();
 
@@ -93,7 +95,7 @@ public class AuthServiceImpl implements AuthService {
         Te recomendamos cambiar la contraseña una vez hayas iniciado sesión.
 
         ¡Gracias por unirte! 🚀
-        """, request.username(), request.email(), generatedPassword);
+        """, request.firstName(), request.email(), generatedPassword);
 
         emailService.sendEmail(user.getEmail(), subject, body);
 
@@ -102,14 +104,14 @@ public class AuthServiceImpl implements AuthService {
 
         return ExtendedBaseResponse.of(
                 BaseResponse.created("Usuario creado correctamente. Credenciales enviadas por email."),
-                new AuthResponseDto(response.id(), response.username(), null, response.role(), null)
+                new AuthResponseDto(response.id(), response.firstName(),response.lastName(), null,response.role())
         );
     }
 
     // Método resetPassword
     @Override
     @Transactional
-    public void resetPassword(ResetPasswordRequest request) {
+    public void resetPassword(ResetPasswordRequestDto request) {
         User user = userRepository.findByResetToken(request.token())
                 .orElseThrow(() -> new IllegalArgumentException("Token inválido"));
 

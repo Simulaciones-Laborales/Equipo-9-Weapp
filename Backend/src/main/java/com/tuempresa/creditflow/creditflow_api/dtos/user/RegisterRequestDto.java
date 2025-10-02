@@ -16,7 +16,11 @@ public record RegisterRequestDto(
         )
         @NotBlank(message = "El nombre de usuario no puede estar en blanco")
         @Size(max = 50, message = "El nombre de usuario no puede exceder los 50 caracteres")
-        String username,
+        String firstName,
+
+        @NotBlank(message = "Los apellidos del usuario no pueden estar en blanco")
+        @Size(max = 50, message = "Los apellidos de usuario no puede exceder los 50 caracteres")
+        String lastName,
 
         @Schema(
                 description = "Correo electrónico válido.",
