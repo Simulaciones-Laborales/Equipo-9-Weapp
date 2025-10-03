@@ -6,9 +6,21 @@ import jakarta.validation.constraints.*;
 import java.io.Serializable;
 
 public record RegisterRequestDto(
+       /* @Schema(
+                description = "Nombre de usuario con al menos 10 letras, puede incluir espacios, apóstrofes o guiones.",
+                example = "Ignacio Díaz"
+        )
+        @Pattern(
+                regexp = "^(?=\\S*[a-zA-ZÀ-ÿ])(?=(?:\\S*\\s*){3,})[a-zA-ZÀ-ÿ\\s'-]+$",
+                message = "El userName de usuario debe tener al menos 10 letras y puede incluir espacios, apóstrofes o guiones"
+        )
+        @NotBlank(message = "El nombre de usuario no puede estar en blanco")
+        @Size(max = 50, message = "El nombre de usuario no puede exceder los 50 caracteres")
+        String username,*/
+
         @Schema(
                 description = "Nombre de usuario con al menos 3 letras, puede incluir espacios, apóstrofes o guiones.",
-                example = "Ignacio Galeassi"
+                example = "Ignacio Jose"
         )
         @Pattern(
                 regexp = "^(?=\\S*[a-zA-ZÀ-ÿ])(?=(?:\\S*\\s*){3,})[a-zA-ZÀ-ÿ\\s'-]+$",
@@ -18,8 +30,16 @@ public record RegisterRequestDto(
         @Size(max = 50, message = "El nombre de usuario no puede exceder los 50 caracteres")
         String firstName,
 
-        @NotBlank(message = "Los apellidos del usuario no pueden estar en blanco")
-        @Size(max = 50, message = "Los apellidos de usuario no puede exceder los 50 caracteres")
+        @Schema(
+                description = "Apellido de usuario con al menos 3 letras, puede incluir espacios, apóstrofes o guiones.",
+                example = "Díaz Medrano"
+        )
+        @Pattern(
+                regexp = "^(?=\\S*[a-zA-ZÀ-ÿ])(?=(?:\\S*\\s*){3,})[a-zA-ZÀ-ÿ\\s'-]+$",
+                message = "El apellido de usuario debe tener al menos 3 letras y puede incluir espacios, apóstrofes o guiones"
+        )
+        @NotBlank(message = "El apellido de usuario no puede estar en blanco")
+        @Size(max = 50, message = "El apellido de usuario no puede exceder los 50 caracteres")
         String lastName,
 
         @Schema(
@@ -46,7 +66,6 @@ public record RegisterRequestDto(
         @NotBlank(message = "El contacto no puede estar en blanco")
         @Size(max = 20, message = "El contacto no puede exceder los 20 caracteres")
         String contact
-
-
 ) implements Serializable {
 }
+

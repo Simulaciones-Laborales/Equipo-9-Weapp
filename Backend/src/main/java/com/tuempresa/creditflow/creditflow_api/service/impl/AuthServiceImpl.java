@@ -51,10 +51,9 @@ public class AuthServiceImpl implements AuthService {
 
         return ExtendedBaseResponse.of(
                 BaseResponse.ok("Login exitoso."),
-                new AuthResponseDto(response.id(), response.firstName(),response.lastName(), token, response.role())
+                new AuthResponseDto(response.id(),response.firstName(),response.lastName(), response.username(), token, response.role())
         );
     }
-
     // Método register
     @Override
     @Transactional
@@ -68,8 +67,7 @@ public class AuthServiceImpl implements AuthService {
 
         // 2. Crear el usuario con esa contraseña
         User user = User.builder()
-                .firstName(request.firstName())
-                .lastName(request.lastName())
+                .username(request.firstName() + " " + request.lastName())
                 .password(passwordEncoder.encode(generatedPassword))
                 .email(request.email())
                 .contact(request.contact())
@@ -95,7 +93,7 @@ public class AuthServiceImpl implements AuthService {
         Te recomendamos cambiar la contraseña una vez hayas iniciado sesión.
 
         ¡Gracias por unirte! 🚀
-        """, request.firstName(), request.email(), generatedPassword);
+        """, request.firstName() + " " + request.lastName(), request.email(), generatedPassword);
 
         emailService.sendEmail(user.getEmail(), subject, body);
 
@@ -104,7 +102,7 @@ public class AuthServiceImpl implements AuthService {
 
         return ExtendedBaseResponse.of(
                 BaseResponse.created("Usuario creado correctamente. Credenciales enviadas por email."),
-                new AuthResponseDto(response.id(), response.firstName(),response.lastName(), null,response.role())
+                new AuthResponseDto(response.id(), response.username(), response.firstName(),response.lastName(),  null, response.role())
         );
     }
 

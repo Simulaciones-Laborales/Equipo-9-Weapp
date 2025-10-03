@@ -34,6 +34,9 @@ public class User implements UserDetails {
     @Column(name = "last_name", unique = false, nullable = false)
     private String lastName;
 
+    @Column(name = "username", unique = false, nullable = false)
+    private String username;
+
     private String password;
 
     @Column(name = "email", nullable = false, unique = true)
@@ -108,9 +111,9 @@ public class User implements UserDetails {
     }
 
     public enum Role {
-        SUPER_ADMIN,
         ADMIN,
-        CLIENT
+        OPERADOR,
+        PYME
     }
 
     public Role ChangeRole (String roleName){
@@ -118,6 +121,6 @@ public class User implements UserDetails {
             return Role.valueOf(roleName.toUpperCase());
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Rol no válido: " + roleName +
-                    ". Los roles válidos son: SUPER_ADMIN, ADMIN, CLIENT");}
+                    ". Los roles válidos son: SUPER_ADMIN, ADMIN, PYME");}
     }
 }
