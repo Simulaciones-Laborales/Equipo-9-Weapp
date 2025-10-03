@@ -10,6 +10,9 @@ public record AuthResponseDto(
         @Schema(description = "ID del usuario", example = "d96d6e88-4ade-4f62-98d7-235ea23f6f2a")
         UUID id,
 
+        @Schema(description = "Nombre de usuario", example = "Florencia Galeassi")
+        String username,
+
         @Schema(description = "Nombre de usuario", example = "Florencia")
         String firstName,
 

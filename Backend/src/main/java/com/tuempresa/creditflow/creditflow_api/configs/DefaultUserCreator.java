@@ -18,18 +18,19 @@ public class DefaultUserCreator implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (!userRepository.existsByUsername("Florencia Galeassi")) {
+        if (!userRepository.existsByEmail("Florencia_Galeassi@example.com")) {
             String defaultPassword = "12345678Pro+";
             String encodedPassword = passwordEncoder.encode(defaultPassword);
 
             User florencia = User.builder()
+                    .username("Florencia Rodríguez")
                     .firstName("Florencia")
                     .lastName("Rodríguez")
                     .password(encodedPassword)
                     .email("Florencia_Galeassi@example.com")
                     .contact("+54 351-5654563")
                     .isActive(true)
-                    .role(User.Role.SUPER_ADMIN)
+                    .role(User.Role.ADMIN)
                     .wantsEmailNotifications(false)
                     .build();
 
