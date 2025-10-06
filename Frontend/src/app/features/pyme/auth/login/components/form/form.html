@@ -14,5 +14,13 @@
     />
     <label for="password">Contraseña</label>
   </p-floatLabel>
-  <p-button severity="primary" label="Iniciar Sesión" fluid type="ngSubmit" />
+  <p-button severity="secondary" label="Iniciar Sesión" fluid type="ngSubmit" />
+  <div class="w-full grid grid-cols-5 gap-x-2.5 items-center">
+    <hr class="col-span-2" />
+    <p class="col-span-1 text-center">o</p>
+    <hr class="col-span-2" />
+  </div>
+  <a routerLink="../register">
+    <p-button label="Crear cuenta" variant="text" severity="info" link fluid />
+  </a>
 </form>
