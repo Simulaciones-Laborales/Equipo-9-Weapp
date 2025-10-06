@@ -5,7 +5,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { PasswordModule } from 'primeng/password';
 import { ButtonModule } from 'primeng/button';
-import { RouterLink } from '@angular/router';
+import { Linker } from '@features/pyme/auth/components/linker/linker';
 
 @Component({
   selector: 'app-form',
@@ -15,7 +15,7 @@ import { RouterLink } from '@angular/router';
     FloatLabelModule,
     PasswordModule,
     ButtonModule,
-    RouterLink,
+    Linker,
   ],
   templateUrl: './form.html',
   styleUrl: './form.css',
