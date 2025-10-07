@@ -72,7 +72,7 @@ public class AuthServiceImpl implements AuthService {
                 .email(request.email())
                 .contact(request.contact())
                 .isActive(Boolean.TRUE)
-                .role(User.Role.CLIENT)
+                .role(User.Role.OPERADOR)
                 .wantsEmailNotifications(Boolean.TRUE)
                 .build();
 
