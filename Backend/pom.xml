@@ -135,6 +135,20 @@
 	</dependencies>
 
 	<build>
+		<!-- Configuración CRUCIAL para resolver el error de encoding -->
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>false</filtering>
+				<includes>
+					<include>**/*.properties</include>
+					<include>**/*.xml</include>
+					<include>**/*.json</include>
+					<include>**/*.txt</include>
+				</includes>
+			</resource>
+		</resources>
+
 		<plugins>
 			<!-- Spring Boot Maven Plugin -->
 			<plugin>
@@ -175,6 +189,16 @@
 					<compilerArgs>
 						<arg>-parameters</arg>
 					</compilerArgs>
+				</configuration>
+			</plugin>
+
+			<!-- Maven Resources Plugin con configuración UTF-8 explícita -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.3.1</version>
+				<configuration>
+					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
 		</plugins>
