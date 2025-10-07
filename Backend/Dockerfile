@@ -1,16 +1,16 @@
 # Etapa 1: Build
-FROM eclipse-temurin:21-jdk AS build
+FROM maven:3.9.6-eclipse-temurin-21 AS build
 WORKDIR /app
 
 # Copia el pom.xml y descarga dependencias (caching)
 COPY pom.xml .
-RUN apt-get update -qq && apt-get install -y -qq maven && mvn dependency:go-offline
+RUN mvn dependency:go-offline -B
 
 # Copia el código fuente
 COPY src ./src
 
 # Compila el proyecto
-RUN mvn package -DskipTests
+RUN mvn clean package -DskipTests
 
 # Etapa 2: Runtime
 FROM eclipse-temurin:21-jre
