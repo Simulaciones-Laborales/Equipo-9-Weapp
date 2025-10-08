@@ -1,15 +1,15 @@
-package com.yourcompany.creditflow.creditflow_api.mapper;
+package com.tuempresa.creditflow.creditflow_api.mapper;
 
-import com.yourcompany.creditflow.creditflow_api.dto.CompanyRequestDTO;
-import com.yourcompany.creditflow.creditflow_api.dto.CompanyResponseDTO;
-import com.yourcompany.creditflow.creditflow_api.model.Company;
-import com.yourcompany.creditflow.creditflow_api.model.User;
+import com.tuempresa.creditflow.creditflow_api.dtos.company.CompanyRequestDTO;
+import com.tuempresa.creditflow.creditflow_api.dtos.company.CompanyResponseDTO;
+import com.tuempresa.creditflow.creditflow_api.model.Company;
+import com.tuempresa.creditflow.creditflow_api.model.User;
 
 public class CompanyMapper {
 
     public static Company toEntity(CompanyRequestDTO dto, User user) {
         return Company.builder()
-                .name(dto.getName())
+                .company_name(dto.getName())
                 .taxId(dto.getTaxId())
                 .annualIncome(dto.getAnnualIncome())
                 .user(user)
@@ -19,7 +19,7 @@ public class CompanyMapper {
     public static CompanyResponseDTO toDTO(Company company) {
         return CompanyResponseDTO.builder()
                 .idCompany(company.getIdCompany())
-                .name(company.getName())
+                .name(company.getCompany_name())
                 .taxId(company.getTaxId())
                 .annualIncome(company.getAnnualIncome())
                 .createdAt(company.getCreatedAt())

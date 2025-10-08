@@ -1,7 +1,7 @@
-package com.yourcompany.creditflow.creditflow_api.repository;
+package com.tuempresa.creditflow.creditflow_api.repository;
 
-import com.yourcompany.creditflow.creditflow_api.model.Company;
-import com.yourcompany.creditflow.creditflow_api.model.User;
+import com.tuempresa.creditflow.creditflow_api.model.Company;
+import com.tuempresa.creditflow.creditflow_api.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -18,13 +18,13 @@ public interface CompanyRepository extends JpaRepository<Company, UUID> {
     // Comprobar existencia por taxId
     boolean existsByTaxId(String taxId);
 
-    // Buscar por id y user (útil para verificar ownership)
-    Optional<Company> findByIdAndUser(UUID id, User user);
+    /*// Buscar por id y user (útil para verificar ownership)
+    Optional<Company> findByIdAndUser(UUID id, User user);*/
 
     // Buscar por taxId (útil para validaciones o consultas)
     Optional<Company> findByTaxId(String taxId);
 
-    // (Opcional) Eliminar por id y user — útil para borrar solo si pertenece al user
-    void deleteByIdAndUser(UUID id, User user);
+    /*// (Opcional) Eliminar por id y user — útil para borrar solo si pertenece al user
+    void deleteByIdAndUser(UUID id, User user);*/
 }
 

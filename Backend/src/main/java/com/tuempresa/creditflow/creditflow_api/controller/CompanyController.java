@@ -1,7 +1,7 @@
 package com.tuempresa.creditflow.creditflow_api.controller;
 
-import com.tuempresa.creditflow.creditflow_api.dto.company.CompanyRequestDTO;
-import com.tuempresa.creditflow.creditflow_api.dto.company.CompanyResponseDTO;
+import com.tuempresa.creditflow.creditflow_api.dtos.company.CompanyRequestDTO;
+import com.tuempresa.creditflow.creditflow_api.dtos.company.CompanyResponseDTO;
 import com.tuempresa.creditflow.creditflow_api.model.User;
 import com.tuempresa.creditflow.creditflow_api.service.CompanyService;
 import com.tuempresa.creditflow.creditflow_api.service.UserService;
@@ -20,7 +20,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CompanyController {
 
-    private final CompanyService companyService;
+    /*private final CompanyService companyService;
     private final UserService userService; // Para obtener el usuario autenticado
 
     // ✅ Crear una nueva empresa
@@ -73,6 +73,6 @@ public class CompanyController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName(); // username/email
         return userService.findByEmail(email);
-    }
+    }*/
 }
 
