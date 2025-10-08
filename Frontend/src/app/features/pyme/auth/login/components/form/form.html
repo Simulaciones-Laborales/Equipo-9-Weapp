@@ -1,0 +1,19 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-y-5">
+  <p-floatlabel variant="on">
+    <input type="email" id="email" autocomplete="email" formControlName="email" pInputText fluid />
+    <label for="email">Correo electrónico</label>
+  </p-floatlabel>
+  <p-floatLabel variant="on">
+    <p-password
+      inputId="password"
+      autocomplete="off"
+      [feedback]="false"
+      [toggleMask]="true"
+      fluid
+      formControlName="password"
+    />
+    <label for="password">Contraseña</label>
+  </p-floatLabel>
+  <p-button severity="secondary" label="Iniciar Sesión" fluid type="ngSubmit" />
+  <app-linker route="../register" text="Crear cuenta" />
+</form>

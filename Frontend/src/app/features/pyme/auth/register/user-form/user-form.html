@@ -1,0 +1,36 @@
+<form [formGroup]="form" class="flex flex-col gap-y-5">
+  <p-floatLabel variant="on">
+    <input type="text" id="name" formControlName="name" autocomplete="name" pInputText fluid />
+    <label for="name">Nombre completo</label>
+  </p-floatLabel>
+  <p-floatLabel variant="on">
+    <input type="email" id="email" formControlName="email" autocomplete="email" pInputText fluid />
+    <label for="email">Correo electrónico</label>
+  </p-floatLabel>
+  <p-floatLabel variant="on">
+    <p-password
+      [toggleMask]="true"
+      inputId="password"
+      formControlName="password"
+      autocomplete="off"
+      fluid
+    />
+    <label for="password">Contraseña</label>
+  </p-floatLabel>
+  <p-floatLabel variant="on">
+    <p-password
+      [toggleMask]="true"
+      inputId="repeatPassword"
+      [feedback]="false"
+      formControlName="repeatPassword"
+      autocomplete="off"
+      fluid
+    />
+    <label for="repeatPassword">Repite tu contraseña</label>
+  </p-floatLabel>
+  <label for="agree" class="flex items-center gap-x-2.5">
+    <p-checkbox inputId="agree" [binary]="true" />
+    <span class="text-gray-700">Acepto los términos y condiciones</span>
+  </label>
+  <app-linker route="../login" text="¿Ya tienes cuenta?" />
+</form>
