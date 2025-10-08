@@ -1,11 +1,11 @@
-package com.yourcompany.creditflow.creditflow_api.service.impl;
+package com.tuempresa.creditflow.creditflow_api.service.impl;
 
-import com.yourcompany.creditflow.creditflow_api.dto.company.CompanyRequestDTO;
-import com.yourcompany.creditflow.creditflow_api.dto.company.CompanyResponseDTO;
-import com.yourcompany.creditflow.creditflow_api.model.Company;
-import com.yourcompany.creditflow.creditflow_api.model.User;
-import com.yourcompany.creditflow.creditflow_api.repository.CompanyRepository;
-import com.yourcompany.creditflow.creditflow_api.service.CompanyService;
+import com.tuempresa.creditflow.creditflow_api.dtos.company.CompanyRequestDTO;
+import com.tuempresa.creditflow.creditflow_api.dtos.company.CompanyResponseDTO;
+import com.tuempresa.creditflow.creditflow_api.model.Company;
+import com.tuempresa.creditflow.creditflow_api.model.User;
+import com.tuempresa.creditflow.creditflow_api.repository.CompanyRepository;
+import com.tuempresa.creditflow.creditflow_api.service.CompanyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,9 +16,9 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class CompanyServiceImpl implements CompanyService {
+public class CompanyServiceImpl /*implements CompanyService*/ {
 
-    private final CompanyRepository companyRepository;
+    /*private final CompanyRepository companyRepository;
 
     @Override
     @Transactional
@@ -28,7 +28,7 @@ public class CompanyServiceImpl implements CompanyService {
         }
 
         Company company = Company.builder()
-                .name(dto.getName())
+                .company_name(dto.getName())
                 .taxId(dto.getTaxId())
                 .annualIncome(dto.getAnnualIncome())
                 .user(user)
@@ -64,7 +64,7 @@ public class CompanyServiceImpl implements CompanyService {
             throw new IllegalArgumentException("Another company with this tax ID already exists");
         }
 
-        company.setName(dto.getName());
+        company.setCompany_name(dto.getName());
         company.setTaxId(dto.getTaxId());
         company.setAnnualIncome(dto.getAnnualIncome());
 
@@ -83,13 +83,13 @@ public class CompanyServiceImpl implements CompanyService {
     private CompanyResponseDTO mapToResponseDTO(Company company) {
         return CompanyResponseDTO.builder()
                 .idCompany(company.getIdCompany())
-                .name(company.getName())
+                .name(company.getCompany_name())
                 .taxId(company.getTaxId())
                 .annualIncome(company.getAnnualIncome())
                 .createdAt(company.getCreatedAt())
                 .userId(company.getUser().getId())
                 .userName(company.getUser().getName())
                 .build();
-    }
+    }*/
 }
 
