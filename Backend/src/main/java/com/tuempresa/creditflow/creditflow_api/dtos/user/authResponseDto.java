@@ -24,6 +24,5 @@ public record AuthResponseDto(
 
         @Schema(description = "Rol del usuario", example = "USUARIO")
         User.Role role
-
 ) implements Serializable {
 }

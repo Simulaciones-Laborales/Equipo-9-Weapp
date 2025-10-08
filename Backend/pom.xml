@@ -109,10 +109,11 @@
 			<artifactId>spring-boot-starter-mail</artifactId>
 		</dependency>
 
-		<!-- Lombok -->
+		<!-- Lombok Dependency -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
+			<version>1.18.30</version> <!-- Compatible with Java 21 -->
 			<optional>true</optional>
 		</dependency>
 
