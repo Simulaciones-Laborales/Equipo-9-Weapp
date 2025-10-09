@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
-import { UserForm } from './user-form/user-form';
+import { Form } from './form/form';
 import { Card } from 'primeng/card';
 
 @Component({
   selector: 'app-register',
-  imports: [UserForm, Card],
+  imports: [Form, Card],
   templateUrl: './register.html',
   styleUrl: './register.css',
 })

@@ -9,10 +9,10 @@ import { Linker } from '../../components/linker/linker';
 @Component({
   selector: 'app-user-form',
   imports: [ReactiveFormsModule, FloatLabel, InputText, Checkbox, Linker],
-  templateUrl: './user-form.html',
-  styleUrl: './user-form.css',
+  templateUrl: './form.html',
+  styleUrl: './form.css',
 })
-export class UserForm {
+export class Form {
   private readonly _fb = inject(FormBuilder);
 
   readonly form = this._fb.group({
