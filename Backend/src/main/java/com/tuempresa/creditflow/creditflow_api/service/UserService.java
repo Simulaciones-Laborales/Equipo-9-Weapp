@@ -1,10 +1,7 @@
 package com.tuempresa.creditflow.creditflow_api.service;
 
 import com.tuempresa.creditflow.creditflow_api.dtos.ExtendedBaseResponse;
-import com.tuempresa.creditflow.creditflow_api.dtos.user.ChangeUserRoleDto;
-import com.tuempresa.creditflow.creditflow_api.dtos.user.UpdateUserDto;
-import com.tuempresa.creditflow.creditflow_api.dtos.user.UserDto;
-import com.tuempresa.creditflow.creditflow_api.dtos.user.UserRolDto;
+import com.tuempresa.creditflow.creditflow_api.dtos.user.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -23,5 +20,9 @@ public interface UserService {
 
     ExtendedBaseResponse<String> deleteUserById(UUID id);
 
+    ExtendedBaseResponse<UserDto> changeUserStatus(UserStatusRequestDto data);
+    
     UUID getUserIdByEmail(String email);
+
+
 }

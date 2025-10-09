@@ -27,43 +27,30 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-
-    @Column(name = "first_name", unique = false, nullable = false)
-    private String firstName;
-
-    @Column(name = "last_name", unique = false, nullable = false)
-    private String lastName;
-
     @Column(name = "username", unique = false, nullable = false)
     private String username;
-
     private String password;
-
     @Column(name = "email", nullable = false, unique = true)
     private String email;
-
+    @Column(name = "first_name", unique = false, nullable = false)
+    private String firstName;
+    @Column(name = "last_name", unique = false, nullable = false)
+    private String lastName;
     @Column(name = "contact", nullable = false, unique = true)
     private String contact;
-
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
-
     @UpdateTimestamp
     @Column(nullable = false)
     private LocalDateTime updatedAt;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "user_role", length = 20)
     Role role;
-
     @Column(name = "is_active")
     private Boolean isActive;
-
     private String resetToken;
-
     private Boolean wantsEmailNotifications;
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -77,7 +64,7 @@ public class User implements UserDetails {
     }
 
     public String getName() {
-        return firstName + " " + lastName;
+        return username;
     }
 
     @Override

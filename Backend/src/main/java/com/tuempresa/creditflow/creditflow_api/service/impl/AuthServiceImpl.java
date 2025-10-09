@@ -66,20 +66,23 @@ public class AuthServiceImpl implements AuthService {
         String generatedPassword = UUID.randomUUID().toString().substring(0, 8); // Ej: 8 caracteres
 
         // 2. Crear el usuario con esa contraseña
+        String username = request.firstName() + " " + request.lastName();
         User user = User.builder()
-                .username(request.firstName() + " " + request.lastName())
+                .firstName(request.firstName())
+                .lastName(request.lastName())
+                .username(username)
                 .password(passwordEncoder.encode(generatedPassword))
                 .email(request.email())
                 .contact(request.contact())
                 .isActive(Boolean.TRUE)
-                .role(User.Role.CLIENT)
+                .role(User.Role.PYME)
                 .wantsEmailNotifications(Boolean.TRUE)
                 .build();
 
         userRepository.save(user);
 
         // 3. Enviar credenciales por email
-        String subject = "🎉 Bienvenido a la plataforma Killa Deco";
+        String subject = "🎉 Bienvenido a la plataforma Credit - Flow";
         String body = String.format("""
         ¡Hola %s! 👋
 
@@ -93,7 +96,7 @@ public class AuthServiceImpl implements AuthService {
         Te recomendamos cambiar la contraseña una vez hayas iniciado sesión.
 
         ¡Gracias por unirte! 🚀
-        """, request.firstName() + " " + request.lastName(), request.email(), generatedPassword);
+        """, username, request.email(), generatedPassword);
 
         emailService.sendEmail(user.getEmail(), subject, body);
 
