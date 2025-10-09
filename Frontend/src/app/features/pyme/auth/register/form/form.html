@@ -1,37 +1,85 @@
-<form [formGroup]="form" class="flex flex-col gap-y-5">
-  <p-floatLabel variant="on">
-    <input
-      type="text"
-      id="firstName"
-      formControlName="firstName"
-      autocomplete="name"
-      pInputText
-      fluid
-    />
-    <label for="firstName">Nombres</label>
-  </p-floatLabel>
-  <p-floatLabel variant="on">
-    <input
-      type="text"
-      id="lastName"
-      formControlName="lastName"
-      autocomplete="family-name"
-      pInputText
-      fluid
-    />
-    <label for="lastName">Apellidos</label>
-  </p-floatLabel>
-  <p-floatLabel variant="on">
-    <input type="email" id="email" formControlName="email" autocomplete="email" pInputText fluid />
-    <label for="email">Correo electrónico</label>
-  </p-floatLabel>
-  <p-floatLabel variant="on">
-    <input type="tel" id="contact" formControlName="contact" autocomplete="tel" pInputText fluid />
-    <label for="contact">Número de contacto</label>
-  </p-floatLabel>
+<form [formGroup]="form" (ngSubmit)="onRegister()" class="flex flex-col gap-y-5">
+  <div class="flex flex-col gap-y-1">
+    <p-floatLabel variant="on">
+      <input
+        type="text"
+        id="firstName"
+        formControlName="firstName"
+        autocomplete="name"
+        pInputText
+        fluid
+        [invalid]="isInvalid('firstName')"
+      />
+      <label for="firstName">Nombres</label>
+    </p-floatLabel>
+    @if (isInvalid('firstName')) {
+    <p-message size="small" severity="error" variant="simple">Tu nombre es requerido</p-message>
+    }
+  </div>
+  <div class="flex flex-col gap-y-1">
+    <p-floatLabel variant="on">
+      <input
+        type="text"
+        id="lastName"
+        formControlName="lastName"
+        autocomplete="family-name"
+        pInputText
+        fluid
+        [invalid]="isInvalid('lastName')"
+      />
+      <label for="lastName">Apellidos</label>
+    </p-floatLabel>
+    @if (isInvalid('lastName')) {
+    <p-message size="small" severity="error" variant="simple">Tu apellido es requerido</p-message>
+    }
+  </div>
+  <div class="flex flex-col gap-y-1">
+    <p-floatLabel variant="on">
+      <input
+        type="email"
+        id="email"
+        formControlName="email"
+        autocomplete="email"
+        pInputText
+        fluid
+        [invalid]="isInvalid('email')"
+      />
+      <label for="email">Correo electrónico</label>
+    </p-floatLabel>
+    @if (isInvalid('email')) { @if (getError('email', 'required')) {
+    <p-message size="small" severity="error" variant="simple">
+      Tu correo electrónico es requerido
+    </p-message>
+    } @if (getError('email', 'pattern')) {
+    <p-message size="small" severity="error" variant="simple">
+      Por favor, ingresa un correo electrónico válido
+    </p-message>
+    } }
+  </div>
+  <div class="flex flex-col gap-y-1">
+    <p-floatLabel variant="on">
+      <input
+        type="tel"
+        id="contact"
+        formControlName="contact"
+        autocomplete="tel"
+        pInputText
+        fluid
+        [invalid]="isInvalid('contact')"
+      />
+      <label for="contact">Número de contacto</label>
+    </p-floatLabel>
+    @if (isInvalid('contact')) {
+    <p-message size="small" severity="error" variant="simple">
+      Tu número de contacto es requerido
+    </p-message>
+    }
+  </div>
   <label for="agree" class="flex items-center gap-x-2.5">
     <p-checkbox inputId="agree" [binary]="true" />
     <span class="text-gray-700">Acepto los términos y condiciones</span>
   </label>
+  <p-button label="Crear cuenta" type="submit" fluid [loading]="store.status() === 'loading'" />
   <app-linker route="../login" text="¿Ya tienes cuenta?" />
 </form>
+<p-toast />
