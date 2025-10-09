@@ -56,18 +56,17 @@ public class AuthController {
     }
 
     /**
-     * Endpoint para registrar un nuevo usuario en el sistema.
+     * Endpoint para registrar un nuevo usuario Pyme en el sistema.
      *
      * @param request Datos de registro del usuario
      * @return Respuesta con los detalles del usuario registrado
      */
     @Operation(
-            summary = "Registrar un nuevo usuario (solo administradores)",
+            summary = "Registrar un  usuario tipo Pyme",
             description = """
-                    Permite al administrador registrar un nuevo usuario en el sistema.\s
+                    Permite registrar un nuevo usuario en el sistema.\s
                     Se deben proporcionar los datos completos del usuario, incluyendo:
-                    nombre de usuario, correo electrónico, contacto, contraseña, tipo de usuario\s
-                    (PROFESIONAL, INDIVIDUAL, EMPRESA).
+                    nombres,apellidos, correo electrónico, contacto\s
                     """
     )
     @ApiResponses(value = {

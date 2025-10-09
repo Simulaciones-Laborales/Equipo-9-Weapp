@@ -43,7 +43,7 @@ public record RegisterRequestDto(
         String lastName,
 
         @Schema(
-                description = "Correo electrónico válido.",
+                description = "Correo electrónico válido y existente",
                 example = "Ignacio_Galeassi@example.com"
         )
         @Pattern(
