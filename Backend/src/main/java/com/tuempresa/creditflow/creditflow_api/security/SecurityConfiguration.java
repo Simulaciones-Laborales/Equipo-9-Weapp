@@ -32,7 +32,7 @@ public class SecurityConfiguration {
                         .requestMatchers(publicEndpoints()).permitAll()
                         // AUTH ENDPOINTS ---------------------------------------------------
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/auth/register").hasAnyAuthority("SUPER_ADMIN", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/generate-reset-token").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/reset-password").permitAll()
                         .requestMatchers(HttpMethod.GET, "/auth/oauth-success").permitAll()

@@ -2,10 +2,7 @@ package com.tuempresa.creditflow.creditflow_api.service.impl;
 
 import com.tuempresa.creditflow.creditflow_api.dtos.BaseResponse;
 import com.tuempresa.creditflow.creditflow_api.dtos.ExtendedBaseResponse;
-import com.tuempresa.creditflow.creditflow_api.dtos.user.ChangeUserRoleDto;
-import com.tuempresa.creditflow.creditflow_api.dtos.user.UpdateUserDto;
-import com.tuempresa.creditflow.creditflow_api.dtos.user.UserDto;
-import com.tuempresa.creditflow.creditflow_api.dtos.user.UserRolDto;
+import com.tuempresa.creditflow.creditflow_api.dtos.user.*;
 import com.tuempresa.creditflow.creditflow_api.exception.userExc.UserNotFoundException;
 import com.tuempresa.creditflow.creditflow_api.mapper.UserMapper;
 import com.tuempresa.creditflow.creditflow_api.model.User;
@@ -109,15 +106,22 @@ public class UserServiceImpl implements UserService {
         return ExtendedBaseResponse.of(BaseResponse.ok("Usuarios encontrados"), userMapper.entityListToDtoList(users));
     }
 
-  /*  @Override
+    @Override
     @Transactional
-    public ExtendedBaseResponse<UserDto> changeUserStatus(UserStatusRequest data) {
+    public ExtendedBaseResponse<UserDto> changeUserStatus(UserStatusRequestDto data) {
         User user = userRepository.findById(data.id()).orElseThrow(() ->
                 new UserNotFoundException("Este usuario no existe con ese ID: " + data.id()));
         user.setIsActive(data.status());
         User savedUser = userRepository.save(user);
         return ExtendedBaseResponse.of(BaseResponse.ok("Estado del usuario actualizado"), userMapper.toDto(savedUser));
-    }*/
+    }
+
+    @Override
+    public UUID getUserIdByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Email no encontrado con username: " + email));
+        return user.getId();
+    }
 
     @Override
     @Transactional
@@ -140,11 +144,6 @@ public class UserServiceImpl implements UserService {
         }
     }*/
 
-    @Override
-    public UUID getUserIdByEmail(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Email no encontrado con username: " + email));
-        return user.getId();
-    }
+
 }
 
