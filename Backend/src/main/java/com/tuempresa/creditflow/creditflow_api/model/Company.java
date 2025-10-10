@@ -1,4 +1,4 @@
-package com.yourcompany.creditflow.creditflow_api.model;
+package com.tuempresa.creditflow.creditflow_api.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
@@ -22,7 +22,7 @@ public class Company {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "company_id", updatable = false, nullable = false)
-    private UUID idCompany;
+    private UUID id;
 
     @Column(name = "company_name", nullable = false, length = 100)
     private String company_name;

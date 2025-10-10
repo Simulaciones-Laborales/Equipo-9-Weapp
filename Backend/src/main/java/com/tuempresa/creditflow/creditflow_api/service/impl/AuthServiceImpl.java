@@ -1,8 +1,8 @@
 package com.tuempresa.creditflow.creditflow_api.service.impl;
 
-import com.tuempresa.creditflow.creditflow_api.dtos.BaseResponse;
-import com.tuempresa.creditflow.creditflow_api.dtos.ExtendedBaseResponse;
-import com.tuempresa.creditflow.creditflow_api.dtos.user.*;
+import com.tuempresa.creditflow.creditflow_api.dto.BaseResponse;
+import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
+import com.tuempresa.creditflow.creditflow_api.dto.user.*;
 import com.tuempresa.creditflow.creditflow_api.exception.userExc.EmailNotFoundException;
 import com.tuempresa.creditflow.creditflow_api.exception.userExc.InvalidCredentialsException;
 import com.tuempresa.creditflow.creditflow_api.exception.userExc.UserDisabledException;
@@ -72,7 +72,7 @@ public class AuthServiceImpl implements AuthService {
                 .email(request.email())
                 .contact(request.contact())
                 .isActive(Boolean.TRUE)
-                .role(User.Role.CLIENT)
+                .role(User.Role.PYME)
                 .wantsEmailNotifications(Boolean.TRUE)
                 .build();
 

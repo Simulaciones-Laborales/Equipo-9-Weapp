@@ -1,4 +1,4 @@
-package com.tuempresa.creditflow.creditflow_api.dtos.user;
+package com.tuempresa.creditflow.creditflow_api.dto.user;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.tuempresa.creditflow.creditflow_api.model.User;

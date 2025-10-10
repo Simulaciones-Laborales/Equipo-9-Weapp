@@ -1,4 +1,4 @@
-package com.yourcompany.creditflow.creditflow_api.dto;
+package com.tuempresa.creditflow.creditflow_api.dto.company;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

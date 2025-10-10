@@ -1,4 +1,4 @@
-package com.tuempresa.creditflow.creditflow_api.dtos;
+package com.tuempresa.creditflow.creditflow_api.dto;
 
 import org.springframework.http.HttpStatus;
 

@@ -1,8 +1,8 @@
-package com.yourcompany.creditflow.creditflow_api.service;
+package com.tuempresa.creditflow.creditflow_api.service;
 
-import com.yourcompany.creditflow.creditflow_api.dto.company.CompanyRequestDTO;
-import com.yourcompany.creditflow.creditflow_api.dto.company.CompanyResponseDTO;
-import com.yourcompany.creditflow.creditflow_api.model.User;
+import com.tuempresa.creditflow.creditflow_api.dto.company.CompanyRequestDTO;
+import com.tuempresa.creditflow.creditflow_api.dto.company.CompanyResponseDTO;
+import com.tuempresa.creditflow.creditflow_api.model.User;
 
 import java.util.List;
 import java.util.UUID;

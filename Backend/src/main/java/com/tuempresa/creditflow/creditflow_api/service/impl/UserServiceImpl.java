@@ -1,11 +1,11 @@
 package com.tuempresa.creditflow.creditflow_api.service.impl;
 
-import com.tuempresa.creditflow.creditflow_api.dtos.BaseResponse;
-import com.tuempresa.creditflow.creditflow_api.dtos.ExtendedBaseResponse;
-import com.tuempresa.creditflow.creditflow_api.dtos.user.ChangeUserRoleDto;
-import com.tuempresa.creditflow.creditflow_api.dtos.user.UpdateUserDto;
-import com.tuempresa.creditflow.creditflow_api.dtos.user.UserDto;
-import com.tuempresa.creditflow.creditflow_api.dtos.user.UserRolDto;
+import com.tuempresa.creditflow.creditflow_api.dto.BaseResponse;
+import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
+import com.tuempresa.creditflow.creditflow_api.dto.user.ChangeUserRoleDto;
+import com.tuempresa.creditflow.creditflow_api.dto.user.UpdateUserDto;
+import com.tuempresa.creditflow.creditflow_api.dto.user.UserDto;
+import com.tuempresa.creditflow.creditflow_api.dto.user.UserRolDto;
 import com.tuempresa.creditflow.creditflow_api.exception.userExc.UserNotFoundException;
 import com.tuempresa.creditflow.creditflow_api.mapper.UserMapper;
 import com.tuempresa.creditflow.creditflow_api.model.User;
@@ -16,8 +16,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.util.List;
 import java.util.UUID;
 
@@ -143,8 +141,41 @@ public class UserServiceImpl implements UserService {
     @Override
     public UUID getUserIdByEmail(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Email no encontrado con username: " + email));
+                .orElseThrow(() -> new UserNotFoundException("Email no encontrado con username: " + email));
         return user.getId();
     }
+    // NUEVO: devuelve la entidad User por email (o lanza excepción si no existe)
+    public User findEntityByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con email: " + email));
+    }
+
+    // (opcional) devolver entidad por id
+    public User findEntityById(UUID id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con id: " + id));
+    }
+    
+    @Transactional(readOnly = true)
+    public User findEntityByPrincipal(String principal) {
+        // --1-- Intentar buscar por email
+        return userRepository.findByEmail(principal)
+                //--2-- Si no encuentra, intentar por username
+                .or(() -> userRepository.findByUsername(principal))
+                //--3-- Si no encuentra, intentar por UUID (por si el token tuviera id)
+                .or(() -> {
+                    try {
+                        UUID id = UUID.fromString(principal);
+                        return userRepository.findById(id);
+                    } catch (IllegalArgumentException ex) {
+                        return java.util.Optional.empty();
+                    }
+                })
+                //--4--Si no encuentra, lanzar excepción
+                .orElseThrow(() -> new UserNotFoundException("User not found with principal: " + principal));
+    }
+
 }
+
+
 

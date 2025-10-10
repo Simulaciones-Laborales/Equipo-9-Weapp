@@ -1,4 +1,4 @@
-package com.tuempresa.creditflow.creditflow_api.dtos.user;
+package com.tuempresa.creditflow.creditflow_api.dto.user;
 
 import com.tuempresa.creditflow.creditflow_api.model.User;
 import io.swagger.v3.oas.annotations.media.Schema;
