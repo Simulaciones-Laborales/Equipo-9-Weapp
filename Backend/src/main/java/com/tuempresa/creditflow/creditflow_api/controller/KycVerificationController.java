@@ -1,4 +1,4 @@
-package com.tuempresa.creditflow.creditflow_api.controllers;
+package com.tuempresa.creditflow.creditflow_api.controller;
 
 import com.tuempresa.creditflow.creditflow_api.dtos.*;
 import com.tuempresa.creditflow.creditflow_api.service.KycVerificationService;
