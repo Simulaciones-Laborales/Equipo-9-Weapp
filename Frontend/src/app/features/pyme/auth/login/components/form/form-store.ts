@@ -1,4 +1,5 @@
 import { inject } from '@angular/core';
+import { Response } from '@core/models/response-model';
 import { Status } from '@core/types';
 import { LoginReq, LoginRes } from '@features/pyme/auth/models/auth-model';
 import { AuthApi } from '@features/pyme/auth/services/auth-api';
@@ -6,7 +7,7 @@ import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
 import { lastValueFrom } from 'rxjs';
 
 type State = {
-  userLogged: LoginRes | null;
+  userLogged: Response<LoginRes> | null;
   status: Status;
   error: string | null;
 };

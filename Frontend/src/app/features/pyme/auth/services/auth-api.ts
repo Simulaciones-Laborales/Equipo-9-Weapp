@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from 'environments/environment.development';
 import { LoginReq, LoginRes, RegisterModel } from '../models/auth-model';
+import { Response } from '@core/models/response-model';
 
 @Injectable({
   providedIn: 'root',
@@ -27,7 +28,7 @@ export class AuthApi {
    * @returns json con data del usuario y el token de acceso.
    */
   login(dto: LoginReq) {
-    return this._http.post<LoginRes>(`${this._url}/login`, dto);
+    return this._http.post<Response<LoginRes>>(`${this._url}/login`, dto);
   }
 
   /**
@@ -38,6 +39,6 @@ export class AuthApi {
    * @returns
    */
   register(dto: RegisterModel) {
-    return this._http.post<LoginRes>(`${this._url}/register`, dto);
+    return this._http.post<Response<LoginRes>>(`${this._url}/register`, dto);
   }
 }
