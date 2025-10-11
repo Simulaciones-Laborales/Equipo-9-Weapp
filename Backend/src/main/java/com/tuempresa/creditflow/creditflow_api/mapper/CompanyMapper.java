@@ -1,7 +1,7 @@
 package com.tuempresa.creditflow.creditflow_api.mapper;
 
-import com.tuempresa.creditflow.creditflow_api.dtos.company.CompanyRequestDTO;
-import com.tuempresa.creditflow.creditflow_api.dtos.company.CompanyResponseDTO;
+import com.tuempresa.creditflow.creditflow_api.dto.company.CompanyRequestDTO;
+import com.tuempresa.creditflow.creditflow_api.dto.company.CompanyResponseDTO;
 import com.tuempresa.creditflow.creditflow_api.model.Company;
 import com.tuempresa.creditflow.creditflow_api.model.User;
 

@@ -1,6 +1,6 @@
 package com.tuempresa.creditflow.creditflow_api.exception;
 
-import com.tuempresa.creditflow.creditflow_api.dtos.BaseResponse;
+import com.tuempresa.creditflow.creditflow_api.dto.BaseResponse;
 import com.tuempresa.creditflow.creditflow_api.exception.userExc.EmailNotFoundException;
 import com.tuempresa.creditflow.creditflow_api.exception.userExc.InvalidCredentialsException;
 import com.tuempresa.creditflow.creditflow_api.exception.userExc.UserDisabledException;
