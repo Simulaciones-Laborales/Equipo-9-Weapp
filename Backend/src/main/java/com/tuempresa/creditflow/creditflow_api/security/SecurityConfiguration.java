@@ -82,8 +82,8 @@ public class SecurityConfiguration {
                 "/api-docs.yaml",
                 "/webjars/**",
                 "/swagger-ui-custom.html",
-                "/public/lead/create",
-                "/auth/oauth-success"
+                "/public/**",
+                "/auth/register"
         };
     }
 }
