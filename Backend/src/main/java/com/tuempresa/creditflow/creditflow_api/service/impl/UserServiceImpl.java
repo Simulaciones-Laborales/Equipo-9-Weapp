@@ -13,7 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
+//import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -144,6 +144,36 @@ public class UserServiceImpl implements UserService {
         }
     }*/
 
+    // NUEVO: devuelve la entidad User por email (o lanza excepción si no existe)
+    public User findEntityByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con email: " + email));
+    }
+
+    // (opcional) devolver entidad por id
+    public User findEntityById(UUID id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con id: " + id));
+    }
+    
+    @Transactional(readOnly = true)
+    public User findEntityByPrincipal(String principal) {
+        // --1-- Intentar buscar por email
+        return userRepository.findByEmail(principal)
+                //--2-- Si no encuentra, intentar por username
+                .or(() -> userRepository.findByUsername(principal))
+                //--3-- Si no encuentra, intentar por UUID (por si el token tuviera id)
+                .or(() -> {
+                    try {
+                        UUID id = UUID.fromString(principal);
+                        return userRepository.findById(id);
+                    } catch (IllegalArgumentException ex) {
+                        return java.util.Optional.empty();
+                    }
+                })
+                //--4--Si no encuentra, lanzar excepción
+                .orElseThrow(() -> new UserNotFoundException("User not found with principal: " + principal));
+    }
 
 }
 

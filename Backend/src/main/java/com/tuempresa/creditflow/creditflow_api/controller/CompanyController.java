@@ -20,10 +20,10 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CompanyController {
 
-    /*private final CompanyService companyService;
+    private final CompanyService companyService;
     private final UserService userService; // Para obtener el usuario autenticado
 
-    // ✅ Crear una nueva empresa
+    //Crear una nueva empresa
     @PostMapping
     public ResponseEntity<CompanyResponseDTO> createCompany(@RequestBody CompanyRequestDTO companyRequestDTO) {
         User currentUser = getAuthenticatedUser();
@@ -31,7 +31,7 @@ public class CompanyController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdCompany);
     }
 
-    // ✅ Obtener todas las empresas del usuario autenticado
+    //Obtener todas las empresas del usuario autenticado
     @GetMapping
     public ResponseEntity<List<CompanyResponseDTO>> getAllCompanies() {
         User currentUser = getAuthenticatedUser();
@@ -39,7 +39,7 @@ public class CompanyController {
         return ResponseEntity.ok(companies);
     }
 
-    // ✅ Obtener una empresa por su ID (solo si pertenece al usuario)
+    //Obtener una empresa por su ID (solo si pertenece al usuario)
     @GetMapping("/{id}")
     public ResponseEntity<CompanyResponseDTO> getCompanyById(@PathVariable UUID id) {
         User currentUser = getAuthenticatedUser();
@@ -47,7 +47,7 @@ public class CompanyController {
         return ResponseEntity.ok(company);
     }
 
-    // ✅ Actualizar una empresa existente
+    //Actualizar una empresa existente
     @PutMapping("/{id}")
     public ResponseEntity<CompanyResponseDTO> updateCompany(
             @PathVariable UUID id,
@@ -58,7 +58,7 @@ public class CompanyController {
         return ResponseEntity.ok(updatedCompany);
     }
 
-    // ✅ Eliminar una empresa por su ID
+    //Eliminar una empresa por su ID
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCompany(@PathVariable UUID id) {
         User currentUser = getAuthenticatedUser();
@@ -67,12 +67,16 @@ public class CompanyController {
     }
 
     // -----------------------------
-    // Método auxiliar para obtener el usuario autenticado
+    // Método auxiliar para obtener el usuario autenticado de forma robusta
     // -----------------------------
     private User getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName(); // username/email
-        return userService.findByEmail(email);
-    }*/
+        if (authentication == null || authentication.getName() == null) {
+            throw new IllegalStateException("No se encontró ningún usuario autenticado en el contexto de seguridad");
+        }
+        String principal = authentication.getName();
+        // Llama al método robusto de UserService
+        return userService.findEntityByPrincipal(principal);
+    }
 }
 

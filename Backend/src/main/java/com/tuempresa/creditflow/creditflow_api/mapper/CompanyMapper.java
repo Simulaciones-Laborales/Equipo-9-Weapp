@@ -1,9 +1,10 @@
 package com.tuempresa.creditflow.creditflow_api.mapper;
 
-import com.tuempresa.creditflow.creditflow_api.dto.company.CompanyRequestDTO;
-import com.tuempresa.creditflow.creditflow_api.dto.company.CompanyResponseDTO;
+
 import com.tuempresa.creditflow.creditflow_api.model.Company;
 import com.tuempresa.creditflow.creditflow_api.model.User;
+import com.tuempresa.creditflow.creditflow_api.dto.company.CompanyRequestDTO;
+import com.tuempresa.creditflow.creditflow_api.dto.company.CompanyResponseDTO;
 
 public class CompanyMapper {
 
@@ -18,7 +19,7 @@ public class CompanyMapper {
 
     public static CompanyResponseDTO toDTO(Company company) {
         return CompanyResponseDTO.builder()
-                .idCompany(company.getIdCompany())
+                .idCompany(company.getId())
                 .name(company.getCompany_name())
                 .taxId(company.getTaxId())
                 .annualIncome(company.getAnnualIncome())

@@ -34,7 +34,7 @@ public interface CompanyService {
     /**
      * Elimina una company (solo si pertenece al usuario).
      */
-   /* void deleteCompany(UUID id, User user);*/
+    void deleteCompany(UUID id, User user);
 }
 
 
