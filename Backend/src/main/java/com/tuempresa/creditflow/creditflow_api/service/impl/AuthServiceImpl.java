@@ -54,7 +54,6 @@ public class AuthServiceImpl implements AuthService {
                 new AuthResponseDto(response.id(),response.firstName(),response.lastName(), response.username(), token, response.role())
         );
     }
-    // Método register
     @Override
     @Transactional
     public ExtendedBaseResponse<AuthResponseDto> register(RegisterRequestDto request) {
@@ -63,9 +62,9 @@ public class AuthServiceImpl implements AuthService {
         }
 
         // 1. Generar contraseña aleatoria
-        String generatedPassword = UUID.randomUUID().toString().substring(0, 8); // Ej: 8 caracteres
+        String generatedPassword = UUID.randomUUID().toString().substring(0, 8);
 
-        // 2. Crear el usuario con esa contraseña
+        // 2. Crear el usuario
         String username = request.firstName() + " " + request.lastName();
         User user = User.builder()
                 .firstName(request.firstName())
@@ -81,33 +80,39 @@ public class AuthServiceImpl implements AuthService {
 
         userRepository.save(user);
 
-        // 3. Enviar credenciales por email
+        // 3. Intentar enviar credenciales por email (sin romper si falla)
         String subject = "🎉 Bienvenido a la plataforma Credit - Flow";
         String body = String.format("""
-        ¡Hola %s! 👋
+            ¡Hola %s! 👋
 
-        Se ha creado una cuenta para vos en nuestra plataforma.
+            Se ha creado una cuenta para vos en nuestra plataforma.
 
-        Aquí están tus credenciales de acceso:
+            Aquí están tus credenciales de acceso:
 
-        📧 Email: %s
-        🔑 Contraseña: %s
+            📧 Email: %s
+            🔑 Contraseña: %s
 
-        Te recomendamos cambiar la contraseña una vez hayas iniciado sesión.
+            Te recomendamos cambiar la contraseña una vez hayas iniciado sesión.
 
-        ¡Gracias por unirte! 🚀
-        """, username, request.email(), generatedPassword);
+            ¡Gracias por unirte! 🚀
+            """, username, request.email(), generatedPassword);
 
-        emailService.sendEmail(user.getEmail(), subject, body);
+        try {
+            emailService.sendEmail(user.getEmail(), subject, body);
+        } catch (Exception e) {
+            System.err.println("⚠️ Error enviando correo de bienvenida: " + e.getMessage());
+            // No hacemos throw, así el flujo de registro sigue normalmente
+        }
 
-        // 4. Retornar la respuesta (sin token porque el usuario aún no inició sesión)
+        // 4. Retornar la respuesta sin token (solo confirmación del alta)
         var response = userMapper.toAuthResponse(user);
 
         return ExtendedBaseResponse.of(
-                BaseResponse.created("Usuario creado correctamente. Credenciales enviadas por email."),
-                new AuthResponseDto(response.id(), response.username(), response.firstName(),response.lastName(),  null, response.role())
+                BaseResponse.created("Usuario creado correctamente. (El envío de correo puede haber fallado en el servidor)."),
+                new AuthResponseDto(response.id(), response.username(), response.firstName(), response.lastName(), null, response.role())
         );
     }
+
 
     // Método resetPassword
     @Override
