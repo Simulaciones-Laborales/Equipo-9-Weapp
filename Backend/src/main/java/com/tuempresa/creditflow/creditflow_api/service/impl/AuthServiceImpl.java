@@ -64,59 +64,49 @@ public class AuthServiceImpl implements AuthService {
         if (userRepository.existsByContact(request.contact())) {
             throw new ContactAlreadyExistsException("El número de contacto ya está registrado");
         }
-        // 1. Generar contraseña aleatoria
-        String generatedPassword = UUID.randomUUID().toString().substring(0, 8);
 
-        // 2. Crear y guardar el usuario antes de intentar enviar el correo
         String username = request.firstName() + " " + request.lastName();
         User user = User.builder()
                 .firstName(request.firstName())
                 .lastName(request.lastName())
                 .username(username)
-                .password(passwordEncoder.encode(generatedPassword))
+                .password(passwordEncoder.encode(request.password()))
                 .email(request.email())
                 .contact(request.contact())
-                .isActive(Boolean.TRUE)
+                .isActive(Boolean.FALSE)
                 .role(User.Role.PYME)
                 .build();
 
         userRepository.save(user);
 
-        // 3. Intentar enviar credenciales por email
+        String token = jwtService.getToken(user);
+        var response = userMapper.toAuthResponse(user);
+
         String subject = "🎉 Bienvenido a la plataforma Credit - Flow";
         String body = String.format("""
-            ¡Hola %s! 👋
+        ¡Hola %s! 👋
 
-            Se ha creado una cuenta para vos en nuestra plataforma.
+        Se ha creado una cuenta para vos en nuestra plataforma.
 
-            Aquí están tus credenciales de acceso:
+        📧 Email: %s
 
-            📧 Email: %s
-            🔑 Contraseña: %s
+        Te recomendamos iniciar sesión con la contraseña que elegiste al registrarte.
 
-            Te recomendamos cambiar la contraseña una vez hayas iniciado sesión.
-
-            ¡Gracias por unirte! 🚀
-            """, username, request.email(), generatedPassword);
+        ¡Gracias por unirte! 🚀
+        """, username, request.email());
 
         try {
             emailService.sendEmail(user.getEmail(), subject, body);
-            // El log es la clave para saber si fue exitoso
             log.info("✅ Correo de bienvenida enviado a: {}", user.getEmail());
-        } catch (IOException e) { // Capturar la excepción específica
-            // Si el envío falla, se registra el error pero el flujo de registro continúa
+        } catch (IOException e) {
             log.error("⚠️ Falló el envío del correo de bienvenida a {}: {}", user.getEmail(), e.getMessage());
         }
 
-        // 4. Retornar la respuesta (siempre se ejecuta, independientemente del correo)
-        var response = userMapper.toAuthResponse(user);
-
         return ExtendedBaseResponse.of(
                 BaseResponse.created("Usuario creado correctamente. El correo de bienvenida ha sido procesado."),
-                new AuthResponseDto(response.id(), response.username(), response.firstName(), response.lastName(), null, response.role())
+                new AuthResponseDto(response.id(), response.username(), response.firstName(), response.lastName(), token, response.role())
         );
     }
-
 
 
     // Método resetPassword

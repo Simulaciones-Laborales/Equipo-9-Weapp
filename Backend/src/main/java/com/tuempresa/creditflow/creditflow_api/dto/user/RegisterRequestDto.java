@@ -45,6 +45,19 @@ public record RegisterRequestDto(
         String email,
 
         @Schema(
+                description = "Contraseña segura que debe contener al menos 8 caracteres, incluyendo mayúsculas, minúsculas, números y símbolos especiales",
+                example = "MiClave$2025!Segura"
+        )
+        @NotBlank(message = "La contraseña no puede estar en blanco")
+        @Size(min = 8, max = 50, message = "La contraseña debe tener entre 8 y 50 caracteres")
+        @Pattern(
+                regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?])[A-Za-z\\d!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]{8,50}$",
+                message = "La contraseña debe incluir al menos una mayúscula, una minúscula, un número y un símbolo especial"
+        )
+        String password,
+
+
+                @Schema(
                 description = "Número de contacto válido que solo contiene dígitos.",
                 example = "+54 015-22540454"
         )
