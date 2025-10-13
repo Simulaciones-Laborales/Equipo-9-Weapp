@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 
 public record RegisterRequestDto(
 
@@ -56,18 +57,41 @@ public record RegisterRequestDto(
         )
         String password,
 
-
-                @Schema(
-                description = "Número de contacto válido que solo contiene dígitos.",
-                example = "+54 015-22540454"
-        )
+        @Schema(description = "Número de contacto válido que solo contiene dígitos.", example = "+54 015-22540454")
         @Pattern(
                 regexp = "^\\+?\\d{1,4}[\\s-]?\\d{1,4}[\\s-]?\\d{4,10}$",
                 message = "El contacto debe estar en formato válido, por ejemplo: +54 351-2854563"
         )
         @NotBlank(message = "El contacto no puede estar en blanco")
         @Size(max = 20, message = "El contacto no puede exceder los 20 caracteres")
-        String contact
+        String contact,
+
+        @Schema(
+                description = "Fecha de nacimiento del usuario en formato dd/MM/yyyy",
+                example = "15/05/1990"
+        )
+        @NotBlank(message = "La fecha de nacimiento no puede estar en blanco")
+        @Pattern(
+                regexp = "^([0-2][0-9]|3[0-1])/([0][1-9]|1[0-2])/\\d{4}$",
+                message = "La fecha de nacimiento debe tener el formato dd/MM/yyyy"
+        )
+        String birthDate,
+
+        @Schema(
+                description = "Documento Nacional de Identidad (DNI) o identificación equivalente",
+                example = "12345678"
+        )
+        @NotBlank(message = "El DNI no puede estar en blanco")
+        @Size(max = 20, message = "El DNI no puede exceder los 20 caracteres")
+        String dni,
+
+        @Schema(
+                description = "País de residencia del usuario",
+                example = "Argentina"
+        )
+        @NotBlank(message = "El país no puede estar en blanco")
+        @Size(max = 100, message = "El país no puede exceder los 100 caracteres")
+        String country
 ) implements Serializable {
 }
 

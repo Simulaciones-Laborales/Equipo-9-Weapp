@@ -3,6 +3,7 @@ package com.tuempresa.creditflow.creditflow_api.service.impl;
 import com.tuempresa.creditflow.creditflow_api.dto.BaseResponse;
 import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
 import com.tuempresa.creditflow.creditflow_api.dto.user.*;
+import com.tuempresa.creditflow.creditflow_api.exception.userExc.DniAlreadyExistsException;
 import com.tuempresa.creditflow.creditflow_api.exception.userExc.*;
 import com.tuempresa.creditflow.creditflow_api.jwt.JwtService;
 import com.tuempresa.creditflow.creditflow_api.mapper.UserMapper;
@@ -17,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 @Service
@@ -64,8 +67,14 @@ public class AuthServiceImpl implements AuthService {
         if (userRepository.existsByContact(request.contact())) {
             throw new ContactAlreadyExistsException("El número de contacto ya está registrado");
         }
+        if(userRepository.existsByDni(request.dni())){
+            throw new DniAlreadyExistsException("El número de dni ya esta registrado");
+        }
 
         String username = request.firstName() + " " + request.lastName();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        LocalDate birthDate = LocalDate.parse(request.birthDate(), formatter);
+
         User user = User.builder()
                 .firstName(request.firstName())
                 .lastName(request.lastName())
@@ -73,6 +82,9 @@ public class AuthServiceImpl implements AuthService {
                 .password(passwordEncoder.encode(request.password()))
                 .email(request.email())
                 .contact(request.contact())
+                .dni(request.dni())
+                .birthDate(birthDate)
+                .country(request.country())
                 .isActive(Boolean.FALSE)
                 .role(User.Role.PYME)
                 .build();

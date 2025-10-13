@@ -6,6 +6,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+
 @Component
 public class DefaultUserCreator implements CommandLineRunner {
     private final UserRepository userRepository;
@@ -29,6 +31,9 @@ public class DefaultUserCreator implements CommandLineRunner {
                     .password(encodedPassword)
                     .email("admin@creditflow.com")
                     .contact("+54 351-5654563")
+                    .dni("94807935")
+                    .birthDate(LocalDate.of(1990, 5, 15))
+                    .country("Argentina")
                     .isActive(true)
                     .role(User.Role.OPERADOR)
                     .build();

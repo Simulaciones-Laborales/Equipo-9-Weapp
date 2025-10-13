@@ -69,6 +69,14 @@ public class GlobalExceptionHandler {
                 .body(BaseResponse.error(HttpStatus.CONFLICT, ex.getMessage()));
     }
 
+    @ExceptionHandler(DniAlreadyExistsException.class)
+    public ResponseEntity<BaseResponse> handleEmailAlreadyExists(DniAlreadyExistsException ex, HttpServletRequest req) {
+        log.warn("DniAlreadyExistsException at {}: {}", req.getRequestURI(), ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(BaseResponse.error(HttpStatus.CONFLICT, ex.getMessage()));
+    }
+
     // -------------------------
     // ResourceNotFoundException -> return BaseResponse (404)
     // -------------------------
