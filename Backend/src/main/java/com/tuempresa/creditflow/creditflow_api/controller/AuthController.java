@@ -66,7 +66,7 @@ public class AuthController {
             description = """
                     Permite registrar un nuevo usuario en el sistema.\s
                     Se deben proporcionar los datos completos del usuario, incluyendo:
-                    nombres,apellidos, correo electrónico, contacto\s
+                    nombres,apellidos, correo electrónico, contacto, dni, fecha de nacimiento, país\s
                     """
     )
     @ApiResponses(value = {
