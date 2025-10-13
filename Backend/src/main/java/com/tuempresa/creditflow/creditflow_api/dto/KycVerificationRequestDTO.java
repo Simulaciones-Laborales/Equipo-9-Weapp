@@ -1,4 +1,4 @@
-package com.tuempresa.creditflow.creditflow_api.dtos;
+package com.tuempresa.creditflow.creditflow_api.dto;
 
 import lombok.Data;
 import java.util.UUID;

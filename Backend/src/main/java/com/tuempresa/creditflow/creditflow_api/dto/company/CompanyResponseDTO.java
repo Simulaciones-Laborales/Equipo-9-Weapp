@@ -1,4 +1,4 @@
-package com.tuempresa.creditflow.creditflow_api.dtos.company;
+package com.tuempresa.creditflow.creditflow_api.dto.company;
 
 import lombok.*;
 

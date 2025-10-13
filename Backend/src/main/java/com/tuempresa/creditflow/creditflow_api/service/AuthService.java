@@ -1,7 +1,7 @@
 package com.tuempresa.creditflow.creditflow_api.service;
 
-import com.tuempresa.creditflow.creditflow_api.dtos.ExtendedBaseResponse;
-import com.tuempresa.creditflow.creditflow_api.dtos.user.*;
+import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
+import com.tuempresa.creditflow.creditflow_api.dto.user.*;
 
 public interface AuthService {
     ExtendedBaseResponse<AuthResponseDto> login(LoginRequestDto request);

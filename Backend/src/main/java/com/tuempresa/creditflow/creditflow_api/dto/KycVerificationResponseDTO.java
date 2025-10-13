@@ -1,4 +1,4 @@
-package com.tuempresa.creditflow.creditflow_api.dtos;
+package com.tuempresa.creditflow.creditflow_api.dto;
 
 import com.tuempresa.creditflow.creditflow_api.model.KycStatus;
 import lombok.Data;

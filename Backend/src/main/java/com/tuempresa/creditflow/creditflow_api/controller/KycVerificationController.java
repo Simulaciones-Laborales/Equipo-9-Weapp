@@ -1,6 +1,6 @@
 package com.tuempresa.creditflow.creditflow_api.controller;
 
-import com.tuempresa.creditflow.creditflow_api.dtos.*;
+import com.tuempresa.creditflow.creditflow_api.dto.*;
 import com.tuempresa.creditflow.creditflow_api.service.KycVerificationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
