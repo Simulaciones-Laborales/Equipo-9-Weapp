@@ -1,6 +1,6 @@
 package com.tuempresa.creditflow.creditflow_api.service;
 
-import com.tuempresa.creditflow.creditflow_api.dtos.*;
+import com.tuempresa.creditflow.creditflow_api.dto.*;
 import com.tuempresa.creditflow.creditflow_api.model.*;
 import com.tuempresa.creditflow.creditflow_api.repository.KycVerificationRepository;
 import com.tuempresa.creditflow.creditflow_api.repository.UserRepository;

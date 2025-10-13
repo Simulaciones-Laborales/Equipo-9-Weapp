@@ -1,8 +1,8 @@
 package com.tuempresa.creditflow.creditflow_api.controller;
 
-import com.tuempresa.creditflow.creditflow_api.dtos.BaseResponse;
-import com.tuempresa.creditflow.creditflow_api.dtos.ExtendedBaseResponse;
-import com.tuempresa.creditflow.creditflow_api.dtos.user.*;
+import com.tuempresa.creditflow.creditflow_api.dto.BaseResponse;
+import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
+import com.tuempresa.creditflow.creditflow_api.dto.user.*;
 import com.tuempresa.creditflow.creditflow_api.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;

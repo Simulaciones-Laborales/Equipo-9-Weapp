@@ -1,9 +1,9 @@
 package com.tuempresa.creditflow.creditflow_api.mapper;
 
-import com.tuempresa.creditflow.creditflow_api.dtos.user.AuthResponseDto;
-import com.tuempresa.creditflow.creditflow_api.dtos.user.UpdateUserDto;
-import com.tuempresa.creditflow.creditflow_api.dtos.user.UserDto;
-import com.tuempresa.creditflow.creditflow_api.dtos.user.UserRolDto;
+import com.tuempresa.creditflow.creditflow_api.dto.user.AuthResponseDto;
+import com.tuempresa.creditflow.creditflow_api.dto.user.UpdateUserDto;
+import com.tuempresa.creditflow.creditflow_api.dto.user.UserDto;
+import com.tuempresa.creditflow.creditflow_api.dto.user.UserRolDto;
 import com.tuempresa.creditflow.creditflow_api.model.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
