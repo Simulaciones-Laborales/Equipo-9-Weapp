@@ -83,7 +83,7 @@ public class SecurityConfiguration {
                 "/webjars/**",
                 "/swagger-ui-custom.html",
                 "/public/**",
-                "/auth/**"
+                "/auth/register"
         };
     }
 }
