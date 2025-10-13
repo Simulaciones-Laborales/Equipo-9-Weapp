@@ -103,10 +103,11 @@
 			<version>2.7.0-RC1</version>
 		</dependency>
 
-		<!-- JavaMailSender -->
+		<!-- SendGrid -->
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-mail</artifactId>
+			<groupId>com.sendgrid</groupId>
+			<artifactId>sendgrid-java</artifactId>
+			<version>4.10.0</version>
 		</dependency>
 
 		<!-- Lombok Dependency -->
