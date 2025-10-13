@@ -13,13 +13,16 @@ import com.tuempresa.creditflow.creditflow_api.repository.UserRepository;
 import com.tuempresa.creditflow.creditflow_api.service.AuthService;
 import com.tuempresa.creditflow.creditflow_api.service.api.EmailService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.UUID;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
@@ -54,7 +57,6 @@ public class AuthServiceImpl implements AuthService {
                 new AuthResponseDto(response.id(),response.firstName(),response.lastName(), response.username(), token, response.role())
         );
     }
-    // Método register
     @Override
     @Transactional
     public ExtendedBaseResponse<AuthResponseDto> register(RegisterRequestDto request) {
@@ -63,9 +65,9 @@ public class AuthServiceImpl implements AuthService {
         }
 
         // 1. Generar contraseña aleatoria
-        String generatedPassword = UUID.randomUUID().toString().substring(0, 8); // Ej: 8 caracteres
+        String generatedPassword = UUID.randomUUID().toString().substring(0, 8);
 
-        // 2. Crear el usuario con esa contraseña
+        // 2. Crear y guardar el usuario antes de intentar enviar el correo
         String username = request.firstName() + " " + request.lastName();
         User user = User.builder()
                 .firstName(request.firstName())
@@ -81,33 +83,42 @@ public class AuthServiceImpl implements AuthService {
 
         userRepository.save(user);
 
-        // 3. Enviar credenciales por email
+        // 3. Intentar enviar credenciales por email
         String subject = "🎉 Bienvenido a la plataforma Credit - Flow";
         String body = String.format("""
-        ¡Hola %s! 👋
+            ¡Hola %s! 👋
 
-        Se ha creado una cuenta para vos en nuestra plataforma.
+            Se ha creado una cuenta para vos en nuestra plataforma.
 
-        Aquí están tus credenciales de acceso:
+            Aquí están tus credenciales de acceso:
 
-        📧 Email: %s
-        🔑 Contraseña: %s
+            📧 Email: %s
+            🔑 Contraseña: %s
 
-        Te recomendamos cambiar la contraseña una vez hayas iniciado sesión.
+            Te recomendamos cambiar la contraseña una vez hayas iniciado sesión.
 
-        ¡Gracias por unirte! 🚀
-        """, username, request.email(), generatedPassword);
+            ¡Gracias por unirte! 🚀
+            """, username, request.email(), generatedPassword);
 
-        emailService.sendEmail(user.getEmail(), subject, body);
+        try {
+            emailService.sendEmail(user.getEmail(), subject, body);
+            // El log es la clave para saber si fue exitoso
+            log.info("✅ Correo de bienvenida enviado a: {}", user.getEmail());
+        } catch (IOException e) { // Capturar la excepción específica
+            // Si el envío falla, se registra el error pero el flujo de registro continúa
+            log.error("⚠️ Falló el envío del correo de bienvenida a {}: {}", user.getEmail(), e.getMessage());
+        }
 
-        // 4. Retornar la respuesta (sin token porque el usuario aún no inició sesión)
+        // 4. Retornar la respuesta (siempre se ejecuta, independientemente del correo)
         var response = userMapper.toAuthResponse(user);
 
         return ExtendedBaseResponse.of(
-                BaseResponse.created("Usuario creado correctamente. Credenciales enviadas por email."),
-                new AuthResponseDto(response.id(), response.username(), response.firstName(),response.lastName(),  null, response.role())
+                BaseResponse.created("Usuario creado correctamente. El correo de bienvenida ha sido procesado."),
+                new AuthResponseDto(response.id(), response.username(), response.firstName(), response.lastName(), null, response.role())
         );
     }
+
+
 
     // Método resetPassword
     @Override
@@ -132,11 +143,15 @@ public class AuthServiceImpl implements AuthService {
         user.setResetToken(token);
         userRepository.save(user);
 
-        emailService.sendEmail(
-                user.getEmail(),
-                "🔒 Restablecer contraseña",
-                "📩 Tu código de verificación: " + token
-        );
+        try {
+            emailService.sendEmail(
+                    user.getEmail(),
+                    "🔒 Restablecer contraseña",
+                    "📩 Tu código de verificación: " + token
+            );
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         return ExtendedBaseResponse.of(BaseResponse.ok("✅ Token generado con éxito"), token);
     }
