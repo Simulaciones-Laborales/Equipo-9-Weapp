@@ -15,10 +15,8 @@ public record UserDto(
         String username,
         @Schema(description = "Correo electrónico del usuario", example = "lucianomolina970@gmail.com")
         String email,
-        @Schema(description = "Número de contacto del usuario", example = "351-2543548")
+        @Schema(description = "Número de contacto del usuario", example = "015-22540454")
         String contact,
-        @Schema(description = "Imagen de perfil del usuario", example = "https://example.com/profile.jpg")
-        String userImage,
         @Schema(description = "Rol del usuario", example = "USER")
         User.Role role,
         @Schema(description = "Estado del usuario", example = "true")
@@ -28,9 +26,7 @@ public record UserDto(
         LocalDateTime createdAt,
         @Schema(description = "Fecha de actualización del usuario", example = "25-04-2025 10:42:17")
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss", timezone = "America/Argentina/Buenos_Aires")
-        LocalDateTime updatedAt,
-        @Schema(description = "Desea recibir notificaciones por correo", example = "true")
-        Boolean receiveNotificationsByEmail
+        LocalDateTime updatedAt
 
 ) implements Serializable {
 }
