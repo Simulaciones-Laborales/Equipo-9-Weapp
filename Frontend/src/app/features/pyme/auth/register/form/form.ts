@@ -29,6 +29,7 @@ export class Form {
     lastName: ['', Validators.required],
     email: ['', [Validators.required, Validators.pattern(emailRegex)]],
     contact: ['', Validators.required],
+    agreeWithTerms: [false, Validators.requiredTrue],
   });
 
   constructor() {
@@ -65,7 +66,6 @@ export class Form {
   }
 
   private _showError() {
-    console.log(this.store.error());
     this._messageService.add({
       severity: 'error',
       summary: 'Algo salió mal...',

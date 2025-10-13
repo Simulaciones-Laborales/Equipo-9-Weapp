@@ -75,10 +75,22 @@
     </p-message>
     }
   </div>
-  <label for="agree" class="flex items-center gap-x-2.5">
-    <p-checkbox inputId="agree" [binary]="true" />
-    <span class="text-gray-700">Acepto los términos y condiciones</span>
-  </label>
+  <div class="flex flex-col gap-y-1">
+    <label for="agree" class="flex items-center gap-x-2.5">
+      <p-checkbox
+        inputId="agree"
+        [binary]="true"
+        [invalid]="isInvalid('agreeWithTerms')"
+        formControlName="agreeWithTerms"
+      />
+      <span class="text-gray-700">Acepto los términos y condiciones</span>
+    </label>
+    @if (isInvalid('agreeWithTerms')) {
+    <p-message size="small" severity="error" variant="simple">
+      Por favor, acepta nuestros términos y condiciones
+    </p-message>
+    }
+  </div>
   <p-button label="Crear cuenta" type="submit" fluid [loading]="store.status() === 'loading'" />
   <app-linker route="../login" text="¿Ya tienes cuenta?" />
 </form>

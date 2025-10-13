@@ -2,15 +2,17 @@ import { inject } from '@angular/core';
 import { Status } from '@core/types';
 import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
 import { AuthApi } from '../../services/auth-api';
-import { RegisterModel } from '../../models/auth-model';
-import { lastValueFrom } from 'rxjs';
+import { LoginRes, RegisterModel } from '../../models/auth-model';
+import { Response } from '@core/models/response-model';
 
 type State = {
+  response: Response<LoginRes> | null;
   status: Status;
   error: string | null;
 };
 
 const initialState: State = {
+  response: null,
   status: 'pending',
   error: null,
 };
@@ -22,7 +24,7 @@ export const FormStore = signalStore(
       patchState(store, { status: 'loading' });
 
       try {
-        await lastValueFrom(service.register(data));
+        await service.register(data);
         patchState(store, { status: 'success', error: null });
       } catch (e) {
         const message = e instanceof Error ? e.message : '';
