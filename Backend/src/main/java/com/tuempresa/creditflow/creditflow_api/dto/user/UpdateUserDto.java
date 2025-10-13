@@ -24,9 +24,7 @@ public record UpdateUserDto(
         @Schema(description = "Contacto del usuario", example = "+3515846563")
         String contact,
         @Schema(description = "Contraseña del usuario", example = "123456780Pro+ (No Encriptado)")
-        String password,
-        @Schema(description = "Enviar notificaciones por correo", example = "true")
-        Boolean wantsEmailNotifications
+        String password
 
 ) implements Serializable {
 }

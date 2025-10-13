@@ -18,7 +18,7 @@ public class DefaultUserCreator implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (!userRepository.existsByEmail("Florencia_Galeassi@example.com")) {
+        if (!userRepository.existsByEmail("admin@creditflow.com")) {
             String defaultPassword = "12345678Pro+";
             String encodedPassword = passwordEncoder.encode(defaultPassword);
 
@@ -27,11 +27,10 @@ public class DefaultUserCreator implements CommandLineRunner {
                     .firstName("Florencia")
                     .lastName("Rodríguez")
                     .password(encodedPassword)
-                    .email("Florencia_Galeassi@example.com")
+                    .email("admin@creditflow.com")
                     .contact("+54 351-5654563")
                     .isActive(true)
-                    .role(User.Role.ADMIN)
-                    .wantsEmailNotifications(false)
+                    .role(User.Role.OPERADOR)
                     .build();
 
             userRepository.save(florencia);

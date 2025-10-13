@@ -13,8 +13,6 @@ public interface UserService {
 
     ExtendedBaseResponse<UpdateUserDto> updateUser(UpdateUserDto updateUserDto);
 
-    ExtendedBaseResponse<UserRolDto> changeUserRole(ChangeUserRoleDto data);
-
     ExtendedBaseResponse<List<UserDto>> userLists();
 
     ExtendedBaseResponse<List<UserDto>> userListsActive();

@@ -3,9 +3,7 @@ package com.tuempresa.creditflow.creditflow_api.service.impl;
 import com.tuempresa.creditflow.creditflow_api.dto.BaseResponse;
 import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
 import com.tuempresa.creditflow.creditflow_api.dto.user.*;
-import com.tuempresa.creditflow.creditflow_api.exception.userExc.EmailNotFoundException;
-import com.tuempresa.creditflow.creditflow_api.exception.userExc.InvalidCredentialsException;
-import com.tuempresa.creditflow.creditflow_api.exception.userExc.UserDisabledException;
+import com.tuempresa.creditflow.creditflow_api.exception.userExc.*;
 import com.tuempresa.creditflow.creditflow_api.jwt.JwtService;
 import com.tuempresa.creditflow.creditflow_api.mapper.UserMapper;
 import com.tuempresa.creditflow.creditflow_api.model.User;
@@ -61,9 +59,11 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public ExtendedBaseResponse<AuthResponseDto> register(RegisterRequestDto request) {
         if (userRepository.existsByEmail(request.email())) {
-            throw new IllegalArgumentException("Email ya registrado");
+            throw new EmailAlreadyExistsException("El correo electrónico ya está registrado");
         }
-
+        if (userRepository.existsByContact(request.contact())) {
+            throw new ContactAlreadyExistsException("El número de contacto ya está registrado");
+        }
         // 1. Generar contraseña aleatoria
         String generatedPassword = UUID.randomUUID().toString().substring(0, 8);
 
@@ -78,7 +78,6 @@ public class AuthServiceImpl implements AuthService {
                 .contact(request.contact())
                 .isActive(Boolean.TRUE)
                 .role(User.Role.PYME)
-                .wantsEmailNotifications(Boolean.TRUE)
                 .build();
 
         userRepository.save(user);

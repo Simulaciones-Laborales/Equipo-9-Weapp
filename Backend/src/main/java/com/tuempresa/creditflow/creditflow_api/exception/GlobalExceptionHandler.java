@@ -2,10 +2,7 @@ package com.tuempresa.creditflow.creditflow_api.exception;
 
 import com.tuempresa.creditflow.creditflow_api.dto.BaseResponse;
 import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
-import com.tuempresa.creditflow.creditflow_api.exception.userExc.EmailNotFoundException;
-import com.tuempresa.creditflow.creditflow_api.exception.userExc.InvalidCredentialsException;
-import com.tuempresa.creditflow.creditflow_api.exception.userExc.UserDisabledException;
-import com.tuempresa.creditflow.creditflow_api.exception.userExc.UserNotFoundException;
+import com.tuempresa.creditflow.creditflow_api.exception.userExc.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -54,6 +51,22 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(BaseResponse.error(HttpStatus.NOT_FOUND, ex.getMessage()));
+    }
+
+    @ExceptionHandler(EmailAlreadyExistsException.class)
+    public ResponseEntity<BaseResponse> handleEmailAlreadyExists(EmailAlreadyExistsException ex, HttpServletRequest req) {
+        log.warn("EmailAlreadyExistsException at {}: {}", req.getRequestURI(), ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(BaseResponse.error(HttpStatus.CONFLICT, ex.getMessage()));
+    }
+
+    @ExceptionHandler(ContactAlreadyExistsException.class)
+    public ResponseEntity<BaseResponse> handleEmailAlreadyExists(ContactAlreadyExistsException ex, HttpServletRequest req) {
+        log.warn("PhoneAlreadyExistsException at {}: {}", req.getRequestURI(), ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(BaseResponse.error(HttpStatus.CONFLICT, ex.getMessage()));
     }
 
     // -------------------------

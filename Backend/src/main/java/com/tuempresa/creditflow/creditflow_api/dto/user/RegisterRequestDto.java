@@ -6,17 +6,6 @@ import jakarta.validation.constraints.*;
 import java.io.Serializable;
 
 public record RegisterRequestDto(
-       /* @Schema(
-                description = "Nombre de usuario con al menos 10 letras, puede incluir espacios, apóstrofes o guiones.",
-                example = "Ignacio Díaz"
-        )
-        @Pattern(
-                regexp = "^(?=\\S*[a-zA-ZÀ-ÿ])(?=(?:\\S*\\s*){3,})[a-zA-ZÀ-ÿ\\s'-]+$",
-                message = "El userName de usuario debe tener al menos 10 letras y puede incluir espacios, apóstrofes o guiones"
-        )
-        @NotBlank(message = "El nombre de usuario no puede estar en blanco")
-        @Size(max = 50, message = "El nombre de usuario no puede exceder los 50 caracteres")
-        String username,*/
 
         @Schema(
                 description = "Nombre de usuario con al menos 3 letras, puede incluir espacios, apóstrofes o guiones.",
@@ -57,7 +46,7 @@ public record RegisterRequestDto(
 
         @Schema(
                 description = "Número de contacto válido que solo contiene dígitos.",
-                example = "+54 351-2854563"
+                example = "+54 015-22540454"
         )
         @Pattern(
                 regexp = "^\\+?\\d{1,4}[\\s-]?\\d{1,4}[\\s-]?\\d{4,10}$",

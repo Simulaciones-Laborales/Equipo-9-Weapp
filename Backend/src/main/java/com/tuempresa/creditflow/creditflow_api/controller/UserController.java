@@ -106,32 +106,6 @@ public class UserController {
         return userService.updateUser(updateUserDto);
     }
 
-    @Operation(
-            summary = "Actualizar el Rol de un usuario, roles: ( SUPER_ADMIN, ADMIN_DE_CONTENIDO, USUARIO, CRM)",
-            description = "Permite actualizar los datos de un usuario proporcionado su ID y su Rol."
-    )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Usuario actualizado exitosamente.",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserRolDto.class))
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Usuario no encontrado.",
-                    content = @Content
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "Error al actualizar los datos del usuario.",
-                    content = @Content
-            )
-    })
-    @PutMapping(value = "/update-rol", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ExtendedBaseResponse<UserRolDto> updateUserRolDto(@Valid @RequestBody ChangeUserRoleDto changeUserRoleDto) {
-        return userService.changeUserRole(changeUserRoleDto);
-    }
-
     @Operation(summary = "Listar todos los usuarios",
             description = "Permite recuperar una lista de todos los usuarios.")
     @ApiResponses(value = {

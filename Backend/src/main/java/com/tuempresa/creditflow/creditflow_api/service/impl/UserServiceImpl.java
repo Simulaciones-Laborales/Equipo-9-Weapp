@@ -26,23 +26,6 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
 
-   /* @Override
-    @Transactional
-    public ExtendedBaseResponse<String> upDateImagesUser(UpDateImagesUserDto upDateImagesUser) {
-        String newImageUrl = uploadSingleImage(upDateImagesUser.getImage());
-        User user = userRepository.findById(upDateImagesUser.getUserId()).orElseThrow(() ->
-                new UserNotFoundException("Este usuario no existe con ese ID: " + upDateImagesUser.getUserId()));
-
-        if (user.getUserImage() != null && !user.getUserImage().isEmpty()) {
-            deleteSingleImage(user.getUserImage());
-        }
-
-        user.setUserImage(newImageUrl);
-        User savedUser = userRepository.save(user);
-        return ExtendedBaseResponse.of(BaseResponse.created("Imagen actualizada/cargada correctamente"), savedUser.getUserImage());
-    }*/
-
-
     @Override
     @Transactional(readOnly = true)
     public ExtendedBaseResponse<UserDto> findUserById(UUID id) {
@@ -72,25 +55,12 @@ public class UserServiceImpl implements UserService {
         if (updateUserDto.password() != null && !updateUserDto.password().isBlank()) {
             user.setPassword(passwordEncoder.encode(updateUserDto.password()));
         }
-        if (updateUserDto.wantsEmailNotifications() != null) {
-            user.setWantsEmailNotifications(updateUserDto.wantsEmailNotifications());
-        }
+
         userRepository.save(user);
         UpdateUserDto updatedUserDto = userMapper.toUpdatedUser(user);
         return ExtendedBaseResponse.of(BaseResponse.ok("Usuario actualizado"), updatedUserDto);
     }
 
-    @Override
-    @Transactional
-    public ExtendedBaseResponse<UserRolDto> changeUserRole(ChangeUserRoleDto data) {
-        User user = userRepository.findById(data.id())
-                .orElseThrow(() -> new UserNotFoundException("Este usuario no existe con ese ID: " + data.id()));
-        User.Role rol = user.ChangeRole(data.role());
-        user.setRole(rol);
-        userRepository.save(user);
-        UserRolDto userRolDto = userMapper.toUserRolDto(user);
-        return ExtendedBaseResponse.of(BaseResponse.ok("Usuario actualizado"), userRolDto);
-    }
 
     @Override
     @Transactional(readOnly = true)
@@ -132,17 +102,6 @@ public class UserServiceImpl implements UserService {
         return ExtendedBaseResponse.of(BaseResponse.ok("Usuario eliminado exitosamente"), null);
     }
 
-   /* private String uploadSingleImage(MultipartFile image) {
-        return imageService.uploadImage(image);
-    }
-
-    private void deleteSingleImage(String imageUrl) {
-        try {
-            imageService.deleteImage(imageUrl);
-        } catch (Exception e) {
-            throw new RuntimeException("Error al eliminar la imagen", e);
-        }
-    }*/
 
     // NUEVO: devuelve la entidad User por email (o lanza excepción si no existe)
     public User findEntityByEmail(String email) {
