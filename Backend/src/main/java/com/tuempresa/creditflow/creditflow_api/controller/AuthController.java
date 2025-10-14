@@ -1,8 +1,8 @@
 package com.tuempresa.creditflow.creditflow_api.controller;
 
-import com.tuempresa.creditflow.creditflow_api.dtos.BaseResponse;
-import com.tuempresa.creditflow.creditflow_api.dtos.ExtendedBaseResponse;
-import com.tuempresa.creditflow.creditflow_api.dtos.user.*;
+import com.tuempresa.creditflow.creditflow_api.dto.BaseResponse;
+import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
+import com.tuempresa.creditflow.creditflow_api.dto.user.*;
 import com.tuempresa.creditflow.creditflow_api.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -43,7 +43,7 @@ public class AuthController {
                     description = "Inicio de sesión exitoso.",
                     content = {
                             @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = AuthResponseDto.class))
+                                    schema = @Schema(implementation = AuthRegisterResponseExampleDto.class))
                     }),
             @ApiResponse(responseCode = "400", description = "Credenciales inválidas proporcionadas.", content = {@Content}),
             @ApiResponse(responseCode = "401", description = "No autorizado (credenciales incorrectas o expiradas).", content = {@Content}),
@@ -66,16 +66,17 @@ public class AuthController {
             description = """
                     Permite registrar un nuevo usuario en el sistema.\s
                     Se deben proporcionar los datos completos del usuario, incluyendo:
-                    nombres,apellidos, correo electrónico, contacto\s
+                    nombres,apellidos, correo electrónico, contacto, dni, fecha de nacimiento, país\s
                     """
     )
+
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Registro exitoso.",
+                    description = "Usuario creado correctamente.",
                     content = {
                             @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = AuthResponseDto.class))
+                                    schema = @Schema(implementation = AuthRegisterResponseExampleDto.class))
                     }),
             @ApiResponse(responseCode = "400", description = "El usuario ya existe o entrada no válida.", content = {@Content}),
             @ApiResponse(responseCode = "500", description = "Error del servidor.", content = {@Content})

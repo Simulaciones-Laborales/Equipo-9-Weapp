@@ -1,7 +1,7 @@
 package com.tuempresa.creditflow.creditflow_api.controller;
 
-import com.tuempresa.creditflow.creditflow_api.dtos.ExtendedBaseResponse;
-import com.tuempresa.creditflow.creditflow_api.dtos.user.*;
+import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
+import com.tuempresa.creditflow.creditflow_api.dto.user.*;
 import com.tuempresa.creditflow.creditflow_api.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -24,34 +24,6 @@ import java.util.UUID;
 @RequestMapping("/user")
 public class UserController {
     private final UserService userService;
-
-    /*@Operation(
-            summary = "Actualizar/Cargar la imagen de un usuario",
-            description = "Permite actualizar la imagen de perfil de un usuario proporcionado su ID o carga una nueva imagen, " +
-                    " ademas si esta ya tiene, borra la anterior y la actualiza."
-    )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "201",
-                    description = "Imagen actualizada exitosamente.",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExtendedBaseResponse.class))
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Usuario no encontrado.",
-                    content = @Content
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "Error al actualizar la imagen.",
-                    content = @Content
-            )
-    })
-    @PostMapping(value = "/images/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ExtendedBaseResponse<String>> updateUserImage(@Valid @ModelAttribute UpDateImagesUserDto dto) {
-        ExtendedBaseResponse<String> datos = userService.upDateImagesUser(dto);
-        return ResponseEntity.status(201).body(datos);
-    }*/
 
     @Operation(
             summary = "Buscar usuario por ID",
@@ -88,7 +60,7 @@ public class UserController {
             @ApiResponse(
                     responseCode = "200",
                     description = "Usuario actualizado exitosamente.",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = UpdateUserDto.class))
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserUpdateRequestDto.class))
             ),
             @ApiResponse(
                     responseCode = "404",
@@ -102,34 +74,8 @@ public class UserController {
             )
     })
     @PutMapping(value = "/update", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ExtendedBaseResponse<UpdateUserDto> updateUser(@Valid @RequestBody UpdateUserDto updateUserDto) {
+    public ExtendedBaseResponse<UserUpdateResponseDto> updateUser(@Valid @RequestBody UserUpdateRequestDto updateUserDto) {
         return userService.updateUser(updateUserDto);
-    }
-
-    @Operation(
-            summary = "Actualizar el Rol de un usuario, roles: ( SUPER_ADMIN, ADMIN_DE_CONTENIDO, USUARIO, CRM)",
-            description = "Permite actualizar los datos de un usuario proporcionado su ID y su Rol."
-    )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Usuario actualizado exitosamente.",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserRolDto.class))
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Usuario no encontrado.",
-                    content = @Content
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "Error al actualizar los datos del usuario.",
-                    content = @Content
-            )
-    })
-    @PutMapping(value = "/update-rol", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ExtendedBaseResponse<UserRolDto> updateUserRolDto(@Valid @RequestBody ChangeUserRoleDto changeUserRoleDto) {
-        return userService.changeUserRole(changeUserRoleDto);
     }
 
     @Operation(summary = "Listar todos los usuarios",
