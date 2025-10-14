@@ -3,12 +3,7 @@ import { Routes } from '@angular/router';
 export default [
   {
     path: '',
-    redirectTo: 'dashboard',
-    pathMatch: 'full',
-  },
-  {
-    path: 'dashboard',
-    loadChildren: () => import('./dashboard/dashboard.routes'),
+    loadChildren: () => import('./layout/layout.routes'),
   },
   {
     path: 'auth',
