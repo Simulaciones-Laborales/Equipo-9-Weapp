@@ -80,6 +80,9 @@ public class SecurityConfiguration {
                 "/api-docs.yaml",
                 "/webjars/**",
                 "/swagger-ui-custom.html",
+                "/public/lead/create",
+                "/auth/oauth-success",
+                "/ping/pong"
                 "/public/**",
                 "/auth/register"
         };

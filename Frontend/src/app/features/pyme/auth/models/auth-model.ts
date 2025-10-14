@@ -7,7 +7,11 @@ export interface RegisterModel {
   firstName: string;
   lastName: string;
   email: string;
+  password: string;
   contact: string;
+  birthDate: string;
+  dni: string;
+  country: string;
 }
 
 /**
@@ -23,9 +27,10 @@ export interface LoginReq {
  */
 export interface LoginRes {
   id: string;
-  username: string;
   firstName: string;
   lastName: string;
+  username: string;
+  email: string;
   token: string;
   role: UserRole;
 }
