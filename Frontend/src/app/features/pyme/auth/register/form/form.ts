@@ -16,6 +16,7 @@ import { Password } from 'primeng/password';
 import { DatePicker } from 'primeng/datepicker';
 import { Select } from 'primeng/select';
 import { CountryUtils } from '@core/services/country-utils';
+import { Fieldset } from '../../components/fieldset/fieldset';
 
 @Component({
   selector: 'app-user-form',
@@ -30,6 +31,7 @@ import { CountryUtils } from '@core/services/country-utils';
     Password,
     DatePicker,
     Select,
+    Fieldset,
   ],
   templateUrl: './form.html',
   styleUrl: './form.css',
