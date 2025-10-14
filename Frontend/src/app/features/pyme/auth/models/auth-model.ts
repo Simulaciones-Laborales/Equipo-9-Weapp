@@ -7,7 +7,11 @@ export interface RegisterModel {
   firstName: string;
   lastName: string;
   email: string;
+  password: string;
   contact: string;
+  birthday: string;
+  dni: string;
+  country: string;
 }
 
 /**

@@ -1,96 +1,176 @@
 <form [formGroup]="form" (ngSubmit)="onRegister()" class="flex flex-col gap-y-5">
-  <div class="flex flex-col gap-y-1">
-    <p-floatLabel variant="on">
-      <input
-        type="text"
-        id="firstName"
-        formControlName="firstName"
-        autocomplete="name"
-        pInputText
-        fluid
-        [invalid]="isInvalid('firstName')"
-      />
-      <label for="firstName">Nombres</label>
-    </p-floatLabel>
-    @if (isInvalid('firstName')) {
-    <p-message size="small" severity="error" variant="simple">Tu nombre es requerido</p-message>
-    }
-  </div>
-  <div class="flex flex-col gap-y-1">
-    <p-floatLabel variant="on">
-      <input
-        type="text"
-        id="lastName"
-        formControlName="lastName"
-        autocomplete="family-name"
-        pInputText
-        fluid
-        [invalid]="isInvalid('lastName')"
-      />
-      <label for="lastName">Apellidos</label>
-    </p-floatLabel>
-    @if (isInvalid('lastName')) {
-    <p-message size="small" severity="error" variant="simple">Tu apellido es requerido</p-message>
-    }
-  </div>
-  <div class="flex flex-col gap-y-1">
-    <p-floatLabel variant="on">
-      <input
-        type="email"
-        id="email"
-        formControlName="email"
-        autocomplete="email"
-        pInputText
-        fluid
-        [invalid]="isInvalid('email')"
-      />
-      <label for="email">Correo electrónico</label>
-    </p-floatLabel>
-    @if (isInvalid('email')) { @if (getError('email', 'required')) {
-    <p-message size="small" severity="error" variant="simple">
-      Tu correo electrónico es requerido
-    </p-message>
-    } @if (getError('email', 'pattern')) {
-    <p-message size="small" severity="error" variant="simple">
-      Por favor, ingresa un correo electrónico válido
-    </p-message>
-    } }
-  </div>
-  <div class="flex flex-col gap-y-1">
-    <p-floatLabel variant="on">
-      <input
-        type="tel"
-        id="contact"
-        formControlName="contact"
-        autocomplete="tel"
-        pInputText
-        fluid
-        [invalid]="isInvalid('contact')"
-      />
-      <label for="contact">Número de contacto</label>
-    </p-floatLabel>
-    @if (isInvalid('contact')) {
-    <p-message size="small" severity="error" variant="simple">
-      Tu número de contacto es requerido
-    </p-message>
-    }
-  </div>
-  <div class="flex flex-col gap-y-1">
-    <label for="agree" class="flex items-center gap-x-2.5">
-      <p-checkbox
-        inputId="agree"
-        [binary]="true"
-        [invalid]="isInvalid('agreeWithTerms')"
-        formControlName="agreeWithTerms"
-      />
-      <span class="text-gray-700">Acepto los términos y condiciones</span>
-    </label>
-    @if (isInvalid('agreeWithTerms')) {
-    <p-message size="small" severity="error" variant="simple">
-      Por favor, acepta nuestros términos y condiciones
-    </p-message>
-    }
-  </div>
+  <fieldset class="flex flex-col gap-y-5 py-2.5">
+    <legend class="text-lg font-medium">Información Personal</legend>
+    <div class="max-sm:flex max-sm:flex-col max-sm:gap-y-5 sm:grid sm:grid-cols-2 sm:gap-x-2.5">
+      <div class="flex flex-col gap-y-1">
+        <p-floatLabel variant="on">
+          <input
+            type="text"
+            id="firstName"
+            formControlName="firstName"
+            autocomplete="name"
+            pInputText
+            fluid
+            [invalid]="isInvalid('firstName')"
+          />
+          <label for="firstName">Nombres</label>
+        </p-floatLabel>
+        @if (isInvalid('firstName')) {
+        <p-message size="small" severity="error" variant="simple">Tu nombre es requerido</p-message>
+        }
+      </div>
+      <div class="flex flex-col gap-y-1">
+        <p-floatLabel variant="on">
+          <input
+            type="text"
+            id="lastName"
+            formControlName="lastName"
+            autocomplete="family-name"
+            pInputText
+            fluid
+            [invalid]="isInvalid('lastName')"
+          />
+          <label for="lastName">Apellidos</label>
+        </p-floatLabel>
+        @if (isInvalid('lastName')) {
+        <p-message size="small" severity="error" variant="simple"
+          >Tu apellido es requerido</p-message
+        >
+        }
+      </div>
+    </div>
+    <div class="flex flex-col gap-y-1">
+      <p-floatLabel variant="on">
+        <p-datepicker
+          [invalid]="isInvalid('birthday')"
+          dateFormat="dd/mm/yy"
+          [maxDate]="today"
+          showIcon
+          inputId="birthday"
+          fluid
+          formControlName="birthday"
+          autocomplete="off"
+        />
+        <label for="birthday">Fecha de nacimiento</label>
+      </p-floatLabel>
+      @if (isInvalid('birthday')) {
+      <p-message size="small" severity="error" variant="simple">
+        Por favor, ingresa tu fecha de nacimiento
+      </p-message>
+      }
+    </div>
+  </fieldset>
+  <fieldset class="flex flex-col gap-y-5 py-2.5">
+    <legend class="text-lg font-medium">Datos de Contacto</legend>
+    <div class="flex flex-col gap-y-1">
+      <p-floatLabel variant="on">
+        <input
+          type="email"
+          id="email"
+          formControlName="email"
+          autocomplete="email"
+          pInputText
+          fluid
+          [invalid]="isInvalid('email')"
+        />
+        <label for="email">Correo electrónico</label>
+      </p-floatLabel>
+      @if (isInvalid('email')) { @if (getError('email', 'required')) {
+      <p-message size="small" severity="error" variant="simple">
+        Tu correo electrónico es requerido
+      </p-message>
+      } @if (getError('email', 'pattern')) {
+      <p-message size="small" severity="error" variant="simple">
+        Por favor, ingresa un correo electrónico válido
+      </p-message>
+      } }
+    </div>
+    <div class="flex flex-col gap-y-1">
+      <p-floatLabel variant="on">
+        <input
+          type="tel"
+          id="contact"
+          formControlName="contact"
+          autocomplete="tel"
+          pInputText
+          fluid
+          [invalid]="isInvalid('contact')"
+        />
+        <label for="contact">Número de celular</label>
+      </p-floatLabel>
+      @if (isInvalid('contact')) {
+      <p-message size="small" severity="error" variant="simple">
+        Tu número de celular es requerido
+      </p-message>
+      }
+    </div>
+  </fieldset>
+  <fieldset class="flex flex-col gap-y-5 py-2.5">
+    <legend class="text-lg font-medium">Verificación de Identidad</legend>
+    <div class="flex flex-col gap-y-1">
+      <p-floatLabel variant="on">
+        <p-select
+          inputId="country"
+          [options]="countries"
+          [virtualScroll]="true"
+          [virtualScrollItemSize]="24"
+          [invalid]="isInvalid('country')"
+          fluid
+          formControlName="country"
+        />
+        <label for="country">País</label>
+      </p-floatLabel>
+      @if (isInvalid('country')) {
+      <p-message size="small" severity="error" variant="simple">
+        Por favor, ingresa tu país
+      </p-message>
+      }
+    </div>
+    <div class="flex flex-col gap-y-1">
+      <p-floatLabel variant="on">
+        <input
+          type="text"
+          id="dni"
+          formControlName="dni"
+          autocomplete="off"
+          pInputText
+          fluid
+          [invalid]="isInvalid('dni')"
+        />
+        <label for="dni">Número de Identificación (DNI)</label>
+      </p-floatLabel>
+      @if (isInvalid('dni')) {
+      <p-message size="small" severity="error" variant="simple">
+        Por favor, ingresa tu número de identificación (DNI)
+      </p-message>
+      }
+    </div>
+  </fieldset>
+  <fieldset class="flex flex-col gap-y-5 py-2.5">
+    <legend class="text-lg font-medium">Seguridad</legend>
+    <div class="flex flex-col gap-y-1">
+      <p-floatLabel variant="on">
+        <p-password
+          [toggleMask]="true"
+          [invalid]="isInvalid('password')"
+          inputId="password"
+          fluid
+          formControlName="password"
+          autocomplete="off"
+        />
+        <label for="password">Contraseña</label>
+      </p-floatLabel>
+      @if (isInvalid('password')) {
+      <p-message size="small" severity="error" variant="simple">
+        Por favor, ingresa una contraseña
+      </p-message>
+      }
+    </div>
+  </fieldset>
+  <p-message size="small" severity="secondary" variant="simple">
+    Al crear tu cuenta aceptas nuestros
+    <a href="#" class="text-blue-500">términos y condiciones</a>
+  </p-message>
   <p-button label="Crear cuenta" type="submit" fluid [loading]="store.status() === 'loading'" />
   <app-linker route="../login" text="¿Ya tienes cuenta?" />
 </form>

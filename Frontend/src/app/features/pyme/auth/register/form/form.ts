@@ -3,7 +3,6 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { emailRegex, isInvalid, getError } from '@core/form-utils';
 import { FloatLabel } from 'primeng/floatlabel';
 import { InputText } from 'primeng/inputtext';
-import { Checkbox } from 'primeng/checkbox';
 import { Linker } from '../../components/linker/linker';
 import { FormStore } from './form-store';
 import { Button } from 'primeng/button';
@@ -13,10 +12,25 @@ import { MessageService } from 'primeng/api';
 import { Message } from 'primeng/message';
 import { TokenStorage } from '@core/services/token-storage';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Password } from 'primeng/password';
+import { DatePicker } from 'primeng/datepicker';
+import { Select } from 'primeng/select';
+import { CountryUtils } from '@core/services/country-utils';
 
 @Component({
   selector: 'app-user-form',
-  imports: [ReactiveFormsModule, FloatLabel, InputText, Checkbox, Linker, Button, Toast, Message],
+  imports: [
+    ReactiveFormsModule,
+    FloatLabel,
+    InputText,
+    Linker,
+    Button,
+    Toast,
+    Message,
+    Password,
+    DatePicker,
+    Select,
+  ],
   templateUrl: './form.html',
   styleUrl: './form.css',
   providers: [MessageService, FormStore],
@@ -27,15 +41,21 @@ export class Form {
   private readonly _tokenStorage = inject(TokenStorage);
   private readonly _router = inject(Router);
   private readonly _route = inject(ActivatedRoute);
+  private readonly _countryUtils = inject(CountryUtils);
 
+  readonly today = new Date();
   readonly store = inject(FormStore);
+  readonly countries = this._countryUtils.countries();
 
   readonly form = this._fb.group({
     firstName: ['', Validators.required],
     lastName: ['', Validators.required],
     email: ['', [Validators.required, Validators.pattern(emailRegex)]],
     contact: ['', Validators.required],
-    agreeWithTerms: [false, Validators.requiredTrue],
+    birthday: ['', Validators.required],
+    dni: ['', Validators.required],
+    country: ['', Validators.required],
+    password: ['', Validators.required],
   });
 
   constructor() {
