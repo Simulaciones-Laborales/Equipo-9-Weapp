@@ -150,6 +150,10 @@
       <p-floatLabel variant="on">
         <p-password
           [toggleMask]="true"
+          promptLabel="Ingresa una contraseña"
+          weakLabel="Muy débil"
+          mediumLabel="Aceptable"
+          strongLabel="Fuerte"
           [invalid]="isInvalid('password')"
           inputId="password"
           fluid
