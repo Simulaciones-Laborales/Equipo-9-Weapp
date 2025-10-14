@@ -1,8 +1,21 @@
 <p-card>
-  <header class="flex flex-col gap-y-2.5">
-    <app-title headline="Mis Solicitudes de Crédito" />
-    <p class="text-surface-500 text-sm sm:text-base text-pretty">
-      Aquí podrás ver el historial de tus solicitudes de créditos y los detalles de cada una.
-    </p>
-  </header>
+  <section class="flex flex-col gap-y-7">
+    <header class="flex flex-col gap-y-2.5">
+      <app-title headline="Mis Solicitudes de Crédito" />
+      <p class="text-surface-500 text-sm sm:text-base text-pretty">
+        Aquí podrás ver el historial de tus solicitudes de créditos y los detalles de cada una.
+      </p>
+    </header>
+    <p-table>
+      <ng-template #header>
+        <tr>
+          <th scope="col">Cantidad</th>
+          <th scope="col">Estado</th>
+          <th>Comentarios del Operador</th>
+          <th>Fecha de creación</th>
+        </tr>
+      </ng-template>
+      <ng-template #body></ng-template>
+    </p-table>
+  </section>
 </p-card>
