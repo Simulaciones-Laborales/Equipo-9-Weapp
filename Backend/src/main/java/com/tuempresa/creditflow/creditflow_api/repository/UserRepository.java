@@ -14,17 +14,15 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     Optional<User> findByUsername(String username);
 
-    List<User> findAllByRole(User.Role role);
+    List<User> findByRoleOrderByCreatedAtAsc(User.Role role);
 
     Optional<User> findByEmail(String email);
-
-    boolean existsByUsername(String username);
 
     boolean existsByEmail(String email);
 
     Optional<User> findByResetToken(String resetToken);
 
-    List<User> findByIsActiveTrueOrderByUsernameAsc();
+    List<User> findByIsActiveTrueAndRoleOrderByCreatedAtAsc(User.Role role);
 
     boolean existsByContact(@Pattern(
                 regexp = "^\\+?\\d{1,4}[\\s-]?\\d{1,4}[\\s-]?\\d{4,10}$",

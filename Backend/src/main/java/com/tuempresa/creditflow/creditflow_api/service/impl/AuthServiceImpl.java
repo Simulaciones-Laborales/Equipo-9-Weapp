@@ -55,7 +55,7 @@ public class AuthServiceImpl implements AuthService {
 
         return ExtendedBaseResponse.of(
                 BaseResponse.ok("Login exitoso."),
-                new AuthResponseDto(response.id(),response.firstName(),response.lastName(), response.username(), token, response.role())
+                new AuthResponseDto(response.id(),response.firstName(),response.lastName(),response.username(), response.email(), token, response.role())
         );
     }
     @Override
@@ -116,7 +116,7 @@ public class AuthServiceImpl implements AuthService {
 
         return ExtendedBaseResponse.of(
                 BaseResponse.created("Usuario creado correctamente. El correo de bienvenida ha sido procesado."),
-                new AuthResponseDto(response.id(), response.username(), response.firstName(), response.lastName(), token, response.role())
+                new AuthResponseDto(response.id(), response.firstName(), response.lastName(),response.username(), response.email(), token, response.role())
         );
     }
 

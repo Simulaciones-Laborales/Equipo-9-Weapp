@@ -34,7 +34,7 @@ public record RegisterRequestDto(
 
         @Schema(
                 description = "Correo electrónico válido y existente",
-                example = "Ignacio_Galeassi@example.com"
+                example = "user@dominio.com"
         )
         @Pattern(
                 regexp = "^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,6}$",
@@ -47,7 +47,7 @@ public record RegisterRequestDto(
 
         @Schema(
                 description = "Contraseña segura que debe contener al menos 8 caracteres, incluyendo mayúsculas, minúsculas, números y símbolos especiales",
-                example = "MiClave$2025!Segura"
+                example = "12345678Pro+"
         )
         @NotBlank(message = "La contraseña no puede estar en blanco")
         @Size(min = 8, max = 50, message = "La contraseña debe tener entre 8 y 50 caracteres")

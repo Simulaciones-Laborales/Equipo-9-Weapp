@@ -9,11 +9,9 @@ import com.tuempresa.creditflow.creditflow_api.model.User;
 import com.tuempresa.creditflow.creditflow_api.repository.UserRepository;
 import com.tuempresa.creditflow.creditflow_api.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-//import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -37,43 +35,39 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public ExtendedBaseResponse<UpdateUserDto> updateUser(UpdateUserDto updateUserDto) {
-        User user = userRepository.findById(updateUserDto.userId())
-                .orElseThrow(() -> new UserNotFoundException("Este usuario no existe con ese ID: " + updateUserDto.userId()));
-        if (updateUserDto.firstName() != null && !updateUserDto.firstName().isBlank()) {
-            user.setFirstName(updateUserDto.firstName());
+    public ExtendedBaseResponse<UserUpdateResponseDto> updateUser(UserUpdateRequestDto userUpdateRequestDto) {
+        User user = userRepository.findById(userUpdateRequestDto.userId())
+                .orElseThrow(() -> new UserNotFoundException("Este usuario no existe con ese ID: " + userUpdateRequestDto.userId()));
+        if (userUpdateRequestDto.firstName() != null && !userUpdateRequestDto.firstName().isBlank()) {
+            user.setFirstName(userUpdateRequestDto.firstName());
         }
-        if (updateUserDto.lastName() != null && !updateUserDto.lastName().isBlank()) {
-            user.setLastName(updateUserDto.lastName());
+        if (userUpdateRequestDto.lastName() != null && !userUpdateRequestDto.lastName().isBlank()) {
+            user.setLastName(userUpdateRequestDto.lastName());
         }
-        if (updateUserDto.email() != null && !updateUserDto.email().isBlank()) {
-            user.setEmail(updateUserDto.email());
-        }
-        if (updateUserDto.contact() != null && !updateUserDto.contact().isBlank()) {
-            user.setContact(updateUserDto.contact());
-        }
-        if (updateUserDto.password() != null && !updateUserDto.password().isBlank()) {
-            user.setPassword(passwordEncoder.encode(updateUserDto.password()));
+        if (userUpdateRequestDto.contact() != null && !userUpdateRequestDto.contact().isBlank()) {
+            user.setContact(userUpdateRequestDto.contact());
         }
 
         userRepository.save(user);
-        UpdateUserDto updatedUserDto = userMapper.toUpdatedUser(user);
-        return ExtendedBaseResponse.of(BaseResponse.ok("Usuario actualizado"), updatedUserDto);
+        UserUpdateResponseDto userUpdateResponseDto = userMapper.toUserUpdateResponseDto(user);
+        return ExtendedBaseResponse.of(BaseResponse.ok("Usuario actualizado"), userUpdateResponseDto);
     }
 
 
     @Override
     @Transactional(readOnly = true)
     public ExtendedBaseResponse<List<UserDto>> userLists() {
-        List<User> users = userRepository.findAll(Sort.by(Sort.Direction.ASC, "username"));
-        return ExtendedBaseResponse.of(BaseResponse.ok("Usuarios encontrados"), userMapper.entityListToDtoList(users));
+        List<User> users = userRepository.findByRoleOrderByCreatedAtAsc(User.Role.PYME);
+        return ExtendedBaseResponse.of(BaseResponse.ok("Usuarios PYME encontrados"),
+                userMapper.entityListToDtoList(users));
     }
 
     @Override
     @Transactional(readOnly = true)
     public ExtendedBaseResponse<List<UserDto>> userListsActive() {
-        List<User> users = userRepository.findByIsActiveTrueOrderByUsernameAsc();
-        return ExtendedBaseResponse.of(BaseResponse.ok("Usuarios encontrados"), userMapper.entityListToDtoList(users));
+        List<User> users = userRepository.findByIsActiveTrueAndRoleOrderByCreatedAtAsc(User.Role.PYME);
+        return ExtendedBaseResponse.of(BaseResponse.ok("Usuarios PYME activos encontrados"),
+                userMapper.entityListToDtoList(users));
     }
 
     @Override
