@@ -1,6 +1,6 @@
 import { Component, effect, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { emailRegex, getError, isInvalid } from '@core/form-utils';
+import { emailRegex, getError, isInvalid } from '@core/utils/form-utils';
 import { InputTextModule } from 'primeng/inputtext';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { PasswordModule } from 'primeng/password';
@@ -9,7 +9,6 @@ import { Linker } from '@features/pyme/auth/components/linker/linker';
 import { MessageService } from 'primeng/api';
 import { LoginStore } from './form-store';
 import { LoginReq } from '@features/pyme/auth/models/auth-model';
-import { Toast } from 'primeng/toast';
 import { Message } from 'primeng/message';
 import { TokenStorage } from '@core/services/token-storage';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -23,7 +22,6 @@ import { ActivatedRoute, Router } from '@angular/router';
     PasswordModule,
     ButtonModule,
     Linker,
-    Toast,
     Message,
   ],
   templateUrl: './form.html',

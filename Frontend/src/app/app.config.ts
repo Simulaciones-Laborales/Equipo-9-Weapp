@@ -11,13 +11,15 @@ import { providePrimeNG } from 'primeng/config';
 import Theme from '@primeuix/themes/aura';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { tokenInterceptor } from '@core/interceptors/token-interceptor';
+import { httpErrorInterceptor } from '@core/interceptors/http-error-interceptor';
+import { MessageService } from 'primeng/api';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideHttpClient(withInterceptors([tokenInterceptor])),
+    provideHttpClient(withInterceptors([tokenInterceptor, httpErrorInterceptor])),
     provideAnimationsAsync(),
     providePrimeNG({
       theme: {
@@ -31,5 +33,6 @@ export const appConfig: ApplicationConfig = {
         },
       },
     }),
+    MessageService,
   ],
 };

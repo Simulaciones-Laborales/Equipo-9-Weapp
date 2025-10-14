@@ -1,12 +1,11 @@
 import { Component, effect, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { emailRegex, isInvalid, getError } from '@core/form-utils';
+import { emailRegex, isInvalid, getError } from '@core/utils/form-utils';
 import { FloatLabel } from 'primeng/floatlabel';
 import { InputText } from 'primeng/inputtext';
 import { Linker } from '../../components/linker/linker';
 import { FormStore } from './form-store';
 import { Button } from 'primeng/button';
-import { Toast } from 'primeng/toast';
 import { RegisterModel } from '../../models/auth-model';
 import { MessageService } from 'primeng/api';
 import { Message } from 'primeng/message';
@@ -26,7 +25,6 @@ import { Fieldset } from '../../components/fieldset/fieldset';
     InputText,
     Linker,
     Button,
-    Toast,
     Message,
     Password,
     DatePicker,

@@ -27,8 +27,7 @@ export const FormStore = signalStore(
         await service.register(data);
         patchState(store, { status: 'success', error: null });
       } catch (e) {
-        const message = e instanceof Error ? e.message : '';
-        patchState(store, { status: 'failure', error: message });
+        patchState(store, { status: 'failure' });
       }
     },
   }))
