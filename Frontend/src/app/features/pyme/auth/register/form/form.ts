@@ -11,6 +11,8 @@ import { Toast } from 'primeng/toast';
 import { RegisterModel } from '../../models/auth-model';
 import { MessageService } from 'primeng/api';
 import { Message } from 'primeng/message';
+import { TokenStorage } from '@core/services/token-storage';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-user-form',
@@ -22,6 +24,10 @@ import { Message } from 'primeng/message';
 export class Form {
   private readonly _fb = inject(FormBuilder);
   private readonly _messageService = inject(MessageService);
+  private readonly _tokenStorage = inject(TokenStorage);
+  private readonly _router = inject(Router);
+  private readonly _route = inject(ActivatedRoute);
+
   readonly store = inject(FormStore);
 
   readonly form = this._fb.group({
@@ -39,7 +45,7 @@ export class Form {
           this.form.disable();
           break;
         case 'success':
-          this.form.reset();
+          this._successful();
           break;
         case 'failure':
           this.form.enable();
@@ -63,6 +69,12 @@ export class Form {
     }
 
     await this.store.register(this.form.value as RegisterModel);
+  }
+
+  private _successful() {
+    this.form.reset();
+    this._tokenStorage.save(this.store.response()!.data);
+    this._router.navigate(['..', 'dashboard'], { relativeTo: this._route });
   }
 
   private _showError() {

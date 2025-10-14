@@ -13,12 +13,12 @@ export class TokenStorage {
     sessionStorage.setItem(TokenStorage.KEY, JSON.stringify(res));
   }
 
-  get() {
-    return sessionStorage.getItem(TokenStorage.KEY);
-  }
-
   clear() {
     sessionStorage.removeItem(TokenStorage.KEY);
+  }
+
+  token() {
+    return this._load((json: LoginRes) => json.token);
   }
 
   decoded() {
@@ -30,7 +30,7 @@ export class TokenStorage {
   }
 
   private _load<T>(callback: (json: LoginRes) => T) {
-    const data = this.get();
+    const data = this._get();
 
     if (data === null) {
       return null;
@@ -42,5 +42,9 @@ export class TokenStorage {
     } catch (e) {
       throw Error(`Error leyendo el token: ${e instanceof Error ? e.message : ''}`);
     }
+  }
+
+  private _get() {
+    return sessionStorage.getItem(TokenStorage.KEY);
   }
 }

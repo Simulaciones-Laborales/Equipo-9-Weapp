@@ -11,6 +11,8 @@ import { LoginStore } from './form-store';
 import { LoginReq } from '@features/pyme/auth/models/auth-model';
 import { Toast } from 'primeng/toast';
 import { Message } from 'primeng/message';
+import { TokenStorage } from '@core/services/token-storage';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-form',
@@ -31,6 +33,10 @@ import { Message } from 'primeng/message';
 export class Form {
   private readonly _fb = inject(FormBuilder);
   private readonly _messageService = inject(MessageService);
+  private readonly _tokenStorage = inject(TokenStorage);
+  private readonly _router = inject(Router);
+  private readonly _route = inject(ActivatedRoute);
+
   readonly store = inject(LoginStore);
 
   readonly form = this._fb.group({
@@ -45,8 +51,7 @@ export class Form {
           this.form.disable();
           break;
         case 'success':
-          this.form.reset();
-          console.table(this.store.userLogged());
+          this._successful();
           break;
         case 'failure':
           this.form.enable();
@@ -70,6 +75,12 @@ export class Form {
     }
 
     await this.store.login(this.form.value as LoginReq);
+  }
+
+  private _successful() {
+    this.form.reset();
+    this._tokenStorage.save(this.store.userLogged()!.data);
+    this._router.navigate(['..', 'dashboard'], { relativeTo: this._route });
   }
 
   private _showError() {
