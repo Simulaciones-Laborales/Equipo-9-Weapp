@@ -11,6 +11,7 @@ import { LoginReq } from '@features/pyme/auth/models/auth-model';
 import { Message } from 'primeng/message';
 import { TokenStorage } from '@core/services/token-storage';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Fieldset } from '@features/pyme/auth/components/fieldset/fieldset';
 
 @Component({
   selector: 'app-form',
@@ -22,6 +23,7 @@ import { ActivatedRoute, Router } from '@angular/router';
     ButtonModule,
     Linker,
     Message,
+    Fieldset,
   ],
   templateUrl: './form.html',
   styleUrl: './form.css',
