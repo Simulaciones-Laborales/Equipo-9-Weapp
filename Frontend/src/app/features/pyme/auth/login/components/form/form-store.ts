@@ -27,7 +27,7 @@ export const LoginStore = signalStore(
         const userLogged = await service.login(data);
         patchState(store, { status: 'success', error: null, userLogged });
       } catch (e) {
-        patchState(store, { status: 'failure' });
+        patchState(store, { status: 'failure', userLogged: null });
       }
     },
   }))

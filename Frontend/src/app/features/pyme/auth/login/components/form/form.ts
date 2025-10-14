@@ -6,7 +6,6 @@ import { FloatLabelModule } from 'primeng/floatlabel';
 import { PasswordModule } from 'primeng/password';
 import { ButtonModule } from 'primeng/button';
 import { Linker } from '@features/pyme/auth/components/linker/linker';
-import { MessageService } from 'primeng/api';
 import { LoginStore } from './form-store';
 import { LoginReq } from '@features/pyme/auth/models/auth-model';
 import { Message } from 'primeng/message';
@@ -26,11 +25,10 @@ import { ActivatedRoute, Router } from '@angular/router';
   ],
   templateUrl: './form.html',
   styleUrl: './form.css',
-  providers: [MessageService, LoginStore],
+  providers: [LoginStore],
 })
 export class Form {
   private readonly _fb = inject(FormBuilder);
-  private readonly _messageService = inject(MessageService);
   private readonly _tokenStorage = inject(TokenStorage);
   private readonly _router = inject(Router);
   private readonly _route = inject(ActivatedRoute);
@@ -53,7 +51,6 @@ export class Form {
           break;
         case 'failure':
           this.form.enable();
-          this._showError();
           break;
       }
     });
@@ -78,14 +75,6 @@ export class Form {
   private _successful() {
     this.form.reset();
     this._tokenStorage.save(this.store.userLogged()!.data);
-    this._router.navigate(['..', 'dashboard'], { relativeTo: this._route });
-  }
-
-  private _showError() {
-    this._messageService.add({
-      severity: 'error',
-      summary: 'Algo salió mal...',
-      detail: this.store.error() ?? '',
-    });
+    this._router.navigate(['../..', 'dashboard'], { relativeTo: this._route });
   }
 }
