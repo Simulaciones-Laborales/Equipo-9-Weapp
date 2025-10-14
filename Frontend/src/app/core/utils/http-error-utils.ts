@@ -1,1 +1,1 @@
-export const key = 'httpError';
+export const key = 'httpKey';

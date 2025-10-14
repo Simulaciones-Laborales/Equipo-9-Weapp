@@ -27,9 +27,10 @@ export interface LoginReq {
  */
 export interface LoginRes {
   id: string;
-  username: string;
   firstName: string;
   lastName: string;
+  username: string;
+  email: string;
   token: string;
   role: UserRole;
 }

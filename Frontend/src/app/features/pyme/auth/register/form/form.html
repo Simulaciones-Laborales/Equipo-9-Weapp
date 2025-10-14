@@ -96,11 +96,15 @@
         />
         <label for="contact">Número de celular</label>
       </p-floatLabel>
-      @if (isInvalid('contact')) {
+      @if (isInvalid('contact')) { @if (getError('contact', 'required')) {
       <p-message size="small" severity="error" variant="simple">
         Tu número de celular es requerido
       </p-message>
-      }
+      } @if (getError('contact', 'pattern')) {
+      <p-message size="small" severity="error" variant="simple">
+        Ingresa un número válido (e.g: +54 015-22540454 / 01522540454)
+      </p-message>
+      } }
     </div>
   </app-fieldset>
   <app-fieldset legend="Verificación de Identidad">

@@ -1,13 +1,18 @@
 import { Component, effect, inject, LOCALE_ID } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { emailRegex, isInvalid, getError, passwordRegex } from '@core/utils/form-utils';
+import {
+  emailRegex,
+  isInvalid,
+  getError,
+  passwordRegex,
+  contactRegex,
+} from '@core/utils/form-utils';
 import { FloatLabel } from 'primeng/floatlabel';
 import { InputText } from 'primeng/inputtext';
 import { Linker } from '../../components/linker/linker';
 import { FormStore } from './form-store';
 import { Button } from 'primeng/button';
 import { RegisterModel } from '../../models/auth-model';
-import { MessageService } from 'primeng/api';
 import { Message } from 'primeng/message';
 import { TokenStorage } from '@core/services/token-storage';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -34,11 +39,10 @@ import { formatDate } from '@angular/common';
   ],
   templateUrl: './form.html',
   styleUrl: './form.css',
-  providers: [MessageService, FormStore],
+  providers: [FormStore],
 })
 export class Form {
   private readonly _fb = inject(FormBuilder);
-  private readonly _messageService = inject(MessageService);
   private readonly _tokenStorage = inject(TokenStorage);
   private readonly _router = inject(Router);
   private readonly _route = inject(ActivatedRoute);
@@ -53,7 +57,7 @@ export class Form {
     firstName: ['', Validators.required],
     lastName: ['', Validators.required],
     email: ['', [Validators.required, Validators.pattern(emailRegex)]],
-    contact: ['', Validators.required],
+    contact: ['', [Validators.required, Validators.pattern(contactRegex)]],
     birthDate: ['', Validators.required],
     dni: ['', Validators.required],
     country: ['', Validators.required],
@@ -102,6 +106,6 @@ export class Form {
   private _successful() {
     this.form.reset();
     this._tokenStorage.save(this.store.response()!.data);
-    this._router.navigate(['..', 'dashboard'], { relativeTo: this._route });
+    this._router.navigate(['../..', 'dashboard'], { relativeTo: this._route });
   }
 }

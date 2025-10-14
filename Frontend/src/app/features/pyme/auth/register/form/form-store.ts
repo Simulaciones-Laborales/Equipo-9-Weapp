@@ -24,10 +24,10 @@ export const FormStore = signalStore(
       patchState(store, { status: 'loading' });
 
       try {
-        await service.register(data);
-        patchState(store, { status: 'success', error: null });
+        const response = await service.register(data);
+        patchState(store, { status: 'success', error: null, response });
       } catch (e) {
-        patchState(store, { status: 'failure' });
+        patchState(store, { status: 'failure', response: null });
       }
     },
   }))
