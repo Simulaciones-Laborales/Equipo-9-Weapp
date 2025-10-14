@@ -83,7 +83,8 @@ public class SecurityConfiguration {
                 "/webjars/**",
                 "/swagger-ui-custom.html",
                 "/public/lead/create",
-                "/auth/oauth-success"
+                "/auth/oauth-success",
+                "/ping/pong"
         };
     }
 }
