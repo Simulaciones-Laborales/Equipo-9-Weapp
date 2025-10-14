@@ -8,22 +8,15 @@
       CreditFlow
     </h1>
     <ul
-      class="flex items-center sm:justify-between max-sm:flex-col max-sm:justify-center max-sm:translate-x-full duration-500 max-sm:bg-surface-50 max-sm:fixed max-sm:inset-0 max-sm:z-30 gap-y-12 gap-x-5"
+      class="flex items-center sm:justify-between max-sm:flex-col max-sm:justify-center max-sm:translate-x-full duration-500 max-sm:bg-surface-50 max-sm:fixed max-sm:inset-0 max-sm:z-30 gap-y-12"
       [ngClass]="{
         'max-sm:translate-none': show()
       }"
     >
-      <div class="flex max-sm:flex-col items-center justify-center max-sm:gap-y-2">
-        <app-navbar-link headline="Inicio" route="./dashboard" />
-        <app-navbar-link headline="Créditos" route="./creditos" />
-        <app-navbar-link headline="Mi Empresa" route="./mi-empresa" />
-      </div>
-      <div class="flex items-center justify-center">
-        <button class="max-sm:hidden size-10 rounded-full bg-primary-600"></button>
-        <a class="sm:hidden text-surface-500 text-xl sm:text-base hover:text-primary-500"
-          >Entrar a mi cuenta</a
-        >
-      </div>
+      <app-navbar-link headline="Inicio" route="./dashboard" />
+      <app-navbar-link headline="Créditos" route="./creditos" />
+      <app-navbar-link headline="Empresa" route="./empresa" />
+      <app-navbar-link headline="Perfil" route="./perfil" />
     </ul>
     <button class="sm:hidden relative z-30 cursor-pointer" (click)="show.set(!show())">
       <i
