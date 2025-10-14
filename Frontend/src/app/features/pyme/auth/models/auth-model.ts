@@ -9,7 +9,7 @@ export interface RegisterModel {
   email: string;
   password: string;
   contact: string;
-  birthday: string;
+  birthDate: string;
   dni: string;
   country: string;
 }

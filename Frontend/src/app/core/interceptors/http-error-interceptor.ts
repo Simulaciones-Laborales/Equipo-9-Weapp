@@ -9,6 +9,7 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
+      console.error('BORRAR EN PRODUCCIÓN', error.error);
       const { message } = error.error;
 
       messageService.add({
