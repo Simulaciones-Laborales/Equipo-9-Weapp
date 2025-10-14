@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 public record LoginRequestDto(
 
-        @Schema(description = "Email electrónico del usuario", example = "Florencia_Galeassi@example.com")
+        @Schema(description = "Email electrónico del usuario", example = "admin@creditflow.com")
         @Email(message = "El correo electrónico debe ser valido, utilizando ´@´")
         @NotBlank(message = "El correo electrónico no puede estar en blanco")
         String email,

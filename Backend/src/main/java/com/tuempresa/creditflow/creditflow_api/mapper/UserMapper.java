@@ -1,9 +1,6 @@
 package com.tuempresa.creditflow.creditflow_api.mapper;
 
-import com.tuempresa.creditflow.creditflow_api.dto.user.AuthResponseDto;
-import com.tuempresa.creditflow.creditflow_api.dto.user.UpdateUserDto;
-import com.tuempresa.creditflow.creditflow_api.dto.user.UserDto;
-import com.tuempresa.creditflow.creditflow_api.dto.user.UserRolDto;
+import com.tuempresa.creditflow.creditflow_api.dto.user.*;
 import com.tuempresa.creditflow.creditflow_api.model.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -24,7 +21,7 @@ public interface UserMapper {
 
     @Mapping(source = "id", target = "userId")
     @Mapping(target = "username", expression = "java(mapUsername(user))")
-    UpdateUserDto toUpdatedUser(User user);
+    UserUpdateResponseDto toUserUpdateResponseDto(User user);
 
     @Mapping(source = "id", target = "id")
     @Mapping(target = "username", expression = "java(mapUsername(user))")
