@@ -9,8 +9,4 @@ export default [
     path: 'auth',
     loadChildren: () => import('./auth/auth.routes'),
   },
-  {
-    path: 'kyc',
-    loadChildren: () => import('./kyc/kyc.routes'),
-  },
 ] as Routes;
