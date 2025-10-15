@@ -82,7 +82,7 @@ public class SecurityConfiguration {
                 "/swagger-ui-custom.html",
                 "/public/lead/create",
                 "/auth/oauth-success",
-                "/ping/pong"
+                "/ping/pong",
                 "/public/**",
                 "/auth/register"
         };
