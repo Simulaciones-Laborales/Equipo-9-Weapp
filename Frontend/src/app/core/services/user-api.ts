@@ -9,7 +9,7 @@ import { lastValueFrom } from 'rxjs';
   providedIn: 'root',
 })
 export class UserApi {
-  private readonly _url = `${environment.apiUrl}/users`;
+  private readonly _url = `${environment.apiUrl}/user`;
   private readonly _http = inject(HttpClient);
 
   async getAllKYC(userId: string) {
