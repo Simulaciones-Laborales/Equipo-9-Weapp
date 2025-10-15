@@ -23,10 +23,6 @@ export default [
         loadComponent: () => import('../company/company'),
       },
       {
-        path: 'kyc',
-        loadChildren: () => import('../kyc/kyc.routes'),
-      },
-      {
         path: 'perfil',
         loadComponent: () => import('../profile/profile'),
       },
