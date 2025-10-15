@@ -85,7 +85,7 @@ public class AuthServiceImpl implements AuthService {
                 .dni(request.dni())
                 .birthDate(birthDate)
                 .country(request.country())
-                .isActive(Boolean.FALSE)
+                .isActive(Boolean.TRUE)
                 .role(User.Role.PYME)
                 .build();
 
