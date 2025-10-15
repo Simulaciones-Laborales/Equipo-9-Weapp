@@ -5,7 +5,7 @@ import {
   HttpResponse,
 } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { key } from '@core/utils/http-error-utils';
+import { key } from '@core/utils/http-utils';
 import { MessageService } from 'primeng/api';
 import { catchError, tap, throwError } from 'rxjs';
 

@@ -1,9 +1,10 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from 'environments/environment.development';
 import { LoginReq, LoginRes, RegisterModel } from '../models/auth-model';
 import { Response } from '@core/models/response-model';
 import { lastValueFrom } from 'rxjs';
+import { SKIP_INTERCEPTOR_HEADER } from '@core/utils/http-utils';
 
 @Injectable({
   providedIn: 'root',
@@ -20,6 +21,7 @@ export class AuthApi {
    */
   async generateResetToken(email: string) {
     const call = this._http.post<{ token: string }>(`${this._url}/generate-reset-token`, { email });
+
     return await lastValueFrom(call);
   }
 
@@ -30,7 +32,9 @@ export class AuthApi {
    * @returns json con data del usuario y el token de acceso.
    */
   async login(dto: LoginReq) {
-    const call = this._http.post<Response<LoginRes>>(`${this._url}/login`, dto);
+    const headers = new HttpHeaders().set(SKIP_INTERCEPTOR_HEADER, 'true');
+    const call = this._http.post<Response<LoginRes>>(`${this._url}/login`, dto, { headers });
+
     return lastValueFrom(call);
   }
 
@@ -42,7 +46,9 @@ export class AuthApi {
    * @returns datos del usuario.
    */
   async register(dto: RegisterModel) {
-    const call = this._http.post<Response<LoginRes>>(`${this._url}/register`, dto);
+    const headers = new HttpHeaders().set(SKIP_INTERCEPTOR_HEADER, 'true');
+    const call = this._http.post<Response<LoginRes>>(`${this._url}/register`, dto, { headers });
+
     return await lastValueFrom(call);
   }
 }
