@@ -1,7 +1,8 @@
 <p-card>
   <article class="flex flex-col gap-y-7">
-    <header>
+    <header class="flex items-center justify-between gap-x-5">
       <app-title [headline]="`Bienvenido ${user?.username ?? ''}`" />
+      <p-button severity="contrast" label="Cerrar sesión" (onClick)="logout()" />
     </header>
     <p-divider />
     <section class="w-full max-w-xl">

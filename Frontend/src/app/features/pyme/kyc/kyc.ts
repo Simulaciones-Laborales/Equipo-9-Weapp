@@ -18,12 +18,12 @@ export default class Kyc {
   readonly store = inject(KycStore);
 
   constructor() {
-    effect(() => {
+    effect(async () => {
       const status = this.store.status();
 
       switch (status) {
         case 'success':
-          this._success();
+          await this._success();
           break;
       }
     });
@@ -39,7 +39,10 @@ export default class Kyc {
     await this.store.fetchAllByUserId(user.id);
   }
 
-  private _success() {}
+  private async _success() {
+    if (this.store.kyc()?.data.length === 0) {
+    }
+  }
 
   private _redirectToAuth() {
     this._router.navigate(['..', 'auth'], { relativeTo: this._route });

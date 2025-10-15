@@ -5,6 +5,7 @@ import { Card } from 'primeng/card';
 import { Subtitle } from '@components/subtitle/subtitle';
 import { Button } from 'primeng/button';
 import { Divider } from 'primeng/divider';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard',
@@ -14,8 +15,14 @@ import { Divider } from 'primeng/divider';
 })
 export default class Dashboard {
   private readonly _tokenStorage = inject(TokenStorage);
+  private readonly _router = inject(Router);
 
   get user() {
     return this._tokenStorage.user();
+  }
+
+  logout() {
+    this._tokenStorage.clear();
+    this._router.navigateByUrl('pyme/auth');
   }
 }

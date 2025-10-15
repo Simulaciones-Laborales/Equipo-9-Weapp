@@ -8,7 +8,7 @@ import { lastValueFrom } from 'rxjs';
   providedIn: 'root',
 })
 export class CreditApplicationApi {
-  private readonly _url = `${environment.apiUrl}/credit-applications`;
+  private readonly _url = `${environment.apiUrl}/api/credit-applications`;
   private readonly _http = inject(HttpClient);
 
   /**
