@@ -49,6 +49,15 @@ public class KycVerificationService {
                 .collect(Collectors.toList());
     }
 
+    public ExtendedBaseResponse<List<KycVerificationResponseDTO>> getAllByUserId(UUID userId) {
+        final var kycVerifications = kycRepo.findByUserId(userId)
+                .stream()
+                .map(this::toResponseDTO)
+                .toList();
+
+        return ExtendedBaseResponse.of(BaseResponse.ok("Listado de KYC cargado exitosamente"), kycVerifications);
+    }
+
     public KycVerificationResponseDTO getById(UUID id) {
         KycVerification kyc = kycRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("KYC not found"));
