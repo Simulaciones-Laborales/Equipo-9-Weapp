@@ -65,7 +65,7 @@ public class UserController {
             content = @Content(mediaType = "application/json")
     )
     @GetMapping(path = "/{id}/kyc")
-    public ResponseEntity<ExtendedBaseResponse<List<KycVerificationResponseDTO>>> findAllKycVerifications(@PathVariable UUID userId) {
+    public ResponseEntity<ExtendedBaseResponse<List<KycVerificationResponseDTO>>> findAllKycVerifications(@PathVariable("id") UUID userId) {
         return ResponseEntity.ok(kycVerificationService.getAllByUserId(userId));
     }
 
