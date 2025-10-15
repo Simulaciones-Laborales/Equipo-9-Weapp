@@ -1,7 +1,9 @@
 package com.tuempresa.creditflow.creditflow_api.controller;
 
 import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
+import com.tuempresa.creditflow.creditflow_api.dto.KycVerificationResponseDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.user.*;
+import com.tuempresa.creditflow.creditflow_api.service.KycVerificationService;
 import com.tuempresa.creditflow.creditflow_api.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -24,6 +26,7 @@ import java.util.UUID;
 @RequestMapping("/user")
 public class UserController {
     private final UserService userService;
+    private final KycVerificationService kycVerificationService;
 
     @Operation(
             summary = "Buscar usuario por ID",
@@ -50,6 +53,20 @@ public class UserController {
     public ResponseEntity<ExtendedBaseResponse<UserDto>> findUserById(@PathVariable UUID id) {
         ExtendedBaseResponse<UserDto> response = userService.findUserById(id);
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(
+            summary = "Consulta todos los KYC registrados por el usuario",
+            description = "Realiza una búsqueda de todos los procesos de verificación de KYC solicitados según el ID de un usuario. Si no encuentra ningún registro, devuelve un listado vacío,"
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Listado cargado correctamente",
+            content = @Content(mediaType = "application/json")
+    )
+    @GetMapping(path = "/{id}/kyc")
+    public ResponseEntity<ExtendedBaseResponse<List<KycVerificationResponseDTO>>> findAllKycVerifications(@PathVariable UUID userId) {
+        return ResponseEntity.ok(kycVerificationService.getAllByUserId(userId));
     }
 
     @Operation(

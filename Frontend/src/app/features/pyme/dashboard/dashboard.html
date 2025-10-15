@@ -1,1 +1,18 @@
-<p>dashboard works!</p>
+<p-card>
+  <article class="flex flex-col gap-y-7">
+    <header>
+      <app-title [headline]="`Bienvenido ${user?.username ?? ''}`" />
+    </header>
+    <p-divider />
+    <section class="w-full max-w-xl">
+      <div class="flex items-center justify-between gap-x-5">
+        <div class="flex flex-col gap-y-2.5">
+          <app-subtitle headline="Estado del KYC" />
+          <p>Por verificar</p>
+        </div>
+        <p-button label="Verificar KYC" />
+      </div>
+    </section>
+    <p-divider />
+  </article>
+</p-card>
