@@ -4,6 +4,7 @@ import com.tuempresa.creditflow.creditflow_api.dto.history.CreditApplicationHist
 import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.CreditApplicationRequestDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.CreditApplicationResponseDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.CreditApplicationStatusChangeDTO;
+import com.tuempresa.creditflow.creditflow_api.model.CreditStatus;
 import com.tuempresa.creditflow.creditflow_api.model.User;
 import com.tuempresa.creditflow.creditflow_api.service.CreditApplicationHistoryService;
 import com.tuempresa.creditflow.creditflow_api.service.CreditApplicationService;
@@ -62,6 +63,18 @@ public class CreditApplicationController {
         User currentUser = getAuthenticatedUser();
         CreditApplicationResponseDTO dto = creditApplicationService.getApplicationByIdAndUser(id, currentUser);
         return ResponseEntity.ok(dto);
+    }
+
+    // -------------------------
+    // Get all credit applications of the authenticated user
+    // GET /api/credit-applications/my
+    // -------------------------
+    @GetMapping("/my")
+    public ResponseEntity<List<CreditApplicationResponseDTO>> getMyCreditApplications(@RequestParam(value = "status", required = false) CreditStatus status
+    ) {
+        User currentUser = getAuthenticatedUser();
+        List<CreditApplicationResponseDTO> applications = creditApplicationService.getCreditApplicationsByUser(currentUser, status);
+        return ResponseEntity.ok(applications);
     }
 
     // -------------------------

@@ -67,5 +67,14 @@ public interface CreditApplicationService {
      */
     void deleteApplication(UUID id, User user);
 
+    /**
+     * Obtiene una solicitud de crédito específica por su status,
+     * solo si pertenece al usuario autenticado.
+     *
+     * @param status  CreditStatus de la solicitud de crédito.
+     * @param user Usuario autenticado.
+     * @return una lista DTO con la información de la solicitud.
+     */
+    List<CreditApplicationResponseDTO> getCreditApplicationsByUser(User user, CreditStatus status);
 }
 
