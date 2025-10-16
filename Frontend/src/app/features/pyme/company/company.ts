@@ -46,6 +46,14 @@ export default class Company {
           this._fetchCompaniesSuccess();
           break;
       }
+
+      const createCompanyStatus = this.store.createCompanyStatus();
+
+      switch (createCompanyStatus) {
+        case 'success':
+          this._createNewCompanySuccess();
+          break;
+      }
     });
   }
 
@@ -82,6 +90,10 @@ export default class Company {
   }
 
   async createNewCompany(req: CompanyRequest) {
-    this.store.createCompany(req);
+    await this.store.createCompany(req);
+  }
+
+  private _createNewCompanySuccess() {
+    this.store.setShowCompanies(true);
   }
 }

@@ -17,6 +17,7 @@ type State = {
   getCompaniesStatus: Status;
   showNewCompanyForm: boolean;
   createCompanyStatus: Status;
+  showCompanies: boolean;
 };
 
 const initialState: State = {
@@ -28,6 +29,7 @@ const initialState: State = {
   getCompaniesStatus: 'pending',
   showNewCompanyForm: false,
   createCompanyStatus: 'pending',
+  showCompanies: false,
 };
 
 export const CompanyStore = signalStore(
@@ -107,6 +109,9 @@ export const CompanyStore = signalStore(
         } catch (e) {
           patchState(store, { createCompanyStatus: 'failure' });
         }
+      },
+      setShowCompanies: (show: boolean) => {
+        patchState(store, { showCompanies: show });
       },
     })
   )
