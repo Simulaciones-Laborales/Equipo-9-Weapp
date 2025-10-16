@@ -11,9 +11,7 @@ public interface UserService {
 
     ExtendedBaseResponse<UserDto> findUserById(UUID id);
 
-    ExtendedBaseResponse<UpdateUserDto> updateUser(UpdateUserDto updateUserDto);
-
-    ExtendedBaseResponse<UserRolDto> changeUserRole(ChangeUserRoleDto data);
+    ExtendedBaseResponse<UserUpdateResponseDto> updateUser(UserUpdateRequestDto updateUserDto);
 
     ExtendedBaseResponse<List<UserDto>> userLists();
 

@@ -1,7 +1,10 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from 'environments/environment.development';
 import { LoginReq, LoginRes, RegisterModel } from '../models/auth-model';
+import { Response } from '@core/models/response-model';
+import { lastValueFrom } from 'rxjs';
+import { SKIP_INTERCEPTOR_HEADER } from '@core/utils/http-utils';
 
 @Injectable({
   providedIn: 'root',
@@ -16,8 +19,10 @@ export class AuthApi {
    * @param email correo electrónico del usuario a generar el token.
    * @returns un json con el token generado.
    */
-  generateResetToken(email: string) {
-    return this._http.post<{ token: string }>(`${this._url}/generate-reset-token`, { email });
+  async generateResetToken(email: string) {
+    const call = this._http.post<{ token: string }>(`${this._url}/generate-reset-token`, { email });
+
+    return await lastValueFrom(call);
   }
 
   /**
@@ -26,18 +31,24 @@ export class AuthApi {
    * @param dto credenciales del usuario para iniciar sesión.
    * @returns json con data del usuario y el token de acceso.
    */
-  login(dto: LoginReq) {
-    return this._http.post<LoginRes>(`${this._url}/login`, dto);
+  async login(dto: LoginReq) {
+    const headers = new HttpHeaders().set(SKIP_INTERCEPTOR_HEADER, 'true');
+    const call = this._http.post<Response<LoginRes>>(`${this._url}/login`, dto, { headers });
+
+    return lastValueFrom(call);
   }
 
   /**
    * Permite registrar un nuevo usuario PYME al sistema.
    * Se deben proporcionar los datos completos del usuario, incluyendo: nombres, apellidos, correo electrónico, contacto.
    *
-   * @param dto
-   * @returns
+   * @param dto datos de registro.
+   * @returns datos del usuario.
    */
-  register(dto: RegisterModel) {
-    return this._http.post<LoginRes>(`${this._url}/register`, dto);
+  async register(dto: RegisterModel) {
+    const headers = new HttpHeaders().set(SKIP_INTERCEPTOR_HEADER, 'true');
+    const call = this._http.post<Response<LoginRes>>(`${this._url}/register`, dto, { headers });
+
+    return await lastValueFrom(call);
   }
 }

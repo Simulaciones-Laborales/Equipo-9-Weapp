@@ -4,19 +4,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 
 public record RegisterRequestDto(
-       /* @Schema(
-                description = "Nombre de usuario con al menos 10 letras, puede incluir espacios, apóstrofes o guiones.",
-                example = "Ignacio Díaz"
-        )
-        @Pattern(
-                regexp = "^(?=\\S*[a-zA-ZÀ-ÿ])(?=(?:\\S*\\s*){3,})[a-zA-ZÀ-ÿ\\s'-]+$",
-                message = "El userName de usuario debe tener al menos 10 letras y puede incluir espacios, apóstrofes o guiones"
-        )
-        @NotBlank(message = "El nombre de usuario no puede estar en blanco")
-        @Size(max = 50, message = "El nombre de usuario no puede exceder los 50 caracteres")
-        String username,*/
 
         @Schema(
                 description = "Nombre de usuario con al menos 3 letras, puede incluir espacios, apóstrofes o guiones.",
@@ -44,7 +34,7 @@ public record RegisterRequestDto(
 
         @Schema(
                 description = "Correo electrónico válido y existente",
-                example = "Ignacio_Galeassi@example.com"
+                example = "user@dominio.com"
         )
         @Pattern(
                 regexp = "^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,6}$",
@@ -56,16 +46,52 @@ public record RegisterRequestDto(
         String email,
 
         @Schema(
-                description = "Número de contacto válido que solo contiene dígitos.",
-                example = "+54 351-2854563"
+                description = "Contraseña segura que debe contener al menos 8 caracteres, incluyendo mayúsculas, minúsculas, números y símbolos especiales",
+                example = "12345678Pro+"
         )
+        @NotBlank(message = "La contraseña no puede estar en blanco")
+        @Size(min = 8, max = 50, message = "La contraseña debe tener entre 8 y 50 caracteres")
+        @Pattern(
+                regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?])[A-Za-z\\d!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?]{8,50}$",
+                message = "La contraseña debe incluir al menos una mayúscula, una minúscula, un número y un símbolo especial"
+        )
+        String password,
+
+        @Schema(description = "Número de contacto válido que solo contiene dígitos.", example = "+54 015-22540454")
         @Pattern(
                 regexp = "^\\+?\\d{1,4}[\\s-]?\\d{1,4}[\\s-]?\\d{4,10}$",
                 message = "El contacto debe estar en formato válido, por ejemplo: +54 351-2854563"
         )
         @NotBlank(message = "El contacto no puede estar en blanco")
         @Size(max = 20, message = "El contacto no puede exceder los 20 caracteres")
-        String contact
+        String contact,
+
+        @Schema(
+                description = "Fecha de nacimiento del usuario en formato dd/MM/yyyy",
+                example = "15/05/1990"
+        )
+        @NotBlank(message = "La fecha de nacimiento no puede estar en blanco")
+        @Pattern(
+                regexp = "^([0-2][0-9]|3[0-1])/([0][1-9]|1[0-2])/\\d{4}$",
+                message = "La fecha de nacimiento debe tener el formato dd/MM/yyyy"
+        )
+        String birthDate,
+
+        @Schema(
+                description = "Documento Nacional de Identidad (DNI) o identificación equivalente",
+                example = "12345678"
+        )
+        @NotBlank(message = "El DNI no puede estar en blanco")
+        @Size(max = 20, message = "El DNI no puede exceder los 20 caracteres")
+        String dni,
+
+        @Schema(
+                description = "País de residencia del usuario",
+                example = "Argentina"
+        )
+        @NotBlank(message = "El país no puede estar en blanco")
+        @Size(max = 100, message = "El país no puede exceder los 100 caracteres")
+        String country
 ) implements Serializable {
 }
 

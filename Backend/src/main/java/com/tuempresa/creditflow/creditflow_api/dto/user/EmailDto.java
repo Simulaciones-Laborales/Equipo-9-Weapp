@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
 
 public record EmailDto(
-        @Schema(description = "Correo electrónico válido.", example = "Florencia_Galeassi@example.com")
+        @Schema(description = "Correo electrónico válido.", example = "admin@creditflow.com")
         String email
 
 ) implements Serializable {

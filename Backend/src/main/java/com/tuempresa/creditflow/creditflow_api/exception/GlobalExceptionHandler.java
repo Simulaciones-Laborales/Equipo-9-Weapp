@@ -2,12 +2,13 @@ package com.tuempresa.creditflow.creditflow_api.exception;
 
 import com.tuempresa.creditflow.creditflow_api.dto.BaseResponse;
 import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
-import com.tuempresa.creditflow.creditflow_api.exception.userExc.EmailNotFoundException;
-import com.tuempresa.creditflow.creditflow_api.exception.userExc.InvalidCredentialsException;
-import com.tuempresa.creditflow.creditflow_api.exception.userExc.UserDisabledException;
-import com.tuempresa.creditflow.creditflow_api.exception.userExc.UserNotFoundException;
+import com.tuempresa.creditflow.creditflow_api.exception.cloudinaryExc.ImageUploadException;
+import com.tuempresa.creditflow.creditflow_api.exception.kycExc.KycNotFoundException;
+import com.tuempresa.creditflow.creditflow_api.exception.userExc.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -20,7 +21,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
-
+    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
     // -------------------------
     // Existing user-related handlers (kept as in your project)
     // -------------------------
@@ -54,6 +55,49 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(BaseResponse.error(HttpStatus.NOT_FOUND, ex.getMessage()));
+    }
+
+    @ExceptionHandler(EmailAlreadyExistsException.class)
+    public ResponseEntity<BaseResponse> handleEmailAlreadyExists(EmailAlreadyExistsException ex, HttpServletRequest req) {
+        log.warn("EmailAlreadyExistsException at {}: {}", req.getRequestURI(), ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(BaseResponse.error(HttpStatus.CONFLICT, ex.getMessage()));
+    }
+
+    @ExceptionHandler(ContactAlreadyExistsException.class)
+    public ResponseEntity<BaseResponse> handleEmailAlreadyExists(ContactAlreadyExistsException ex, HttpServletRequest req) {
+        log.warn("PhoneAlreadyExistsException at {}: {}", req.getRequestURI(), ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(BaseResponse.error(HttpStatus.CONFLICT, ex.getMessage()));
+    }
+
+    @ExceptionHandler(DniAlreadyExistsException.class)
+    public ResponseEntity<BaseResponse> handleEmailAlreadyExists(DniAlreadyExistsException ex, HttpServletRequest req) {
+        log.warn("DniAlreadyExistsException at {}: {}", req.getRequestURI(), ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(BaseResponse.error(HttpStatus.CONFLICT, ex.getMessage()));
+    }
+    // ----------------------------
+    //Kyc Error
+    @ExceptionHandler(KycNotFoundException.class)
+    public ResponseEntity<BaseResponse> handleKycNotFound(KycNotFoundException ex) {
+        log.warn("KycNotFoundException: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(BaseResponse.error(HttpStatus.NOT_FOUND, ex.getMessage()));
+    }
+
+    // ----------------------------
+    //Cloudinary Error
+    @ExceptionHandler(ImageUploadException.class)
+    public ResponseEntity<BaseResponse> handleImageUploadException(ImageUploadException ex) {
+        logger.error("Error subiendo imagen", ex);
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(BaseResponse.error("Error subiendo imagen: " + ex.getMessage()));
     }
 
     // -------------------------

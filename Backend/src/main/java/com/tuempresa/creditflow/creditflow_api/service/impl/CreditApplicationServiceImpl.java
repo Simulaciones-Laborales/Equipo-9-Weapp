@@ -5,7 +5,9 @@ import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.CreditAppli
 import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.CreditApplicationStatusChangeDTO;
 import com.tuempresa.creditflow.creditflow_api.exception.ConflictException;
 import com.tuempresa.creditflow.creditflow_api.exception.ResourceNotFoundException;
+import com.tuempresa.creditflow.creditflow_api.exception.userExc.UserNotFoundException;
 import com.tuempresa.creditflow.creditflow_api.mapper.CreditApplicationMapper;
+import com.tuempresa.creditflow.creditflow_api.mapper.ICreditApplicationMapper;
 import com.tuempresa.creditflow.creditflow_api.model.Company;
 import com.tuempresa.creditflow.creditflow_api.model.CreditApplication;
 import com.tuempresa.creditflow.creditflow_api.model.CreditApplicationActionType;
@@ -16,6 +18,7 @@ import com.tuempresa.creditflow.creditflow_api.model.User.Role;
 import com.tuempresa.creditflow.creditflow_api.repository.CompanyRepository;
 import com.tuempresa.creditflow.creditflow_api.repository.CreditApplicationHistoryRepository;
 import com.tuempresa.creditflow.creditflow_api.repository.CreditApplicationRepository;
+import com.tuempresa.creditflow.creditflow_api.repository.UserRepository;
 import com.tuempresa.creditflow.creditflow_api.service.CreditApplicationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -32,7 +35,6 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
     private final CreditApplicationRepository creditApplicationRepository;
     private final CompanyRepository companyRepository;
     private final CreditApplicationHistoryRepository historyRepository;
-
     // ---------------------
     // Crear la solicitud para un usuario propietario
     // ---------------------

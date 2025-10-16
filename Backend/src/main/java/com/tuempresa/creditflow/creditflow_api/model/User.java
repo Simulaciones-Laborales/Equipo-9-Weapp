@@ -9,6 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -28,29 +29,48 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     @Column(name = "username", unique = false, nullable = false)
+
     private String username;
+
     private String password;
+
     @Column(name = "email", nullable = false, unique = true)
     private String email;
-    @Column(name = "first_name", unique = false, nullable = false)
+
+    @Column(name = "first_name", nullable = false)
     private String firstName;
-    @Column(name = "last_name", unique = false, nullable = false)
+
+    @Column(name = "last_name", nullable = false)
     private String lastName;
+
     @Column(name = "contact", nullable = false, unique = true)
     private String contact;
+
+    @Column(name = "birth_date", nullable = false)
+    private LocalDate birthDate;
+
+    @Column(name = "dni", unique = true, length = 20)
+    private String dni;
+
+    @Column(name = "country", length = 100)
+    private String country;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
     @UpdateTimestamp
     @Column(nullable = false)
     private LocalDateTime updatedAt;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "user_role", length = 20)
     Role role;
+
     @Column(name = "is_active")
     private Boolean isActive;
+
     private String resetToken;
-    private Boolean wantsEmailNotifications;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

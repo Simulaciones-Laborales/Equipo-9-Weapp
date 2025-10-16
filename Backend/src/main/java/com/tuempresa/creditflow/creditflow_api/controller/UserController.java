@@ -1,7 +1,11 @@
 package com.tuempresa.creditflow.creditflow_api.controller;
 
 import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
+import com.tuempresa.creditflow.creditflow_api.dto.kyc.KycVerificationResponseDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.user.*;
+import com.tuempresa.creditflow.creditflow_api.model.KycStatus;
+import com.tuempresa.creditflow.creditflow_api.service.CreditApplicationService;
+import com.tuempresa.creditflow.creditflow_api.service.KycVerificationService;
 import com.tuempresa.creditflow.creditflow_api.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -24,34 +28,8 @@ import java.util.UUID;
 @RequestMapping("/user")
 public class UserController {
     private final UserService userService;
-
-    /*@Operation(
-            summary = "Actualizar/Cargar la imagen de un usuario",
-            description = "Permite actualizar la imagen de perfil de un usuario proporcionado su ID o carga una nueva imagen, " +
-                    " ademas si esta ya tiene, borra la anterior y la actualiza."
-    )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "201",
-                    description = "Imagen actualizada exitosamente.",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ExtendedBaseResponse.class))
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Usuario no encontrado.",
-                    content = @Content
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "Error al actualizar la imagen.",
-                    content = @Content
-            )
-    })
-    @PostMapping(value = "/images/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ExtendedBaseResponse<String>> updateUserImage(@Valid @ModelAttribute UpDateImagesUserDto dto) {
-        ExtendedBaseResponse<String> datos = userService.upDateImagesUser(dto);
-        return ResponseEntity.status(201).body(datos);
-    }*/
+    private final KycVerificationService kycVerificationService;
+    private final CreditApplicationService creditService;
 
     @Operation(
             summary = "Buscar usuario por ID",
@@ -81,6 +59,54 @@ public class UserController {
     }
 
     @Operation(
+            summary = "Consulta todos los KYC registrados por el usuario",
+            description = "Obtiene todos los procesos de verificación KYC de un usuario por su ID. Devuelve un listado vacío si no hay registros."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Listado cargado correctamente",
+                    content = @Content(mediaType = "application/json")
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Usuario no encontrado",
+                    content = @Content(mediaType = "application/json")
+            )
+    })
+    @GetMapping("/{id}/kyc/all")
+    public ResponseEntity<List<KycVerificationResponseDTO>> getAllKycByUserId(@PathVariable("id") UUID userId) {
+        List<KycVerificationResponseDTO> kycList = kycVerificationService.getAllKcyByUserId(userId);
+        return ResponseEntity.ok(kycList);
+    }
+
+    @Operation(
+            summary = "Consulta KYC por usuario y opcionalmente por estado",
+            description = "Obtiene todos los procesos de verificación KYC de un usuario. Se puede filtrar por estado. Devuelve un listado vacío si no hay registros."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Listado cargado correctamente",
+                    content = @Content(mediaType = "application/json")
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Usuario no encontrado",
+                    content = @Content(mediaType = "application/json")
+            )
+    })
+    @GetMapping("/{id}/kyc")
+    public ResponseEntity<List<KycVerificationResponseDTO>> getAllKycByUserIdAndStatus(
+            @PathVariable("id") UUID userId,
+            @RequestParam(value = "status", required = false) KycStatus status
+    ) {
+        return ResponseEntity.ok(
+                kycVerificationService.getAllByUserIdAndOptionalStatus(userId, status)
+        );
+    }
+
+    @Operation(
             summary = "Actualizar datos de un usuario",
             description = "Permite actualizar los datos de un usuario proporcionado su ID y los nuevos valores."
     )
@@ -88,7 +114,7 @@ public class UserController {
             @ApiResponse(
                     responseCode = "200",
                     description = "Usuario actualizado exitosamente.",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = UpdateUserDto.class))
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserUpdateRequestDto.class))
             ),
             @ApiResponse(
                     responseCode = "404",
@@ -102,34 +128,8 @@ public class UserController {
             )
     })
     @PutMapping(value = "/update", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ExtendedBaseResponse<UpdateUserDto> updateUser(@Valid @RequestBody UpdateUserDto updateUserDto) {
+    public ExtendedBaseResponse<UserUpdateResponseDto> updateUser(@Valid @RequestBody UserUpdateRequestDto updateUserDto) {
         return userService.updateUser(updateUserDto);
-    }
-
-    @Operation(
-            summary = "Actualizar el Rol de un usuario, roles: ( SUPER_ADMIN, ADMIN_DE_CONTENIDO, USUARIO, CRM)",
-            description = "Permite actualizar los datos de un usuario proporcionado su ID y su Rol."
-    )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Usuario actualizado exitosamente.",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserRolDto.class))
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Usuario no encontrado.",
-                    content = @Content
-            ),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "Error al actualizar los datos del usuario.",
-                    content = @Content
-            )
-    })
-    @PutMapping(value = "/update-rol", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ExtendedBaseResponse<UserRolDto> updateUserRolDto(@Valid @RequestBody ChangeUserRoleDto changeUserRoleDto) {
-        return userService.changeUserRole(changeUserRoleDto);
     }
 
     @Operation(summary = "Listar todos los usuarios",
@@ -185,4 +185,5 @@ public class UserController {
     public ExtendedBaseResponse<String> deleteUser(@PathVariable UUID id) {
         return userService.deleteUserById(id);
     }
+
 }
