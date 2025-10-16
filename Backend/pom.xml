@@ -110,6 +110,13 @@
 			<version>4.10.0</version>
 		</dependency>
 
+		<!-- SendGrid -->
+		<dependency>
+			<groupId>com.cloudinary</groupId>
+			<artifactId>cloudinary-http44</artifactId>
+			<version>1.37.0</version>
+		</dependency>
+
 		<!-- Lombok Dependency -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>

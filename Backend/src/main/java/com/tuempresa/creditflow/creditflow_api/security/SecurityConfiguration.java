@@ -43,6 +43,9 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.GET, "/user/list-active").hasAnyAuthority("OPERADOR", "ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/user/change-status").hasAnyAuthority("OPERADOR", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/user/{id}").hasAuthority("SUPER_ADMIN")
+
+                        // KYC VERIFICATIONS -----------------------------------------------------
+                        .requestMatchers(HttpMethod.POST, "/api/kyc/start").hasAnyAuthority("PYME")
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
