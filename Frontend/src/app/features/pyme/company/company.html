@@ -33,6 +33,17 @@
         (onSubmit)="createNewCompany($event)"
       />
     </section>
+    } @else if (store.showCompanies()) {
+    <section class="flex flex-col gap-y-5">
+      <app-subtitle headline="Mis Empresas" />
+      <ul class="flex flex-col gap-y-3.5">
+        @for (company of store.companies(); track $index) {
+        <li>
+          <app-company-info [company]="company" class="w-full" />
+        </li>
+        }
+      </ul>
+    </section>
     } }
   </article>
 </p-card>

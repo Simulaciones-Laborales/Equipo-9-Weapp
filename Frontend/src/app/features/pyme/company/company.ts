@@ -9,10 +9,11 @@ import { Subtitle } from '@components/subtitle/subtitle';
 import { NewCompanyForm } from './components/new-company-form/new-company-form';
 import { KycVerificationFiles } from '@core/types';
 import { CompanyRequest } from './models/company-model';
+import { CompanyInfo } from './components/company-info/company-info';
 
 @Component({
   selector: 'app-company',
-  imports: [Card, Title, ProgressSpinner, NewKycForm, Subtitle, NewCompanyForm],
+  imports: [Card, Title, ProgressSpinner, NewKycForm, Subtitle, NewCompanyForm, CompanyInfo],
   templateUrl: './company.html',
   styleUrl: './company.css',
   providers: [CompanyStore],
