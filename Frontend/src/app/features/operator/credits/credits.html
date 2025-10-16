@@ -1,1 +1,28 @@
-<p>credits works!</p>
+<div class="flex flex-col gap-y-12">
+  <header>
+    <app-title headline="Solicitudes de Crédito" />
+  </header>
+  <section>
+    <app-subtitle headline="Listado de Solicitudes" />
+    <p-table>
+      <ng-template #header>
+        <tr>
+          <th scope="col">Cantidad</th>
+          <th scope="col">Estado</th>
+          <th scope="col">Fecha de solicitud</th>
+          <th scope="col"></th>
+        </tr>
+      </ng-template>
+      <ng-template #body>
+        <tr>
+          <td>{{ 280 | currency }}</td>
+          <td>Pendiente</td>
+          <td>{{ today | date }}</td>
+          <td>
+            <p-button label="Aceptar" severity="success" />
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </section>
+</div>
