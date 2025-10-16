@@ -7,6 +7,7 @@ import { ProgressSpinner } from 'primeng/progressspinner';
 import { NewKycForm } from './components/new-kyc-form/new-kyc-form';
 import { Subtitle } from '@components/subtitle/subtitle';
 import { NewCompanyForm } from './components/new-company-form/new-company-form';
+import { KycVerificationFiles } from '@core/types';
 
 @Component({
   selector: 'app-company',
@@ -26,6 +27,14 @@ export default class Company {
       switch (kycStatus) {
         case 'success':
           await this._fetchKycSuccess();
+          break;
+      }
+
+      const kycVerification = this.store.kycVerificationStatus();
+
+      switch (kycVerification) {
+        case 'success':
+          await this._kycVerificationSuccess();
           break;
       }
 
@@ -55,6 +64,14 @@ export default class Company {
     } else {
       await this.store.getCompanies();
     }
+  }
+
+  async startKycVerification(files: KycVerificationFiles) {
+    await this.store.startKycVerification(files.selfie!, files.dniFront!, files.dniBack!);
+  }
+
+  private async _kycVerificationSuccess() {
+    await this.store.getCompanies();
   }
 
   private _fetchCompaniesSuccess() {

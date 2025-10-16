@@ -3,12 +3,10 @@
     <header>
       <app-title headline="Mi Empresa" />
     </header>
-    @if (store.kycStatus() === 'loading' || store.getCompaniesStatus() === 'loading') {
+    @if (store.loadingMessage() !== null) {
     <div class="flex flex-col items-center justify-center gap-y-1" role="progressbar">
       <p-progressSpinner />
-      <p class="text-surface-600 font-medium">
-        Cargando {{ store.kycStatus() === 'loading' ? 'KYC' : 'empresas' }}...
-      </p>
+      <p class="text-surface-600 font-medium">{{ store.loadingMessage() }}</p>
     </div>
     } @else { @if (store.showNewKycForm()) {
     <section class="flex flex-col gap-y-5">
@@ -19,7 +17,7 @@
           empresa.
         </p>
       </header>
-      <app-new-kyc-form />
+      <app-new-kyc-form (onSubmit)="startKycVerification($event)" />
     </section>
     } @else if (store.showNewCompanyForm()) {
     <section class="flex flex-col gap-y-5">
