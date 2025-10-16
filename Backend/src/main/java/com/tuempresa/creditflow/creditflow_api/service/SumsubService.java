@@ -19,7 +19,7 @@ public class SumsubService {
     @Value("${sumsub.api.token:}")
     private String apiToken;
 
-    @Value("${sumsub.mock:false}")  // si es true => modo simulación
+    @Value("${sumsub.mock:true}")  // si es true => modo simulación
     private boolean mockMode;
 
     private final RestTemplate restTemplate = new RestTemplate();

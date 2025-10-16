@@ -1,6 +1,8 @@
 package com.tuempresa.creditflow.creditflow_api.service;
 
 import com.cloudinary.utils.ObjectUtils;
+import com.tuempresa.creditflow.creditflow_api.dto.BaseResponse;
+import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
 import com.tuempresa.creditflow.creditflow_api.dto.kyc.*;
 import com.tuempresa.creditflow.creditflow_api.exception.cloudinaryExc.ImageUploadException;
 import com.tuempresa.creditflow.creditflow_api.exception.kycExc.KycNotFoundException;
@@ -152,6 +154,17 @@ public class KycVerificationService {
     /**
      * Devuelve un KYC por su ID.
      */
+    public ExtendedBaseResponse<List<KycVerificationResponseDTO>> getAllByUserId(UUID userId) {
+        final var kycVerifications = kycRepo.findByUserId(userId)
+                .stream()
+                .map(kycMapper::toResponseDto)
+                .toList();
+
+        return ExtendedBaseResponse.of(BaseResponse.ok("Listado de KYC cargado exitosamente"), kycVerifications);
+    }
+
+
+
     public KycVerificationResponseDTO getById(UUID id) {
         KycVerification kyc = kycRepo.findById(id)
                 .orElseThrow(() -> new KycNotFoundException("KYC no encontrado con ID: " + id));
