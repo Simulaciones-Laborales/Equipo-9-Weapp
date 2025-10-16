@@ -1,39 +1,64 @@
 <form [formGroup]="form">
   <p-fieldset legend="Formulario de Registro" class="text-lg">
     <div class="flex flex-col gap-y-5">
-      <p-float-label>
-        <input
-          type="text"
-          id="name"
-          formControlName="name"
-          pInputText
-          fluid
-          [invalid]="isInvalid('name')"
-        />
-        <label for="name">Nombre de la Empresa</label>
-      </p-float-label>
-      <p-float-label>
-        <input
-          type="text"
-          id="taxId"
-          formControlName="taxId"
-          pInputText
-          fluid
-          [invalid]="isInvalid('taxId')"
-        />
-        <label for="taxId">ID del TAX</label>
-      </p-float-label>
-      <p-float-label>
-        <input
-          type="number"
-          id="annualIncome"
-          formControlName="annualIncome"
-          pInputText
-          fluid
-          [invalid]="isInvalid('annualIncome')"
-        />
-        <label for="annualIncome">Ingreso Anual</label>
-      </p-float-label>
+      <div class="flex flex-col gap-y-1">
+        <p-float-label>
+          <input
+            type="text"
+            id="name"
+            formControlName="name"
+            pInputText
+            fluid
+            [invalid]="isInvalid('name')"
+          />
+          <label for="name">Nombre de la Empresa</label>
+        </p-float-label>
+        @if (isInvalid('name')) {
+        <p-message severity="error" size="small" variant="simple">
+          El nombre de la empresa es requerido
+        </p-message>
+        }
+      </div>
+      <div class="flex flex-col gap-y-1">
+        <p-float-label>
+          <input
+            type="text"
+            id="taxId"
+            formControlName="taxId"
+            pInputText
+            fluid
+            [invalid]="isInvalid('taxId')"
+          />
+          <label for="taxId">ID del TAX</label>
+        </p-float-label>
+        @if (isInvalid('taxId')) {
+        <p-message severity="error" size="small" variant="simple">
+          El ID del TAX es requerido
+        </p-message>
+        }
+      </div>
+      <div class="flex flex-col gap-y-1">
+        <p-float-label>
+          <input
+            type="number"
+            id="annualIncome"
+            formControlName="annualIncome"
+            pInputText
+            fluid
+            [invalid]="isInvalid('annualIncome')"
+          />
+          <label for="annualIncome">Ingreso Anual</label>
+        </p-float-label>
+        @if (isInvalid('annualIncome')) { @if (getError('annualIncome', 'required')) {
+        <p-message severity="error" size="small" variant="simple">
+          El Ingreso Anual es requerido
+        </p-message>
+        } @if (getError('annualIncome', 'min')) {
+        <p-message severity="error" size="small" variant="simple">
+          El Ingreso Anual debe ser igual o mayor a cero
+        </p-message>
+        } }
+      </div>
     </div>
   </p-fieldset>
   <p-button label="Completar Registro" type="submit" fluid [loading]="loading()" />

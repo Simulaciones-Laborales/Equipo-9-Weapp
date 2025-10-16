@@ -6,10 +6,11 @@ import { InputText } from 'primeng/inputtext';
 import { Button } from 'primeng/button';
 import { CompanyRequest } from '../../models/company-model';
 import { getError, isInvalid } from '@core/utils/form-utils';
+import { Message } from 'primeng/message';
 
 @Component({
   selector: 'app-new-company-form',
-  imports: [ReactiveFormsModule, Fieldset, FloatLabel, InputText, Button],
+  imports: [ReactiveFormsModule, Fieldset, FloatLabel, InputText, Button, Message],
   templateUrl: './new-company-form.html',
   styleUrl: './new-company-form.css',
 })
