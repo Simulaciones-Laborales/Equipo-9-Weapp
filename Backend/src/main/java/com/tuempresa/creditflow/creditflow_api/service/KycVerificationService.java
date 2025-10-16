@@ -154,16 +154,38 @@ public class KycVerificationService {
     /**
      * Devuelve un KYC por su ID.
      */
-    public ExtendedBaseResponse<List<KycVerificationResponseDTO>> getAllByUserId(UUID userId) {
-        final var kycVerifications = kycRepo.findByUserId(userId)
+    @Transactional(readOnly = true)
+    public List<KycVerificationResponseDTO> getAllKcyByUserId(UUID userId) {
+        if (!userRepo.existsById(userId)) {
+            throw new UserNotFoundException("Usuario no encontrado con ID: " + userId);
+        }
+
+        return kycRepo.findByUserId(userId)
                 .stream()
                 .map(kycMapper::toResponseDto)
                 .toList();
-
-        return ExtendedBaseResponse.of(BaseResponse.ok("Listado de KYC cargado exitosamente"), kycVerifications);
     }
 
+    @Transactional(readOnly = true)
+    public List<KycVerificationResponseDTO> getAllByUserIdAndOptionalStatus(UUID userId, KycStatus status) {
+        // Validación de usuario
+        if (!userRepo.existsById(userId)) {
+            throw new UserNotFoundException("Usuario no encontrado con ID: " + userId);
+        }
 
+        // Consulta con o sin filtro de estado
+        Optional<KycVerification> kycList;
+        if (status != null) {
+            kycList = kycRepo.findByUserIdAndStatus(userId, status);
+        } else {
+            kycList = kycRepo.findByUserId(userId);
+        }
+
+        // Conversión a DTO
+        return kycList.stream()
+                .map(kycMapper::toResponseDto)
+                .toList();
+    }
 
     public KycVerificationResponseDTO getById(UUID id) {
         KycVerification kyc = kycRepo.findById(id)

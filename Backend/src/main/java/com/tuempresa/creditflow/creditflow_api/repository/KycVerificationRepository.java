@@ -1,5 +1,6 @@
 package com.tuempresa.creditflow.creditflow_api.repository;
 
+import com.tuempresa.creditflow.creditflow_api.model.KycStatus;
 import com.tuempresa.creditflow.creditflow_api.model.KycVerification;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -10,4 +11,5 @@ import java.util.UUID;
 public interface KycVerificationRepository extends JpaRepository<KycVerification, UUID> {
     Optional<KycVerification> findByUserId(UUID userId);
     boolean existsByUserId(UUID userId);
+    Optional<KycVerification> findByUserIdAndStatus(UUID userId, KycStatus status);
 }

@@ -18,4 +18,5 @@ public interface CreditApplicationRepository extends JpaRepository<CreditApplica
 
     // Buscar por company id (sin cargar la entidad company) — útil para endpoints públicos
     List<CreditApplication> findByCompany_Id(UUID companyId);
+
 }
