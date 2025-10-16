@@ -28,7 +28,10 @@
           su registro.
         </p>
       </header>
-      <app-new-company-form />
+      <app-new-company-form
+        [loading]="store.createCompanyStatus() === 'loading'"
+        (onSubmit)="createNewCompany($event)"
+      />
     </section>
     } }
   </article>

@@ -8,6 +8,7 @@ import { NewKycForm } from './components/new-kyc-form/new-kyc-form';
 import { Subtitle } from '@components/subtitle/subtitle';
 import { NewCompanyForm } from './components/new-company-form/new-company-form';
 import { KycVerificationFiles } from '@core/types';
+import { CompanyRequest } from './models/company-model';
 
 @Component({
   selector: 'app-company',
@@ -78,5 +79,9 @@ export default class Company {
     if (this.store.companies().length === 0) {
       this.store.setShowNewCompanyForm(true);
     }
+  }
+
+  async createNewCompany(req: CompanyRequest) {
+    this.store.createCompany(req);
   }
 }
