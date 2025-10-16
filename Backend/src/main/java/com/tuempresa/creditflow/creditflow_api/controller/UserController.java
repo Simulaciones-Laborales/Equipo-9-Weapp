@@ -1,7 +1,7 @@
 package com.tuempresa.creditflow.creditflow_api.controller;
 
 import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
-import com.tuempresa.creditflow.creditflow_api.dto.KycVerificationResponseDTO;
+import com.tuempresa.creditflow.creditflow_api.dto.kyc.KycVerificationResponseDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.user.*;
 import com.tuempresa.creditflow.creditflow_api.service.KycVerificationService;
 import com.tuempresa.creditflow.creditflow_api.service.UserService;
