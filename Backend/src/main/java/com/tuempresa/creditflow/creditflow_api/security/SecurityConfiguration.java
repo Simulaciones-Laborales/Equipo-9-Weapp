@@ -46,6 +46,14 @@ public class SecurityConfiguration {
 
                         // KYC VERIFICATIONS -----------------------------------------------------
                         .requestMatchers(HttpMethod.POST, "/api/kyc/start").hasAnyAuthority("PYME")
+
+                        // COMPANY  -----------------------------------------------------
+                        .requestMatchers(HttpMethod.POST, "/api/companies").hasAnyAuthority("PYME")
+                        .requestMatchers(HttpMethod.GET, "/api/companies").hasAnyAuthority("PYME")
+
+                        // CREDIT  -----------------------------------------------------
+                        .requestMatchers(HttpMethod.POST, "/api/credit-applications").hasAnyAuthority("PYME")
+                        .requestMatchers(HttpMethod.GET, "/api/credit-applications").hasAnyAuthority("PYME")
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2

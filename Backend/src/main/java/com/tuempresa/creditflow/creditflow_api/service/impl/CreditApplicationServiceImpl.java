@@ -24,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -67,6 +68,7 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
                 .action("CREATED")
                 .comments(dto.getOperatorComments())
                 .operator(owner)
+                .createdAt(LocalDateTime.now())
                 .build();
 
         historyRepository.save(initial);
