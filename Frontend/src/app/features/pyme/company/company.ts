@@ -37,6 +37,9 @@ export default class Company {
         case 'success':
           await this._kycVerificationSuccess();
           break;
+        case 'failure':
+          this._kycVerificationFailure();
+          break;
       }
 
       const getCompaniesSatus = this.store.getCompaniesStatus();
@@ -76,11 +79,17 @@ export default class Company {
   }
 
   async startKycVerification(files: KycVerificationFiles) {
+    this.store.setShowNewKycForm(false);
+
     await this.store.startKycVerification(files.selfie!, files.dniFront!, files.dniBack!);
   }
 
   private async _kycVerificationSuccess() {
     await this.store.getCompanies();
+  }
+
+  private _kycVerificationFailure() {
+    this.store.setShowNewKycForm(true);
   }
 
   private _fetchCompaniesSuccess() {
@@ -94,6 +103,7 @@ export default class Company {
   }
 
   private _createNewCompanySuccess() {
+    this.store.setShowNewCompanyForm(false);
     this.store.setShowCompanies(true);
   }
 }
