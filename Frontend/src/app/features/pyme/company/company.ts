@@ -6,10 +6,11 @@ import { Title } from '@components/title/title';
 import { ProgressSpinner } from 'primeng/progressspinner';
 import { NewKycForm } from './components/new-kyc-form/new-kyc-form';
 import { Subtitle } from '@components/subtitle/subtitle';
+import { NewCompanyForm } from './components/new-company-form/new-company-form';
 
 @Component({
   selector: 'app-company',
-  imports: [Card, Title, ProgressSpinner, NewKycForm, Subtitle],
+  imports: [Card, Title, ProgressSpinner, NewKycForm, Subtitle, NewCompanyForm],
   templateUrl: './company.html',
   styleUrl: './company.css',
   providers: [CompanyStore],
@@ -19,12 +20,20 @@ export default class Company {
   readonly store = inject(CompanyStore);
 
   constructor() {
-    effect(() => {
+    effect(async () => {
       const kycStatus = this.store.kycStatus();
 
       switch (kycStatus) {
         case 'success':
-          this._success();
+          await this._fetchKycSuccess();
+          break;
+      }
+
+      const getCompaniesSatus = this.store.getCompaniesStatus();
+
+      switch (getCompaniesSatus) {
+        case 'success':
+          this._fetchCompaniesSuccess();
           break;
       }
     });
@@ -40,9 +49,17 @@ export default class Company {
     await this.store.getKycByUserId(user.id);
   }
 
-  private _success() {
+  private async _fetchKycSuccess() {
     if (this.store.kyc()?.data.length === 0) {
       this.store.setShowNewKycForm(true);
+    } else {
+      await this.store.getCompanies();
+    }
+  }
+
+  private _fetchCompaniesSuccess() {
+    if (this.store.companies().length === 0) {
+      this.store.setShowNewCompanyForm(true);
     }
   }
 }

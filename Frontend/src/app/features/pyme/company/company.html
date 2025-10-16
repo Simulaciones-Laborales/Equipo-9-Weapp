@@ -3,10 +3,12 @@
     <header>
       <app-title headline="Mi Empresa" />
     </header>
-    @if (store.kycStatus() === 'loading') {
+    @if (store.kycStatus() === 'loading' || store.getCompaniesStatus() === 'loading') {
     <div class="flex flex-col items-center justify-center gap-y-1" role="progressbar">
       <p-progressSpinner />
-      <p class="text-surface-600 font-medium">Cargando KYC...</p>
+      <p class="text-surface-600 font-medium">
+        Cargando {{ store.kycStatus() === 'loading' ? 'KYC' : 'empresas' }}...
+      </p>
     </div>
     } @else { @if (store.showNewKycForm()) {
     <section class="flex flex-col gap-y-5">
@@ -18,6 +20,17 @@
         </p>
       </header>
       <app-new-kyc-form />
+    </section>
+    } @else if (store.showNewCompanyForm()) {
+    <section class="flex flex-col gap-y-5">
+      <header class="flex flex-col gap-y-2.5">
+        <app-subtitle headline="Registro de Nueva Empresa" />
+        <p class="text-sm sm:text-base text-surface-600 text-pretty">
+          Por favor, completa los datos de tu empresa en el siguiente formulario para proceder con
+          su registro.
+        </p>
+      </header>
+      <app-new-company-form />
     </section>
     } }
   </article>
