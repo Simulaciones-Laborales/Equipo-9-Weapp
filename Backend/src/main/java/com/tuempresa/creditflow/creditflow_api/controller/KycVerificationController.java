@@ -4,7 +4,12 @@ import com.tuempresa.creditflow.creditflow_api.dto.kyc.KycFileUploadRequestDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.kyc.KycStatusUpdateDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.kyc.KycVerificationRequestDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.kyc.KycVerificationResponseDTO;
+import com.tuempresa.creditflow.creditflow_api.model.KycStatus;
 import com.tuempresa.creditflow.creditflow_api.service.KycVerificationService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,16 +38,6 @@ public class KycVerificationController {
         KycFileUploadRequestDTO dto = new KycFileUploadRequestDTO(userId, selfie, dniFront, dniBack);
         return ResponseEntity.ok(kycService.startVerificationWithFiles(dto));
     }
-
-
-    /*@PostMapping("/{userId}/upload")
-    public ResponseEntity<String> uploadDocuments(
-            @PathVariable UUID userId,
-            @ModelAttribute KycFileUploadRequestDTO request
-    ) {
-        kycService.uploadDocuments(userId, request);
-        return ResponseEntity.ok("Documentos cargados correctamente y enviados al proveedor KYC.");
-    }*/
 
     @GetMapping
     public ResponseEntity<List<KycVerificationResponseDTO>> getAll() {
