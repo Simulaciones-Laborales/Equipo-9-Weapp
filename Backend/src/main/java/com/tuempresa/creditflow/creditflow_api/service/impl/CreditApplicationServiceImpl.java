@@ -226,4 +226,20 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
         creditApplicationRepository.delete(app);
 
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<CreditApplicationResponseDTO> getCreditApplicationsByUser(User user, CreditStatus status) {
+        if (user == null || user.getId() == null) {
+            throw new IllegalArgumentException("El usuario autenticado no puede ser nulo");
+        }
+
+        List<CreditApplication> applications = (status != null)
+                ? creditApplicationRepository.findAllByCompany_User_IdAndStatus(user.getId(), status)
+                : creditApplicationRepository.findAllByCompany_User_Id(user.getId());
+
+        return applications.stream()
+                .map(CreditApplicationMapper::toDTO)
+                .collect(Collectors.toList());
+    }
 }
