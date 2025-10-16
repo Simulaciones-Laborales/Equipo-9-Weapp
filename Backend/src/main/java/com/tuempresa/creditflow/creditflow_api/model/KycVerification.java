@@ -22,10 +22,22 @@ public class KycVerification {
     @Column(nullable = false)
     private KycStatus status;
 
+    @Column(columnDefinition = "TEXT")
     private String verificationNotes;
+    @Column(columnDefinition = "TEXT")
     private String externalReferenceId; // ID del proveedor (Sumsub)
     private LocalDateTime submissionDate;
     private LocalDateTime verificationDate;
+
+    // URLs de los documentos subidos a Cloudinary
+    @Column(length = 1024)
+    private String selfieUrl;
+
+    @Column(length = 1024)
+    private String dniFrontUrl;
+
+    @Column(length = 1025)
+    private String dniBackUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -34,6 +46,6 @@ public class KycVerification {
     @PrePersist
     public void onCreate() {
         submissionDate = LocalDateTime.now();
-        status = KycStatus.PENDING;
+        if (status == null) status = KycStatus.PENDING;
     }
 }
