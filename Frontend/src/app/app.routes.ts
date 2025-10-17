@@ -5,4 +5,8 @@ export const routes: Routes = [
     path: 'pyme',
     loadChildren: () => import('./features/pyme/pyme.routes'),
   },
+  {
+    path: '',
+    loadComponent: () => import('./features/home/pages/home/home.component')
+  }
 ];
