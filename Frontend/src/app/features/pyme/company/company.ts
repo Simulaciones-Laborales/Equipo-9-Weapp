@@ -1,7 +1,6 @@
 import { Component, effect, inject } from '@angular/core';
 import { CompanyStore } from './company-store';
 import { TokenStorage } from '@core/services/token-storage';
-import { Card } from 'primeng/card';
 import { Title } from '@components/title/title';
 import { ProgressSpinner } from 'primeng/progressspinner';
 import { NewKycForm } from './components/new-kyc-form/new-kyc-form';
@@ -13,7 +12,7 @@ import { CompanyInfo } from './components/company-info/company-info';
 
 @Component({
   selector: 'app-company',
-  imports: [Card, Title, ProgressSpinner, NewKycForm, Subtitle, NewCompanyForm, CompanyInfo],
+  imports: [Title, ProgressSpinner, NewKycForm, Subtitle, NewCompanyForm, CompanyInfo],
   templateUrl: './company.html',
   styleUrl: './company.css',
   providers: [CompanyStore],
