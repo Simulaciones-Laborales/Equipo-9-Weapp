@@ -1,19 +1,17 @@
 package com.tuempresa.creditflow.creditflow_api.service.impl;
 
-import com.tuempresa.creditflow.creditflow_api.dtos.BaseResponse;
-import com.tuempresa.creditflow.creditflow_api.dtos.ExtendedBaseResponse;
-import com.tuempresa.creditflow.creditflow_api.dtos.user.*;
+import com.tuempresa.creditflow.creditflow_api.dto.BaseResponse;
+import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
+import com.tuempresa.creditflow.creditflow_api.dto.user.*;
 import com.tuempresa.creditflow.creditflow_api.exception.userExc.UserNotFoundException;
 import com.tuempresa.creditflow.creditflow_api.mapper.UserMapper;
 import com.tuempresa.creditflow.creditflow_api.model.User;
 import com.tuempresa.creditflow.creditflow_api.repository.UserRepository;
 import com.tuempresa.creditflow.creditflow_api.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -26,23 +24,6 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
 
-   /* @Override
-    @Transactional
-    public ExtendedBaseResponse<String> upDateImagesUser(UpDateImagesUserDto upDateImagesUser) {
-        String newImageUrl = uploadSingleImage(upDateImagesUser.getImage());
-        User user = userRepository.findById(upDateImagesUser.getUserId()).orElseThrow(() ->
-                new UserNotFoundException("Este usuario no existe con ese ID: " + upDateImagesUser.getUserId()));
-
-        if (user.getUserImage() != null && !user.getUserImage().isEmpty()) {
-            deleteSingleImage(user.getUserImage());
-        }
-
-        user.setUserImage(newImageUrl);
-        User savedUser = userRepository.save(user);
-        return ExtendedBaseResponse.of(BaseResponse.created("Imagen actualizada/cargada correctamente"), savedUser.getUserImage());
-    }*/
-
-
     @Override
     @Transactional(readOnly = true)
     public ExtendedBaseResponse<UserDto> findUserById(UUID id) {
@@ -54,56 +35,39 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public ExtendedBaseResponse<UpdateUserDto> updateUser(UpdateUserDto updateUserDto) {
-        User user = userRepository.findById(updateUserDto.userId())
-                .orElseThrow(() -> new UserNotFoundException("Este usuario no existe con ese ID: " + updateUserDto.userId()));
-        if (updateUserDto.firstName() != null && !updateUserDto.firstName().isBlank()) {
-            user.setFirstName(updateUserDto.firstName());
+    public ExtendedBaseResponse<UserUpdateResponseDto> updateUser(UserUpdateRequestDto userUpdateRequestDto) {
+        User user = userRepository.findById(userUpdateRequestDto.userId())
+                .orElseThrow(() -> new UserNotFoundException("Este usuario no existe con ese ID: " + userUpdateRequestDto.userId()));
+        if (userUpdateRequestDto.firstName() != null && !userUpdateRequestDto.firstName().isBlank()) {
+            user.setFirstName(userUpdateRequestDto.firstName());
         }
-        if (updateUserDto.lastName() != null && !updateUserDto.lastName().isBlank()) {
-            user.setLastName(updateUserDto.lastName());
+        if (userUpdateRequestDto.lastName() != null && !userUpdateRequestDto.lastName().isBlank()) {
+            user.setLastName(userUpdateRequestDto.lastName());
         }
-        if (updateUserDto.email() != null && !updateUserDto.email().isBlank()) {
-            user.setEmail(updateUserDto.email());
+        if (userUpdateRequestDto.contact() != null && !userUpdateRequestDto.contact().isBlank()) {
+            user.setContact(userUpdateRequestDto.contact());
         }
-        if (updateUserDto.contact() != null && !updateUserDto.contact().isBlank()) {
-            user.setContact(updateUserDto.contact());
-        }
-        if (updateUserDto.password() != null && !updateUserDto.password().isBlank()) {
-            user.setPassword(passwordEncoder.encode(updateUserDto.password()));
-        }
-        if (updateUserDto.wantsEmailNotifications() != null) {
-            user.setWantsEmailNotifications(updateUserDto.wantsEmailNotifications());
-        }
+
         userRepository.save(user);
-        UpdateUserDto updatedUserDto = userMapper.toUpdatedUser(user);
-        return ExtendedBaseResponse.of(BaseResponse.ok("Usuario actualizado"), updatedUserDto);
+        UserUpdateResponseDto userUpdateResponseDto = userMapper.toUserUpdateResponseDto(user);
+        return ExtendedBaseResponse.of(BaseResponse.ok("Usuario actualizado"), userUpdateResponseDto);
     }
 
-    @Override
-    @Transactional
-    public ExtendedBaseResponse<UserRolDto> changeUserRole(ChangeUserRoleDto data) {
-        User user = userRepository.findById(data.id())
-                .orElseThrow(() -> new UserNotFoundException("Este usuario no existe con ese ID: " + data.id()));
-        User.Role rol = user.ChangeRole(data.role());
-        user.setRole(rol);
-        userRepository.save(user);
-        UserRolDto userRolDto = userMapper.toUserRolDto(user);
-        return ExtendedBaseResponse.of(BaseResponse.ok("Usuario actualizado"), userRolDto);
-    }
 
     @Override
     @Transactional(readOnly = true)
     public ExtendedBaseResponse<List<UserDto>> userLists() {
-        List<User> users = userRepository.findAll(Sort.by(Sort.Direction.ASC, "username"));
-        return ExtendedBaseResponse.of(BaseResponse.ok("Usuarios encontrados"), userMapper.entityListToDtoList(users));
+        List<User> users = userRepository.findByRoleOrderByCreatedAtAsc(User.Role.PYME);
+        return ExtendedBaseResponse.of(BaseResponse.ok("Usuarios PYME encontrados"),
+                userMapper.entityListToDtoList(users));
     }
 
     @Override
     @Transactional(readOnly = true)
     public ExtendedBaseResponse<List<UserDto>> userListsActive() {
-        List<User> users = userRepository.findByIsActiveTrueOrderByUsernameAsc();
-        return ExtendedBaseResponse.of(BaseResponse.ok("Usuarios encontrados"), userMapper.entityListToDtoList(users));
+        List<User> users = userRepository.findByIsActiveTrueAndRoleOrderByCreatedAtAsc(User.Role.PYME);
+        return ExtendedBaseResponse.of(BaseResponse.ok("Usuarios PYME activos encontrados"),
+                userMapper.entityListToDtoList(users));
     }
 
     @Override
@@ -132,18 +96,37 @@ public class UserServiceImpl implements UserService {
         return ExtendedBaseResponse.of(BaseResponse.ok("Usuario eliminado exitosamente"), null);
     }
 
-   /* private String uploadSingleImage(MultipartFile image) {
-        return imageService.uploadImage(image);
+
+    // NUEVO: devuelve la entidad User por email (o lanza excepción si no existe)
+    public User findEntityByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con email: " + email));
     }
 
-    private void deleteSingleImage(String imageUrl) {
-        try {
-            imageService.deleteImage(imageUrl);
-        } catch (Exception e) {
-            throw new RuntimeException("Error al eliminar la imagen", e);
-        }
-    }*/
-
+    // (opcional) devolver entidad por id
+    public User findEntityById(UUID id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con id: " + id));
+    }
+    
+    @Transactional(readOnly = true)
+    public User findEntityByPrincipal(String principal) {
+        // --1-- Intentar buscar por email
+        return userRepository.findByEmail(principal)
+                //--2-- Si no encuentra, intentar por username
+                .or(() -> userRepository.findByUsername(principal))
+                //--3-- Si no encuentra, intentar por UUID (por si el token tuviera id)
+                .or(() -> {
+                    try {
+                        UUID id = UUID.fromString(principal);
+                        return userRepository.findById(id);
+                    } catch (IllegalArgumentException ex) {
+                        return java.util.Optional.empty();
+                    }
+                })
+                //--4--Si no encuentra, lanzar excepción
+                .orElseThrow(() -> new UserNotFoundException("User not found with principal: " + principal));
+    }
 
 }
 

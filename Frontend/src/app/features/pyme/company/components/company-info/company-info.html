@@ -1,0 +1,15 @@
+<article class="flex flex-col gap-y-3 p-5 rounded-xl border border-surface-200">
+  <header>
+    <h4 class="text-lg font-semibold">{{ company().name }}</h4>
+  </header>
+  <p class="flex items-center justify-between gap-x-2.5">
+    Ingreso Anual
+    <span class="text-right font-medium">{{ company().annualIncome | currency }}</span>
+  </p>
+  <p class="flex items-center justify-between gap-x-2.5">
+    Fecha de Registro
+    <span class="text-right font-medium">{{
+      company().createdAt | date : 'dd/MM/yyyy hh:mm aa'
+    }}</span>
+  </p>
+</article>

@@ -6,6 +6,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+
 @Component
 public class DefaultUserCreator implements CommandLineRunner {
     private final UserRepository userRepository;
@@ -18,7 +20,7 @@ public class DefaultUserCreator implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (!userRepository.existsByEmail("Florencia_Galeassi@example.com")) {
+        if (!userRepository.existsByEmail("admin@creditflow.com")) {
             String defaultPassword = "12345678Pro+";
             String encodedPassword = passwordEncoder.encode(defaultPassword);
 
@@ -27,11 +29,13 @@ public class DefaultUserCreator implements CommandLineRunner {
                     .firstName("Florencia")
                     .lastName("Rodríguez")
                     .password(encodedPassword)
-                    .email("Florencia_Galeassi@example.com")
+                    .email("admin@creditflow.com")
                     .contact("+54 351-5654563")
+                    .dni("94807935")
+                    .birthDate(LocalDate.of(1990, 5, 15))
+                    .country("Argentina")
                     .isActive(true)
-                    .role(User.Role.ADMIN)
-                    .wantsEmailNotifications(false)
+                    .role(User.Role.OPERADOR)
                     .build();
 
             userRepository.save(florencia);

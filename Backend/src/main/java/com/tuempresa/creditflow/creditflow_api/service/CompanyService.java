@@ -1,7 +1,7 @@
 package com.tuempresa.creditflow.creditflow_api.service;
 
-import com.tuempresa.creditflow.creditflow_api.dtos.company.CompanyRequestDTO;
-import com.tuempresa.creditflow.creditflow_api.dtos.company.CompanyResponseDTO;
+import com.tuempresa.creditflow.creditflow_api.dto.company.CompanyRequestDTO;
+import com.tuempresa.creditflow.creditflow_api.dto.company.CompanyResponseDTO;
 import com.tuempresa.creditflow.creditflow_api.model.User;
 
 import java.util.List;
@@ -34,7 +34,7 @@ public interface CompanyService {
     /**
      * Elimina una company (solo si pertenece al usuario).
      */
-   /* void deleteCompany(UUID id, User user);*/
+    void deleteCompany(UUID id, User user);
 }
 
 

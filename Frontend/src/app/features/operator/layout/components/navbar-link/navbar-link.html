@@ -1,0 +1,14 @@
+<li>
+  <a
+    [routerLink]="route()"
+    #rla="routerLinkActive"
+    routerLinkActive
+    class="max-md:h-20 flex items-center px-3.5 text-lg max-md:hover:text-primary-500 md:hover:bg-primary-200 md:w-full md:rounded-lg md:py-1.5 font-medium duration-200"
+    [ngClass]="{
+      'text-surface-600': !rla.isActive,
+      'text-primary-600 md:bg-primary-100 md:text-primary-900': rla.isActive
+    }"
+  >
+    {{ headline() }}
+  </a>
+</li>

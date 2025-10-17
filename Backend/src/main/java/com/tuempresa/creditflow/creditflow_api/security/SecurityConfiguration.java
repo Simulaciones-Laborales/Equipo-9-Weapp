@@ -37,14 +37,23 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.POST, "/auth/reset-password").permitAll()
                         .requestMatchers(HttpMethod.GET, "/auth/oauth-success").permitAll()
                         // USER ENDPOINTS ---------------------------------------------------
-                        .requestMatchers(HttpMethod.GET, "/user/{id}").hasAnyAuthority("ADMIN", "SUPER_ADMIN", "CLIENT")
-                        .requestMatchers(HttpMethod.POST, "/user/images/upload").hasAnyAuthority("ADMIN", "SUPER_ADMIN", "CLIENT")
-                        .requestMatchers(HttpMethod.PUT, "/user/update").hasAnyAuthority("ADMIN", "SUPER_ADMIN", "CLIENT")
-                        .requestMatchers(HttpMethod.PUT, "/user/update-rol").hasAuthority("SUPER_ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/user/list").hasAnyAuthority("ADMIN", "SUPER_ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/user/list-active").hasAnyAuthority("ADMIN", "SUPER_ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/user/change-status").hasAnyAuthority("ADMIN", "SUPER_ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/user/{id}").hasAnyAuthority("OPERADOR", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/user/update").hasAnyAuthority("ADMIN", "OPERADOR", "PYME")
+                        .requestMatchers(HttpMethod.GET, "/user/list").hasAnyAuthority("OPERADOR", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/user/list-active").hasAnyAuthority("OPERADOR", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/user/change-status").hasAnyAuthority("OPERADOR", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/user/{id}").hasAuthority("SUPER_ADMIN")
+
+                        // KYC VERIFICATIONS -----------------------------------------------------
+                        .requestMatchers(HttpMethod.POST, "/api/kyc/start").hasAnyAuthority("PYME")
+
+                        // COMPANY  -----------------------------------------------------
+                        .requestMatchers(HttpMethod.POST, "/api/companies").hasAnyAuthority("PYME")
+                        .requestMatchers(HttpMethod.GET, "/api/companies").hasAnyAuthority("PYME")
+
+                        // CREDIT  -----------------------------------------------------
+                        .requestMatchers(HttpMethod.POST, "/api/credit-applications").hasAnyAuthority("PYME")
+                        .requestMatchers(HttpMethod.GET, "/api/credit-applications").hasAnyAuthority("PYME")
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
@@ -83,7 +92,10 @@ public class SecurityConfiguration {
                 "/webjars/**",
                 "/swagger-ui-custom.html",
                 "/public/lead/create",
-                "/auth/oauth-success"
+                "/auth/oauth-success",
+                "/ping/pong",
+                "/public/**",
+                "/auth/register"
         };
     }
 }

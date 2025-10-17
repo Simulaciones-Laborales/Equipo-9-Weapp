@@ -103,10 +103,18 @@
 			<version>2.7.0-RC1</version>
 		</dependency>
 
-		<!-- JavaMailSender -->
+		<!-- SendGrid -->
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-mail</artifactId>
+			<groupId>com.sendgrid</groupId>
+			<artifactId>sendgrid-java</artifactId>
+			<version>4.10.0</version>
+		</dependency>
+
+		<!-- SendGrid -->
+		<dependency>
+			<groupId>com.cloudinary</groupId>
+			<artifactId>cloudinary-http44</artifactId>
+			<version>1.37.0</version>
 		</dependency>
 
 		<!-- Lombok Dependency -->
@@ -128,6 +136,12 @@
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-jpa</artifactId>
+        </dependency>
+
 	</dependencies>
 
 	<build>

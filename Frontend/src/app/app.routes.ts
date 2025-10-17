@@ -6,6 +6,10 @@ export const routes: Routes = [
     loadChildren: () => import('./features/pyme/pyme.routes'),
   },
   {
+    path: 'operador',
+    loadChildren: () => import('./features/operator/operator.routes'),
+  },
+  {
     path: '',
     loadComponent: () => import('./features/home/pages/home/home.component')
   }

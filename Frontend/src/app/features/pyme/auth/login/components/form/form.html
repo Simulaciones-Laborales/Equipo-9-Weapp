@@ -1,19 +1,51 @@
 <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-y-5">
-  <p-floatlabel variant="on">
-    <input type="email" id="email" autocomplete="email" formControlName="email" pInputText fluid />
-    <label for="email">Correo electrónico</label>
-  </p-floatlabel>
-  <p-floatLabel variant="on">
-    <p-password
-      inputId="password"
-      autocomplete="off"
-      [feedback]="false"
-      [toggleMask]="true"
-      fluid
-      formControlName="password"
-    />
-    <label for="password">Contraseña</label>
-  </p-floatLabel>
-  <p-button severity="secondary" label="Iniciar Sesión" fluid type="ngSubmit" />
+  <app-fieldset legend="Datos de acceso">
+    <div class="flex flex-col gap-y-1">
+      <p-floatlabel variant="on">
+        <input
+          type="email"
+          id="email"
+          autocomplete="email"
+          formControlName="email"
+          pInputText
+          fluid
+          [invalid]="isInvalid('email')"
+        />
+        <label for="email">Correo electrónico</label>
+      </p-floatlabel>
+      @if (isInvalid('email')) { @if (getError('email', 'required')) {
+      <p-message severity="error" size="small" variant="simple">
+        Por favor, ingresa tu correo electrónico </p-message
+      >} @if (getError('email', 'pattern')) {
+      <p-message severity="error" size="small" variant="simple">
+        Por favor, ingresa un correo electrónico válido </p-message
+      >} }
+    </div>
+    <div class="flex flex-col gap-y-1">
+      <p-floatLabel variant="on">
+        <p-password
+          inputId="password"
+          autocomplete="off"
+          [feedback]="false"
+          [toggleMask]="true"
+          fluid
+          [invalid]="isInvalid('password')"
+          formControlName="password"
+        />
+        <label for="password">Contraseña</label>
+      </p-floatLabel>
+      @if (isInvalid('password')) {
+      <p-message severity="error" size="small" variant="simple">
+        Por favor, ingresa tu contraseña </p-message
+      >}
+    </div>
+  </app-fieldset>
+  <p-button
+    severity="secondary"
+    label="Iniciar Sesión"
+    fluid
+    type="submit"
+    [loading]="store.status() === 'loading'"
+  />
   <app-linker route="../register" text="Crear cuenta" />
 </form>

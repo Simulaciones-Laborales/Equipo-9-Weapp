@@ -32,5 +32,6 @@ jobs:
         with:
           name: spring-boot-app
           path: target/*.jar
-
+      - name: Deploy to Render
+        run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
 

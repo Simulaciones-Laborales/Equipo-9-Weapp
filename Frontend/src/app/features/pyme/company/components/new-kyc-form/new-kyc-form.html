@@ -1,0 +1,57 @@
+<form class="flex flex-col gap-y-6">
+  <p-fieldset legend="Documentación" class="text-lg">
+    <div class="flex max-lg:flex-col gap-y-2.5 lg:justify-between lg:gap-x-5 py-2.5">
+      <div class="flex flex-col gap-y-3.5">
+        <h4 class="text-base sm:text-lg text-surface-600 font-medium">Selfie</h4>
+        <p-fileUpload
+          mode="basic"
+          maxFileSize="10000000"
+          [auto]="false"
+          accept="image/*"
+          (onSelect)="linkImage($event, selfie)"
+          [chooseLabel]="linkImageText(selfie)"
+        />
+      </div>
+      <p-divider layout="vertical" class="hidden lg:block" />
+      <p-divider layout="horizontal" class="block lg:hidden" />
+      <div class="flex flex-col gap-y-3.5">
+        <h4 class="text-base sm:text-lg text-surface-600 font-medium">Foto Frontal de tu DNI</h4>
+        <p-fileUpload
+          mode="basic"
+          maxFileSize="10000000"
+          [auto]="false"
+          accept="image/*"
+          (onSelect)="linkImage($event, dniFront)"
+          [chooseLabel]="linkImageText(dniFront)"
+        />
+      </div>
+      <p-divider layout="vertical" class="hidden lg:block" />
+      <p-divider layout="horizontal" class="block lg:hidden" />
+      <div class="flex flex-col gap-y-3.5">
+        <h4 class="text-base sm:text-lg text-surface-600 font-medium">Foto Trasera de tu DNI.</h4>
+        <p-fileUpload
+          mode="basic"
+          maxFileSize="10000000"
+          [auto]="false"
+          accept="image/*"
+          (onSelect)="linkImage($event, dniBack)"
+          [chooseLabel]="linkImageText(dniBack)"
+        />
+      </div>
+    </div>
+  </p-fieldset>
+  <div class="flex flex-col gap-y-3.5 w-full max-w-xl mx-auto">
+    <p-message severity="secondary" size="small" variant="simple">
+      Al subir tu documentación, estás de acuerdo con nuestros
+      <a href="#" class="text-blue-500">términos y condiciones</a>.
+    </p-message>
+    <p-button
+      severity="contrast"
+      label="Subir Documentación"
+      fluid
+      icon="pi pi-upload"
+      [disabled]="isInvalid()"
+      (onClick)="submit()"
+    />
+  </div>
+</form>
