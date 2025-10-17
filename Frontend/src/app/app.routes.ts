@@ -9,4 +9,8 @@ export const routes: Routes = [
     path: 'operador',
     loadChildren: () => import('./features/operator/operator.routes'),
   },
+  {
+    path: '',
+    loadComponent: () => import('./features/home/pages/home/home.component')
+  }
 ];
