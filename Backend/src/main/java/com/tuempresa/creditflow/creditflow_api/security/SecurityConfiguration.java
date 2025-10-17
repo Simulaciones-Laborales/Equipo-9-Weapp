@@ -43,6 +43,17 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.GET, "/user/list-active").hasAnyAuthority("OPERADOR", "ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/user/change-status").hasAnyAuthority("OPERADOR", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/user/{id}").hasAuthority("SUPER_ADMIN")
+
+                        // KYC VERIFICATIONS -----------------------------------------------------
+                        .requestMatchers(HttpMethod.POST, "/api/kyc/start").hasAnyAuthority("PYME")
+
+                        // COMPANY  -----------------------------------------------------
+                        .requestMatchers(HttpMethod.POST, "/api/companies").hasAnyAuthority("PYME")
+                        .requestMatchers(HttpMethod.GET, "/api/companies").hasAnyAuthority("PYME")
+
+                        // CREDIT  -----------------------------------------------------
+                        .requestMatchers(HttpMethod.POST, "/api/credit-applications").hasAnyAuthority("PYME")
+                        .requestMatchers(HttpMethod.GET, "/api/credit-applications").hasAnyAuthority("PYME")
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2

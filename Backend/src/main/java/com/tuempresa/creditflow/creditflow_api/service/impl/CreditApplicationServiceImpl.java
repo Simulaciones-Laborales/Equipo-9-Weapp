@@ -5,7 +5,9 @@ import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.CreditAppli
 import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.CreditApplicationStatusChangeDTO;
 import com.tuempresa.creditflow.creditflow_api.exception.ConflictException;
 import com.tuempresa.creditflow.creditflow_api.exception.ResourceNotFoundException;
+import com.tuempresa.creditflow.creditflow_api.exception.userExc.UserNotFoundException;
 import com.tuempresa.creditflow.creditflow_api.mapper.CreditApplicationMapper;
+import com.tuempresa.creditflow.creditflow_api.mapper.ICreditApplicationMapper;
 import com.tuempresa.creditflow.creditflow_api.model.Company;
 import com.tuempresa.creditflow.creditflow_api.model.CreditApplication;
 import com.tuempresa.creditflow.creditflow_api.model.CreditApplicationActionType;
@@ -16,11 +18,13 @@ import com.tuempresa.creditflow.creditflow_api.model.User.Role;
 import com.tuempresa.creditflow.creditflow_api.repository.CompanyRepository;
 import com.tuempresa.creditflow.creditflow_api.repository.CreditApplicationHistoryRepository;
 import com.tuempresa.creditflow.creditflow_api.repository.CreditApplicationRepository;
+import com.tuempresa.creditflow.creditflow_api.repository.UserRepository;
 import com.tuempresa.creditflow.creditflow_api.service.CreditApplicationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -32,7 +36,6 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
     private final CreditApplicationRepository creditApplicationRepository;
     private final CompanyRepository companyRepository;
     private final CreditApplicationHistoryRepository historyRepository;
-
     // ---------------------
     // Crear la solicitud para un usuario propietario
     // ---------------------
@@ -65,6 +68,7 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
                 .action("CREATED")
                 .comments(dto.getOperatorComments())
                 .operator(owner)
+                .createdAt(LocalDateTime.now())
                 .build();
 
         historyRepository.save(initial);
@@ -223,5 +227,21 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
         
         creditApplicationRepository.delete(app);
 
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<CreditApplicationResponseDTO> getCreditApplicationsByUser(User user, CreditStatus status) {
+        if (user == null || user.getId() == null) {
+            throw new IllegalArgumentException("El usuario autenticado no puede ser nulo");
+        }
+
+        List<CreditApplication> applications = (status != null)
+                ? creditApplicationRepository.findAllByCompany_User_IdAndStatus(user.getId(), status)
+                : creditApplicationRepository.findAllByCompany_User_Id(user.getId());
+
+        return applications.stream()
+                .map(CreditApplicationMapper::toDTO)
+                .collect(Collectors.toList());
     }
 }

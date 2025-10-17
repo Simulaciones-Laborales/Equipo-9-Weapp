@@ -3,6 +3,7 @@ package com.tuempresa.creditflow.creditflow_api.service;
 import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.CreditApplicationRequestDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.CreditApplicationResponseDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.CreditApplicationStatusChangeDTO;
+import com.tuempresa.creditflow.creditflow_api.model.CreditStatus;
 import com.tuempresa.creditflow.creditflow_api.model.User;
 
 import java.util.List;
@@ -65,5 +66,15 @@ public interface CreditApplicationService {
      * @param user Usuario autenticado.
      */
     void deleteApplication(UUID id, User user);
+
+    /**
+     * Obtiene una solicitud de crédito específica por su status,
+     * solo si pertenece al usuario autenticado.
+     *
+     * @param status  CreditStatus de la solicitud de crédito.
+     * @param user Usuario autenticado.
+     * @return una lista DTO con la información de la solicitud.
+     */
+    List<CreditApplicationResponseDTO> getCreditApplicationsByUser(User user, CreditStatus status);
 }
 

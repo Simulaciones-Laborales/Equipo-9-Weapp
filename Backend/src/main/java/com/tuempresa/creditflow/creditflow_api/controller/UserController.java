@@ -1,8 +1,10 @@
 package com.tuempresa.creditflow.creditflow_api.controller;
 
 import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
-import com.tuempresa.creditflow.creditflow_api.dto.KycVerificationResponseDTO;
+import com.tuempresa.creditflow.creditflow_api.dto.kyc.KycVerificationResponseDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.user.*;
+import com.tuempresa.creditflow.creditflow_api.model.KycStatus;
+import com.tuempresa.creditflow.creditflow_api.service.CreditApplicationService;
 import com.tuempresa.creditflow.creditflow_api.service.KycVerificationService;
 import com.tuempresa.creditflow.creditflow_api.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,6 +29,7 @@ import java.util.UUID;
 public class UserController {
     private final UserService userService;
     private final KycVerificationService kycVerificationService;
+    private final CreditApplicationService creditService;
 
     @Operation(
             summary = "Buscar usuario por ID",
@@ -57,16 +60,50 @@ public class UserController {
 
     @Operation(
             summary = "Consulta todos los KYC registrados por el usuario",
-            description = "Realiza una búsqueda de todos los procesos de verificación de KYC solicitados según el ID de un usuario. Si no encuentra ningún registro, devuelve un listado vacío,"
+            description = "Obtiene todos los procesos de verificación KYC de un usuario por su ID. Devuelve un listado vacío si no hay registros."
     )
-    @ApiResponse(
-            responseCode = "200",
-            description = "Listado cargado correctamente",
-            content = @Content(mediaType = "application/json")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Listado cargado correctamente",
+                    content = @Content(mediaType = "application/json")
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Usuario no encontrado",
+                    content = @Content(mediaType = "application/json")
+            )
+    })
+    @GetMapping("/{id}/kyc/all")
+    public ResponseEntity<List<KycVerificationResponseDTO>> getAllKycByUserId(@PathVariable("id") UUID userId) {
+        List<KycVerificationResponseDTO> kycList = kycVerificationService.getAllKcyByUserId(userId);
+        return ResponseEntity.ok(kycList);
+    }
+
+    @Operation(
+            summary = "Consulta KYC por usuario y opcionalmente por estado",
+            description = "Obtiene todos los procesos de verificación KYC de un usuario. Se puede filtrar por estado. Devuelve un listado vacío si no hay registros."
     )
-    @GetMapping(path = "/{id}/kyc")
-    public ResponseEntity<ExtendedBaseResponse<List<KycVerificationResponseDTO>>> findAllKycVerifications(@PathVariable("id") UUID userId) {
-        return ResponseEntity.ok(kycVerificationService.getAllByUserId(userId));
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Listado cargado correctamente",
+                    content = @Content(mediaType = "application/json")
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Usuario no encontrado",
+                    content = @Content(mediaType = "application/json")
+            )
+    })
+    @GetMapping("/{id}/kyc")
+    public ResponseEntity<List<KycVerificationResponseDTO>> getAllKycByUserIdAndStatus(
+            @PathVariable("id") UUID userId,
+            @RequestParam(value = "status", required = false) KycStatus status
+    ) {
+        return ResponseEntity.ok(
+                kycVerificationService.getAllByUserIdAndOptionalStatus(userId, status)
+        );
     }
 
     @Operation(
@@ -148,4 +185,5 @@ public class UserController {
     public ExtendedBaseResponse<String> deleteUser(@PathVariable UUID id) {
         return userService.deleteUserById(id);
     }
+
 }
