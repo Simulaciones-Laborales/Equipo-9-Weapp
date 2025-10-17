@@ -62,7 +62,7 @@ export const CompanyStore = signalStore(
 
         try {
           const kyc = await userApi.getAllKYC(userId);
-          patchState(store, { kycStatus: 'success', kyc: kyc.data });
+          patchState(store, { kycStatus: 'success', kyc });
         } catch (e) {
           patchState(store, { kycStatus: 'failure', kyc: [] });
         }
