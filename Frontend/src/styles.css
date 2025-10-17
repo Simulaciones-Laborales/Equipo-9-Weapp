@@ -5,5 +5,5 @@
 @custom-variant dark (&:where(.my-app-dark, .my-app-dark *));
 
 body {
-  @apply bg-primary-50;
+  @apply bg-surface-50;
 }

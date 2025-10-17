@@ -13,7 +13,7 @@ export class UserApi {
   private readonly _http = inject(HttpClient);
 
   async getAllKYC(userId: string) {
-    const call = this._http.get<Response<KYCVerificationResponse[]>>(`${this._url}/${userId}/kyc`);
+    const call = this._http.get<KYCVerificationResponse[]>(`${this._url}/${userId}/kyc/all`);
 
     return await lastValueFrom(call);
   }

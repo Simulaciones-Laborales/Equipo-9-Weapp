@@ -1,6 +1,5 @@
 import { computed, inject } from '@angular/core';
 import { KYCVerificationResponse } from '@core/models/kyc-model';
-import { Response } from '@core/models/response-model';
 import { UserApi } from '@core/services/user-api';
 import { Status } from '@core/types';
 import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
@@ -9,7 +8,7 @@ import { CompanyApi } from './services/company-api';
 import { KycApi } from './services/kyc-api';
 
 type State = {
-  kyc: Response<KYCVerificationResponse[]> | null;
+  kyc: KYCVerificationResponse[];
   kycStatus: Status;
   showNewKycForm: boolean;
   kycVerificationStatus: Status;
@@ -21,7 +20,7 @@ type State = {
 };
 
 const initialState: State = {
-  kyc: null,
+  kyc: [],
   kycStatus: 'pending',
   showNewKycForm: false,
   kycVerificationStatus: 'pending',
@@ -65,7 +64,7 @@ export const CompanyStore = signalStore(
           const kyc = await userApi.getAllKYC(userId);
           patchState(store, { kycStatus: 'success', kyc });
         } catch (e) {
-          patchState(store, { kycStatus: 'failure', kyc: null });
+          patchState(store, { kycStatus: 'failure', kyc: [] });
         }
       },
       setShowNewKycForm: (show: boolean) => {
@@ -75,11 +74,9 @@ export const CompanyStore = signalStore(
         patchState(store, { kycVerificationStatus: 'loading' });
 
         try {
-          const newKyc = await kycApi.startVerification(selfie, dniFront, dniBack);
+          const kyc = await kycApi.startVerification(selfie, dniFront, dniBack);
 
-          store.kyc()?.data.push(newKyc!);
-
-          patchState(store, { kycVerificationStatus: 'success', kyc: store.kyc() });
+          patchState(store, { kycVerificationStatus: 'success', kyc: [...store.kyc(), kyc!] });
         } catch (e) {
           patchState(store, { kycVerificationStatus: 'failure' });
         }
