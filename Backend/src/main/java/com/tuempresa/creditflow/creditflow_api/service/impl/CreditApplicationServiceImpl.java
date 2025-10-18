@@ -24,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -67,6 +68,7 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
                 .action("CREATED")
                 .comments(dto.getOperatorComments())
                 .operator(owner)
+                .createdAt(LocalDateTime.now())
                 .build();
 
         historyRepository.save(initial);
@@ -225,5 +227,21 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
         
         creditApplicationRepository.delete(app);
 
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<CreditApplicationResponseDTO> getCreditApplicationsByUser(User user, CreditStatus status) {
+        if (user == null || user.getId() == null) {
+            throw new IllegalArgumentException("El usuario autenticado no puede ser nulo");
+        }
+
+        List<CreditApplication> applications = (status != null)
+                ? creditApplicationRepository.findAllByCompany_User_IdAndStatus(user.getId(), status)
+                : creditApplicationRepository.findAllByCompany_User_Id(user.getId());
+
+        return applications.stream()
+                .map(CreditApplicationMapper::toDTO)
+                .collect(Collectors.toList());
     }
 }

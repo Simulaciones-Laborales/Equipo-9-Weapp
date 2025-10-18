@@ -4,6 +4,7 @@ import com.tuempresa.creditflow.creditflow_api.dto.history.CreditApplicationHist
 import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.CreditApplicationRequestDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.CreditApplicationResponseDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.CreditApplicationStatusChangeDTO;
+import com.tuempresa.creditflow.creditflow_api.model.CreditStatus;
 import com.tuempresa.creditflow.creditflow_api.model.User;
 import com.tuempresa.creditflow.creditflow_api.service.CreditApplicationHistoryService;
 import com.tuempresa.creditflow.creditflow_api.service.CreditApplicationService;
@@ -126,6 +127,23 @@ public class CreditApplicationController {
             @ApiResponse(responseCode = "401", description = "No autenticado.")
         }
     )
+    // -------------------------
+    // Get all credit applications of the authenticated user
+    // GET /api/credit-applications/my
+    // -------------------------
+    @GetMapping("/my")
+    public ResponseEntity<List<CreditApplicationResponseDTO>> getMyCreditApplications(@RequestParam(value = "status", required = false) CreditStatus status
+    ) {
+        User currentUser = getAuthenticatedUser();
+        List<CreditApplicationResponseDTO> applications = creditApplicationService.getCreditApplicationsByUser(currentUser, status);
+        return ResponseEntity.ok(applications);
+    }
+
+    // -------------------------
+    // List applications by company (owner or operator/admin)
+    // GET /api/credit-applications/company/{companyId}
+    // -------------------------
+
     @GetMapping("/company/{companyId}")
     public ResponseEntity<List<CreditApplicationResponseDTO>> getByCompany(
         @Parameter(description = "ID (UUID) de la empresa cuyas solicitudes se desean consultar.")

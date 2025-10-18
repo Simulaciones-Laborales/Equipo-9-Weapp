@@ -15,4 +15,7 @@ export interface KYCVerificationResponse {
   userId: string;
   userFullName: string;
   userEmail: string;
+  selfieUrl: string;
+  dniFrontUrl: string;
+  dniBackUrl: string;
 }
