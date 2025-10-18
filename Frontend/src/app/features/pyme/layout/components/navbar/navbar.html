@@ -9,10 +9,10 @@
         'max-sm:translate-none': show()
       }"
     >
-      <app-navbar-link headline="Inicio" route="./dashboard" />
-      <app-navbar-link headline="Créditos" route="./creditos" />
-      <app-navbar-link headline="Empresa" route="./empresa" />
-      <app-navbar-link headline="Perfil" route="./perfil" />
+      <app-navbar-link headline="Inicio" route="./dashboard" (click)="show.set(false)" />
+      <app-navbar-link headline="Créditos" route="./creditos" (click)="show.set(false)" />
+      <app-navbar-link headline="Empresa" route="./empresa" (click)="show.set(false)" />
+      <app-navbar-link headline="Perfil" route="./perfil" (click)="show.set(false)" />
     </ul>
     <button class="sm:hidden relative z-30 cursor-pointer" (click)="show.set(!show())">
       <i
