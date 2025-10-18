@@ -102,6 +102,8 @@ export const CompanyStore = signalStore(
           patchState(store, {
             createCompanyStatus: 'success',
             companies: [...store.companies(), company],
+            showNewCompanyForm: false,
+            showCompanies: true,
           });
         } catch (e) {
           patchState(store, { createCompanyStatus: 'failure' });

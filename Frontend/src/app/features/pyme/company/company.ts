@@ -9,10 +9,11 @@ import { NewCompanyForm } from './components/new-company-form/new-company-form';
 import { KycVerificationFiles } from '@core/types';
 import { CompanyRequest } from './models/company-model';
 import { CompanyInfo } from './components/company-info/company-info';
+import { Card } from 'primeng/card';
 
 @Component({
   selector: 'app-company',
-  imports: [Title, ProgressSpinner, NewKycForm, Subtitle, NewCompanyForm, CompanyInfo],
+  imports: [Title, ProgressSpinner, NewKycForm, Subtitle, NewCompanyForm, CompanyInfo, Card],
   templateUrl: './company.html',
   styleUrl: './company.css',
   providers: [CompanyStore],
@@ -47,14 +48,6 @@ export default class Company {
       switch (getCompaniesSatus) {
         case 'success':
           this._fetchCompaniesSuccess();
-          break;
-      }
-
-      const createCompanyStatus = this.store.createCompanyStatus();
-
-      switch (createCompanyStatus) {
-        case 'success':
-          this._createNewCompanySuccess();
           break;
       }
     });
@@ -95,15 +88,12 @@ export default class Company {
   private _fetchCompaniesSuccess() {
     if (this.store.companies().length === 0) {
       this.store.setShowNewCompanyForm(true);
+    } else {
+      this.store.setShowCompanies(true);
     }
   }
 
   async createNewCompany(req: CompanyRequest) {
     await this.store.createCompany(req);
-  }
-
-  private _createNewCompanySuccess() {
-    this.store.setShowNewCompanyForm(false);
-    this.store.setShowCompanies(true);
   }
 }

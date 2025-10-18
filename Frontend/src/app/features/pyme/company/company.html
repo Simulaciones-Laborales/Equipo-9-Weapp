@@ -1,9 +1,9 @@
 <article class="flex flex-col gap-y-7">
   <header>
-    <app-title headline="Mi Empresa" />
+    <app-title headline="Administración de Mis Empresas" />
   </header>
   @if (store.loadingMessage() !== null) {
-  <div class="flex flex-col items-center justify-center gap-y-1" role="progressbar">
+  <div class="flex flex-col items-center justify-center gap-y-1 my-12" role="progressbar">
     <p-progressSpinner />
     <p class="text-surface-600 font-medium">{{ store.loadingMessage() }}</p>
   </div>
@@ -27,18 +27,27 @@
         registro.
       </p>
     </header>
-    <app-new-company-form
-      [loading]="store.createCompanyStatus() === 'loading'"
-      (onSubmit)="createNewCompany($event)"
-    />
+    <p-card
+      ><article class="flex flex-col gap-y-7">
+        <app-subtitle headline="Formulario de Registro" />
+        <app-new-company-form
+          [loading]="store.createCompanyStatus() === 'loading'"
+          (onSubmit)="createNewCompany($event)"
+        /></article
+    ></p-card>
   </section>
   } @else if (store.showCompanies()) {
   <section class="flex flex-col gap-y-5">
-    <app-subtitle headline="Mis Empresas" />
+    <header class="flex flex-col gap-y-2.5">
+      <app-subtitle headline="Listado de Empresas" />
+      <p class="text-sm sm:text-base text-surface-600 text-pretty">
+        A continuación listamos todas tus empresas registradas.
+      </p>
+    </header>
     <ul class="flex flex-col gap-y-3.5">
       @for (company of store.companies(); track $index) {
       <li>
-        <app-company-info [company]="company" class="w-full" />
+        <p-card> <app-company-info [company]="company" class="w-full" /></p-card>
       </li>
       }
     </ul>

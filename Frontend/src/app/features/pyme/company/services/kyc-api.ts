@@ -28,9 +28,8 @@ export class KycApi {
 
     const params = new HttpParams().set('userId', user.id);
 
-    const call = this._http.post<KYCVerificationResponse>(`${this._url}/start`, {
+    const call = this._http.post<KYCVerificationResponse>(`${this._url}/start`, formData, {
       params,
-      formData,
     });
 
     return await lastValueFrom(call);

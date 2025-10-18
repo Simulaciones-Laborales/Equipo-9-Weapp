@@ -1,16 +1,16 @@
 import { Component, effect, inject, input, output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Fieldset } from 'primeng/fieldset';
 import { FloatLabel } from 'primeng/floatlabel';
 import { InputText } from 'primeng/inputtext';
 import { Button } from 'primeng/button';
 import { CompanyRequest } from '../../models/company-model';
 import { getError, isInvalid } from '@core/utils/form-utils';
 import { Message } from 'primeng/message';
+import { InputNumber } from 'primeng/inputnumber';
 
 @Component({
   selector: 'app-new-company-form',
-  imports: [ReactiveFormsModule, Fieldset, FloatLabel, InputText, Button, Message],
+  imports: [ReactiveFormsModule, FloatLabel, InputText, Button, Message, InputNumber],
   templateUrl: './new-company-form.html',
   styleUrl: './new-company-form.css',
 })
