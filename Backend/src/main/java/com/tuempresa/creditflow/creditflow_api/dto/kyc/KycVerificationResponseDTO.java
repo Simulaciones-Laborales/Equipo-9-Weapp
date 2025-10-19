@@ -1,5 +1,6 @@
 package com.tuempresa.creditflow.creditflow_api.dto.kyc;
 
+import com.tuempresa.creditflow.creditflow_api.enums.KycEntityType;
 import com.tuempresa.creditflow.creditflow_api.model.KycStatus;
 import lombok.Data;
 
@@ -14,10 +15,9 @@ public class KycVerificationResponseDTO {
     private String externalReferenceId;
     private LocalDateTime submissionDate;
     private LocalDateTime verificationDate;
-    private UUID userId;
-    private String userFullName;
-    private String userEmail;
-    private String selfieUrl;
-    private String dniFrontUrl;
-    private String dniBackUrl;
+    private KycEntityType kycEntityType;
+    private String entityName;
+    private String document1Url;
+    private String document2Url;
+    private String document3Url;
 }
