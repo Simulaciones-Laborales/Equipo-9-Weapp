@@ -4,6 +4,7 @@ import com.tuempresa.creditflow.creditflow_api.dto.BaseResponse;
 import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
 import com.tuempresa.creditflow.creditflow_api.exception.cloudinaryExc.ImageUploadException;
 import com.tuempresa.creditflow.creditflow_api.exception.kycExc.KycNotFoundException;
+import com.tuempresa.creditflow.creditflow_api.exception.kycExc.UserNotVerifiedException;
 import com.tuempresa.creditflow.creditflow_api.exception.userExc.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -88,6 +89,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(BaseResponse.error(HttpStatus.NOT_FOUND, ex.getMessage()));
+    }
+
+    @ExceptionHandler(UserNotVerifiedException.class)
+    public ResponseEntity<String> handleUserNotVerified(UserNotVerifiedException ex) {
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN) // 403
+                .body(ex.getMessage());
     }
 
     // ----------------------------
