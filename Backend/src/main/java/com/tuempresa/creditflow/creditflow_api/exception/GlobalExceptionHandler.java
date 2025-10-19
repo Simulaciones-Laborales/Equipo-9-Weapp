@@ -3,6 +3,7 @@ package com.tuempresa.creditflow.creditflow_api.exception;
 import com.tuempresa.creditflow.creditflow_api.dto.BaseResponse;
 import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
 import com.tuempresa.creditflow.creditflow_api.exception.cloudinaryExc.ImageUploadException;
+import com.tuempresa.creditflow.creditflow_api.exception.kycExc.CompanyNotVerifiedException;
 import com.tuempresa.creditflow.creditflow_api.exception.kycExc.KycNotFoundException;
 import com.tuempresa.creditflow.creditflow_api.exception.kycExc.UserNotVerifiedException;
 import com.tuempresa.creditflow.creditflow_api.exception.userExc.*;
@@ -93,6 +94,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UserNotVerifiedException.class)
     public ResponseEntity<String> handleUserNotVerified(UserNotVerifiedException ex) {
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN) // 403
+                .body(ex.getMessage());
+    }
+
+    @ExceptionHandler(CompanyNotVerifiedException.class)
+    public ResponseEntity<String> handlePymeNotVerified(CompanyNotVerifiedException ex) {
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN) // 403
                 .body(ex.getMessage());

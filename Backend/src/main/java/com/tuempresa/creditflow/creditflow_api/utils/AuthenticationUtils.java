@@ -3,7 +3,7 @@ package com.tuempresa.creditflow.creditflow_api.utils;
 import com.tuempresa.creditflow.creditflow_api.dto.BaseResponse;
 import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
 import com.tuempresa.creditflow.creditflow_api.dto.user.UserDto;
-import com.tuempresa.creditflow.creditflow_api.service.UserService;
+import com.tuempresa.creditflow.creditflow_api.service.IUserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,9 +14,9 @@ import java.util.UUID;
 
 @Component
 public class AuthenticationUtils {
-    private final UserService userService;
+    private final IUserService userService;
 
-    public AuthenticationUtils(UserService userService) {
+    public AuthenticationUtils(IUserService userService) {
         this.userService = userService;
     }
 

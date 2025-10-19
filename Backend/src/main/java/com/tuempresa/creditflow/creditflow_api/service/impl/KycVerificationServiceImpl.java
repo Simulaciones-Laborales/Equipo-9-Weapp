@@ -1,15 +1,20 @@
-package com.tuempresa.creditflow.creditflow_api.service;
+package com.tuempresa.creditflow.creditflow_api.service.impl;
 
 import com.cloudinary.utils.ObjectUtils;
+import com.tuempresa.creditflow.creditflow_api.dto.BaseResponse;
+import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
 import com.tuempresa.creditflow.creditflow_api.dto.kyc.*;
 import com.tuempresa.creditflow.creditflow_api.enums.KycEntityType;
+import com.tuempresa.creditflow.creditflow_api.enums.KycStatus;
 import com.tuempresa.creditflow.creditflow_api.exception.cloudinaryExc.ImageUploadException;
 import com.tuempresa.creditflow.creditflow_api.exception.kycExc.KycNotFoundException;
 import com.tuempresa.creditflow.creditflow_api.exception.userExc.UserNotFoundException;
 import com.tuempresa.creditflow.creditflow_api.mapper.KycMapper;
 import com.tuempresa.creditflow.creditflow_api.model.*;
 import com.tuempresa.creditflow.creditflow_api.repository.*;
+import com.tuempresa.creditflow.creditflow_api.service.IKycVerificationService;
 import com.tuempresa.creditflow.creditflow_api.service.api.ImageService;
+import com.tuempresa.creditflow.creditflow_api.service.api.SumsubService;
 import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +31,7 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class KycVerificationService {
+public class KycVerificationServiceImpl implements IKycVerificationService {
 
     private final KycVerificationRepository kycRepo;
     private final UserRepository userRepo;
@@ -39,14 +44,9 @@ public class KycVerificationService {
     //  MÉTODOS PÚBLICOS
     // ====================================================
 
-    /**
-     * Inicia un proceso KYC subiendo archivos y creando el registro local.
-     */
     @Transactional
-    public KycVerificationResponseDTO startVerificationWithFiles(KycFileUploadRequestDTO dto) {
+    public ExtendedBaseResponse<KycVerificationResponseDTO> startVerificationWithFiles(KycFileUploadRequestDTO dto) {
         validateRequest(dto);
-
-        // 🚨 Validar que los 3 documentos sean obligatorios
         validateAllDocumentsPresent(dto);
 
         KycVerification kyc = createKycEntity(dto.entityType(), dto.entityId());
@@ -54,69 +54,104 @@ public class KycVerificationService {
 
         Map<String, String> uploadedDocs = uploadKycFiles(kyc.getIdKyc(), dto);
         updateKycWithUploadedDocs(kyc, uploadedDocs);
-
         kycRepo.save(kyc);
 
         log.info("[KYC] Verificación iniciada: idKyc={} externalId={} tipo={} estado={}",
                 kyc.getIdKyc(), kyc.getExternalReferenceId(), dto.entityType(), kyc.getStatus());
 
-        return kycMapper.toResponseDto(kyc);
+        return ExtendedBaseResponse.of(
+                BaseResponse.created("Verificación KYC iniciada correctamente"),
+                kycMapper.toResponseDto(kyc)
+        );
     }
 
     @Transactional(readOnly = true)
-    public List<KycVerificationResponseDTO> getAll() {
-        return kycRepo.findAll().stream()
+    public ExtendedBaseResponse<List<KycVerificationResponseDTO>> getAll() {
+        List<KycVerificationResponseDTO> kycs = kycRepo.findAll().stream()
                 .map(kycMapper::toResponseDto)
                 .collect(Collectors.toList());
+
+        return ExtendedBaseResponse.of(
+                BaseResponse.ok("Listado completo de KYC"),
+                kycs
+        );
     }
 
     @Transactional(readOnly = true)
-    public List<KycVerificationResponseDTO> getAllKcyByUserId(UUID userId) {
+    public ExtendedBaseResponse<List<KycVerificationResponseDTO>> getAllKcyByUserId(UUID userId) {
         if (!userRepo.existsById(userId))
             throw new UserNotFoundException("Usuario no encontrado con ID: " + userId);
 
-        return kycRepo.findByUserId(userId).stream()
+        List<KycVerificationResponseDTO> kycs = kycRepo.findByUserId(userId).stream()
                 .map(kycMapper::toResponseDto)
                 .toList();
+
+        return ExtendedBaseResponse.of(
+                BaseResponse.ok("Listado de KYC para el usuario"),
+                kycs
+        );
     }
 
     @Transactional(readOnly = true)
-    public List<KycVerificationResponseDTO> getAllByUserIdAndOptionalStatus(UUID userId, KycStatus status) {
+    public ExtendedBaseResponse<List<KycVerificationResponseDTO>> getAllByUserIdAndOptionalStatus(UUID userId, KycStatus status) {
         if (!userRepo.existsById(userId))
             throw new UserNotFoundException("Usuario no encontrado con ID: " + userId);
 
-        return (status != null
+        List<KycVerificationResponseDTO> kycs = (status != null
                 ? kycRepo.findByUserIdAndStatus(userId, status)
                 : kycRepo.findByUserId(userId))
                 .stream()
                 .map(kycMapper::toResponseDto)
                 .toList();
+
+        return ExtendedBaseResponse.of(
+                BaseResponse.ok("Listado de KYC filtrado por estado"),
+                kycs
+        );
     }
 
-    public KycVerificationResponseDTO getById(UUID id) {
-        return kycRepo.findById(id)
-                .map(kycMapper::toResponseDto)
+    public ExtendedBaseResponse<KycVerificationResponseDTO> getById(UUID id) {
+        KycVerification kyc = kycRepo.findById(id)
                 .orElseThrow(() -> new KycNotFoundException("KYC no encontrado con ID: " + id));
+
+        return ExtendedBaseResponse.of(
+                BaseResponse.ok("KYC encontrado"),
+                kycMapper.toResponseDto(kyc)
+        );
     }
 
     @Transactional
-    public KycVerificationResponseDTO updateStatus(UUID id, KycStatusUpdateDTO dto) {
+    public ExtendedBaseResponse<KycVerificationResponseDTO> updateStatus(UUID id, KycStatusUpdateDTO dto) {
         KycVerification kyc = kycRepo.findById(id)
                 .orElseThrow(() -> new KycNotFoundException("KYC no encontrado con ID: " + id));
 
         kyc.setStatus(dto.getStatus());
         kyc.setVerificationNotes(Optional.ofNullable(dto.getNotes()).orElse("Estado actualizado manualmente"));
         kyc.setVerificationDate(LocalDateTime.now());
-
         kycRepo.save(kyc);
-        return kycMapper.toResponseDto(kyc);
+
+        return ExtendedBaseResponse.of(
+                BaseResponse.ok("Estado de KYC actualizado correctamente"),
+                kycMapper.toResponseDto(kyc)
+        );
     }
 
-    public void delete(UUID id) {
-        if (!kycRepo.existsById(id))
+    @Transactional
+    public ExtendedBaseResponse<String> delete(UUID id) {
+        if (!kycRepo.existsById(id)) {
             throw new KycNotFoundException("No se encontró el KYC con ID: " + id);
+        }
+
         kycRepo.deleteById(id);
+
+        log.info("[KYC] KYC eliminado correctamente: id={}", id);
+
+        return ExtendedBaseResponse.of(
+                BaseResponse.ok("KYC eliminado correctamente"),
+                id.toString()
+        );
     }
+
 
     // ====================================================
     //  MÉTODOS PRIVADOS

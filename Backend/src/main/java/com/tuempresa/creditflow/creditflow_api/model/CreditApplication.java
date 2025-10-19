@@ -1,6 +1,7 @@
 package com.tuempresa.creditflow.creditflow_api.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.tuempresa.creditflow.creditflow_api.enums.CreditStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

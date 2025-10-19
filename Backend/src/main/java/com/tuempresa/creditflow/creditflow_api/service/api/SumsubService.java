@@ -1,4 +1,4 @@
-package com.tuempresa.creditflow.creditflow_api.service;
+package com.tuempresa.creditflow.creditflow_api.service.api;
 
 import com.tuempresa.creditflow.creditflow_api.enums.KycEntityType;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,7 @@ public class SumsubService {
     @Value("${sumsub.api.token:}")
     private String apiToken;
 
-    @Value("${sumsub.mock:false}") // si es true => modo simulación
+    @Value("${sumsub.mock:true}") // si es true => modo simulación
     private boolean mockMode;
 
     private final RestTemplate restTemplate = new RestTemplate();

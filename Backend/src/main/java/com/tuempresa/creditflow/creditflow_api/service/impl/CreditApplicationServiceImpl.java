@@ -3,22 +3,17 @@ package com.tuempresa.creditflow.creditflow_api.service.impl;
 import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.CreditApplicationRequestDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.CreditApplicationResponseDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.CreditApplicationStatusChangeDTO;
+import com.tuempresa.creditflow.creditflow_api.enums.CreditApplicationActionType;
+import com.tuempresa.creditflow.creditflow_api.enums.CreditStatus;
+import com.tuempresa.creditflow.creditflow_api.enums.KycEntityType;
+import com.tuempresa.creditflow.creditflow_api.enums.KycStatus;
 import com.tuempresa.creditflow.creditflow_api.exception.ConflictException;
 import com.tuempresa.creditflow.creditflow_api.exception.ResourceNotFoundException;
-import com.tuempresa.creditflow.creditflow_api.exception.userExc.UserNotFoundException;
+import com.tuempresa.creditflow.creditflow_api.exception.kycExc.CompanyNotVerifiedException;
 import com.tuempresa.creditflow.creditflow_api.mapper.CreditApplicationMapper;
-import com.tuempresa.creditflow.creditflow_api.mapper.ICreditApplicationMapper;
-import com.tuempresa.creditflow.creditflow_api.model.Company;
-import com.tuempresa.creditflow.creditflow_api.model.CreditApplication;
-import com.tuempresa.creditflow.creditflow_api.model.CreditApplicationActionType;
-import com.tuempresa.creditflow.creditflow_api.model.CreditApplicationHistory;
-import com.tuempresa.creditflow.creditflow_api.model.CreditStatus;
-import com.tuempresa.creditflow.creditflow_api.model.User;
+import com.tuempresa.creditflow.creditflow_api.model.*;
 import com.tuempresa.creditflow.creditflow_api.model.User.Role;
-import com.tuempresa.creditflow.creditflow_api.repository.CompanyRepository;
-import com.tuempresa.creditflow.creditflow_api.repository.CreditApplicationHistoryRepository;
-import com.tuempresa.creditflow.creditflow_api.repository.CreditApplicationRepository;
-import com.tuempresa.creditflow.creditflow_api.repository.UserRepository;
+import com.tuempresa.creditflow.creditflow_api.repository.*;
 import com.tuempresa.creditflow.creditflow_api.service.CreditApplicationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -36,6 +31,7 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
     private final CreditApplicationRepository creditApplicationRepository;
     private final CompanyRepository companyRepository;
     private final CreditApplicationHistoryRepository historyRepository;
+    private final KycVerificationRepository kycVerificationRepository;
     // ---------------------
     // Crear la solicitud para un usuario propietario
     // ---------------------
@@ -43,6 +39,9 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
     @Transactional
     public CreditApplicationResponseDTO createApplication(CreditApplicationRequestDTO dto, User owner) {
         // Basic DTO validation (you can move it to controller/validator)
+        if(!kycVerificationRepository.existsByCompanyIdAndEntityTypeAndStatus(dto.getCompanyId(), KycEntityType.COMPANY, KycStatus.VERIFIED)){
+            throw new CompanyNotVerifiedException("La Pyme no esta verificada, No puede crear una solicitud de crédito");
+        }
         if (dto.getCompanyId() == null) {
             throw new ConflictException("Se requiere el ID de la empresa");
         }

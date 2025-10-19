@@ -1,7 +1,9 @@
 package com.tuempresa.creditflow.creditflow_api.repository;
 
+import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
+import com.tuempresa.creditflow.creditflow_api.dto.kyc.KycVerificationResponseDTO;
 import com.tuempresa.creditflow.creditflow_api.enums.KycEntityType;
-import com.tuempresa.creditflow.creditflow_api.model.KycStatus;
+import com.tuempresa.creditflow.creditflow_api.enums.KycStatus;
 import com.tuempresa.creditflow.creditflow_api.model.KycVerification;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -17,4 +19,6 @@ public interface KycVerificationRepository extends JpaRepository<KycVerification
     boolean existsByCompanyId(UUID entityId);
 
     boolean existsByUserIdAndEntityTypeAndStatus(UUID id, KycEntityType kycEntityType, KycStatus kycStatus);
+
+    boolean existsByCompanyIdAndEntityTypeAndStatus( UUID companyId, KycEntityType kycEntityType, KycStatus kycStatus);
 }

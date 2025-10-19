@@ -1,5 +1,6 @@
 package com.tuempresa.creditflow.creditflow_api.model;
 
+import com.tuempresa.creditflow.creditflow_api.enums.CreditApplicationActionType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
