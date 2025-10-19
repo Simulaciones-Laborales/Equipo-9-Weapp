@@ -3,7 +3,7 @@ package com.tuempresa.creditflow.creditflow_api.service;
 import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.CreditApplicationRequestDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.CreditApplicationResponseDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.CreditApplicationStatusChangeDTO;
-import com.tuempresa.creditflow.creditflow_api.model.CreditStatus;
+import com.tuempresa.creditflow.creditflow_api.enums.CreditStatus;
 import com.tuempresa.creditflow.creditflow_api.model.User;
 
 import java.util.List;

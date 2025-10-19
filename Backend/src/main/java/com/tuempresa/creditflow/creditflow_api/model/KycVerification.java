@@ -1,6 +1,7 @@
 package com.tuempresa.creditflow.creditflow_api.model;
 
 import com.tuempresa.creditflow.creditflow_api.enums.KycEntityType;
+import com.tuempresa.creditflow.creditflow_api.enums.KycStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;

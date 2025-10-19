@@ -1,10 +1,11 @@
 package com.tuempresa.creditflow.creditflow_api.controller;
 
+import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
 import com.tuempresa.creditflow.creditflow_api.dto.kyc.KycFileUploadRequestDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.kyc.KycStatusUpdateDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.kyc.KycVerificationResponseDTO;
 import com.tuempresa.creditflow.creditflow_api.enums.KycEntityType;
-import com.tuempresa.creditflow.creditflow_api.service.KycVerificationService;
+import com.tuempresa.creditflow.creditflow_api.service.impl.KycVerificationServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -28,9 +29,9 @@ import java.util.UUID;
 @RequestMapping("/api/kyc")
 public class KycVerificationController {
 
-    private final KycVerificationService kycService;
+    private final KycVerificationServiceImpl kycService;
 
-    public KycVerificationController(KycVerificationService kycService) {
+    public KycVerificationController(KycVerificationServiceImpl kycService) {
         this.kycService = kycService;
     }
 
@@ -54,7 +55,7 @@ public class KycVerificationController {
             @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content)
     })
     @PostMapping(value = "/start", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<KycVerificationResponseDTO> startVerificationWithFiles(
+    public ResponseEntity<ExtendedBaseResponse<KycVerificationResponseDTO>> startVerificationWithFiles(
             @RequestParam("entityId") UUID entityId,
             @RequestParam("entityType") KycEntityType entityType,
             @RequestPart(value = "document1", required = false) MultipartFile document1,
@@ -78,7 +79,7 @@ public class KycVerificationController {
             @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content)
     })
     @GetMapping
-    public ResponseEntity<List<KycVerificationResponseDTO>> getAll() {
+    public ResponseEntity<ExtendedBaseResponse<List<KycVerificationResponseDTO>>> getAll() {
         return ResponseEntity.ok(kycService.getAll());
     }
 
@@ -96,7 +97,7 @@ public class KycVerificationController {
             @ApiResponse(responseCode = "404", description = "No se encontró la verificación", content = @Content)
     })
     @GetMapping("/{id}")
-    public ResponseEntity<KycVerificationResponseDTO> getById(@PathVariable UUID id) {
+    public ResponseEntity<ExtendedBaseResponse<KycVerificationResponseDTO>> getById(@PathVariable UUID id) {
         return ResponseEntity.ok(kycService.getById(id));
     }
 
@@ -116,7 +117,7 @@ public class KycVerificationController {
             @ApiResponse(responseCode = "404", description = "Verificación no encontrada", content = @Content)
     })
     @PutMapping("/{id}/status")
-    public ResponseEntity<KycVerificationResponseDTO> updateStatus(@PathVariable UUID id,
+    public ResponseEntity<ExtendedBaseResponse<KycVerificationResponseDTO>> updateStatus(@PathVariable UUID id,
                                                                    @RequestBody KycStatusUpdateDTO dto) {
         return ResponseEntity.ok(kycService.updateStatus(id, dto));
     }

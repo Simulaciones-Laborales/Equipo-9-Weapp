@@ -1,6 +1,7 @@
 package com.tuempresa.creditflow.creditflow_api.mapper;
 
 
+import com.tuempresa.creditflow.creditflow_api.enums.CreditStatus;
 import com.tuempresa.creditflow.creditflow_api.model.CreditApplication;
 import com.tuempresa.creditflow.creditflow_api.model.Company;
 import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.CreditApplicationRequestDTO;
@@ -14,7 +15,7 @@ public class CreditApplicationMapper {
                 .company(company)
                 .amount(dto.getAmount())
                 .operatorComments(dto.getOperatorComments())
-                .status(com.tuempresa.creditflow.creditflow_api.model.CreditStatus.PENDING) //por defecto al crear
+                .status(CreditStatus.PENDING) //por defecto al crear
                 .build();
     }
 

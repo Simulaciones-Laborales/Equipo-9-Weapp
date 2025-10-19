@@ -4,11 +4,11 @@ import com.tuempresa.creditflow.creditflow_api.dto.history.CreditApplicationHist
 import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.CreditApplicationRequestDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.CreditApplicationResponseDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.CreditApplicationStatusChangeDTO;
-import com.tuempresa.creditflow.creditflow_api.model.CreditStatus;
+import com.tuempresa.creditflow.creditflow_api.enums.CreditStatus;
 import com.tuempresa.creditflow.creditflow_api.model.User;
 import com.tuempresa.creditflow.creditflow_api.service.CreditApplicationHistoryService;
 import com.tuempresa.creditflow.creditflow_api.service.CreditApplicationService;
-import com.tuempresa.creditflow.creditflow_api.service.UserService;
+import com.tuempresa.creditflow.creditflow_api.service.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -44,7 +44,7 @@ public class CreditApplicationController {
 
     private final CreditApplicationService creditApplicationService;
     private final CreditApplicationHistoryService creditApplicationHistoryService;
-    private final UserService userService;
+    private final IUserService userService;
 
     // Obtener el usuario autenticado (se excluye de la documentación de Swagger)
     private User getAuthenticatedUser() {

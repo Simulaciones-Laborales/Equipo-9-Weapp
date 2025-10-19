@@ -1,4 +1,4 @@
-package com.tuempresa.creditflow.creditflow_api.model;
+package com.tuempresa.creditflow.creditflow_api.enums;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
