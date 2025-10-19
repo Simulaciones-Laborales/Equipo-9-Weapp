@@ -42,25 +42,27 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
         if(!kycVerificationRepository.existsByCompanyIdAndEntityTypeAndStatus(dto.getCompanyId(), KycEntityType.COMPANY, KycStatus.VERIFIED)){
             throw new CompanyNotVerifiedException("La Pyme no esta verificada, No puede crear una solicitud de crédito");
         }
+
+        // validación básica de los datos del DTO
         if (dto.getCompanyId() == null) {
             throw new ConflictException("Se requiere el ID de la empresa");
         }
         if (dto.getAmount() == null || dto.getAmount().signum() <= 0) {
             throw new ConflictException("El monto debe ser positivo");
         }
-        // verificar que la empresa existe
+        // verificación de que la empresa existe
         Company company = companyRepository.findById(dto.getCompanyId()).orElseThrow(
                 () -> new ResourceNotFoundException("No se encontró la empresa: " + dto.getCompanyId()));
 
-        // chequear propiedad
+        // chequeado de propiedad
         if (company.getUser() == null || !company.getUser().getId().equals(owner.getId())) {
             throw new ResourceNotFoundException("La empresa no es accesible al usuario");
         }
-        // mapear y guardar
+        // mapeado y guardado
         CreditApplication entity = CreditApplicationMapper.toEntity(dto, company);
         CreditApplication saved = creditApplicationRepository.save(entity);
 
-        // inicia historial
+        // inicialización del historial con la creación de la solcitud
         CreditApplicationHistory initial = CreditApplicationHistory.builder()
                 .creditApplication(saved)
                 .actionType(CreditApplicationActionType.CREATION)
