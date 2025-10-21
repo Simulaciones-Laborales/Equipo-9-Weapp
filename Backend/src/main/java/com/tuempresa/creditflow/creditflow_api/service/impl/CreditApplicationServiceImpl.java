@@ -109,22 +109,32 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
             }
 
             try {
+                log.info("➡️ Procesando archivo: {} ({} bytes)", file.getOriginalFilename(), file.getSize());
+
                 // 1️⃣ Subir imagen/documento
+                log.info("📤 Subiendo archivo a ImageService...");
                 String url = imageService.uploadImage(file);
+                log.info("✅ Archivo subido correctamente: {}", url);
 
                 // 2️⃣ Extraer texto con OCR
+                log.info("🔍 Ejecutando OCR...");
                 String text = ocrService.extractText(file);
+                log.info("✅ OCR completado. Longitud de texto extraído: {}",
+                        (text != null ? text.length() : 0));
 
                 // 3️⃣ Preparar features para el modelo ML
                 Map<String, Object> features = new HashMap<>();
-                features.put("wordCount", text.split("\\s+").length);
+                features.put("wordCount", (text != null) ? text.split("\\s+").length : 0);
                 features.put("documentSize", file.getSize());
-                features.put("financialTermsCount", countFinancialTerms(text)); // método helper que contaría términos financieros relevantes
+                features.put("financialTermsCount", countFinancialTerms(text));
+
+                log.info("🧠 Ejecutando modelo ML con features: {}", features);
 
                 // 4️⃣ Calcular score con ML
                 int scoreImpact = mlModelService.predictScore(features);
+                log.info("✅ ML Score calculado: {}", scoreImpact);
 
-                // 5️⃣ Crear entidad RiskDocument con score calculado
+                // 5️⃣ Crear entidad RiskDocument
                 RiskDocument riskDoc = RiskDocument.builder()
                         .creditApplication(creditApplication)
                         .name(file.getOriginalFilename())
@@ -135,18 +145,26 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
                 creditApplication.addRiskDocument(riskDoc);
                 uploadedDocs.add(riskDoc);
 
-                log.info("📎 Documento '{}' asociado a la solicitud con score: {}", riskDoc.getName(), scoreImpact);
+                log.info("📎 Documento '{}' asociado con éxito.", riskDoc.getName());
+
             } catch (Exception e) {
-                log.error("💥 Error procesando archivo '{}': {}", file.getOriginalFilename(), e.getMessage(), e);
+                log.error("💥 ERROR procesando archivo '{}': {}",
+                        file.getOriginalFilename(), e.getMessage(), e);
                 throw new RuntimeException("Error al procesar archivo: " + file.getOriginalFilename(), e);
             }
         }
 
-        // 6️⃣ Recalcular puntaje total de la solicitud
-        creditApplication.calculateRiskScore();
+        try {
+            creditApplication.calculateRiskScore();
+            log.info("📊 Puntaje recalculado correctamente: {}", creditApplication.getRiskScore());
+        } catch (Exception e) {
+            log.error("💥 ERROR recalculando puntaje: {}", e.getMessage(), e);
+            throw e;
+        }
 
         return uploadedDocs;
     }
+
 
     // Ejemplo simple del helper countFinancialTerms
     private int countFinancialTerms(String text) {
@@ -160,16 +178,17 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
         return count;
     }
 
-
     private CreditApplication persistCreditApplicationWithDocuments(CreditApplication creditApplication) {
         try {
+            log.info("💾 Guardando solicitud con {} documentos...",
+                    creditApplication.getRiskDocuments() != null ? creditApplication.getRiskDocuments().size() : 0);
             creditApplication.calculateRiskScore();
-            creditApplication = creditApplicationRepository.saveAndFlush(creditApplication);
-            entityManager.refresh(creditApplication);
-            log.info("💾 Solicitud guardada con {} documento(s).", creditApplication.getRiskDocuments().size());
-            return creditApplication;
+            CreditApplication saved = creditApplicationRepository.saveAndFlush(creditApplication);
+            entityManager.refresh(saved);
+            log.info("✅ Solicitud guardada correctamente ID: {}", saved.getId());
+            return saved;
         } catch (Exception e) {
-            log.error("💥 Error al persistir la solicitud o documentos: {}", e.getMessage(), e);
+            log.error("💥 ERROR al persistir la solicitud: {}", e.getMessage(), e);
             throw new RuntimeException("Error al guardar la solicitud de crédito.", e);
         }
     }
@@ -300,9 +319,6 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
         app.setCreditPurpose(dto.getCreditPurpose());
         app.setTermMonths(dto.getTermMonths());
 
-        if (isOperator && dto.getOperatorComments() != null) {
-            app.setOperatorComments(dto.getOperatorComments());
-        }
 
         // 3️⃣ Subir y asociar documentos si hay
         List<RiskDocument> uploadedDocs = new ArrayList<>();

@@ -1,5 +1,7 @@
 package com.tuempresa.creditflow.creditflow_api.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.CreditApplicationUpdateRequestDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.history.CreditApplicationHistoryDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.CreditApplicationRequestDTO;
@@ -26,20 +28,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-
 import jakarta.validation.Valid;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -62,7 +54,8 @@ public class CreditApplicationController {
     private User getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
-        return userService.findEntityByEmail(email);}
+        return userService.findEntityByEmail(email);
+    }
 
     @Operation(summary = "Crear una nueva solicitud de crédito con documentos",
             description = """
@@ -76,10 +69,19 @@ public class CreditApplicationController {
     })
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<CreditApplicationResponseDTO> createApplicationWithFiles(
-            @RequestPart("data") @Valid CreditApplicationRequestDTO dto,
+            @Parameter(
+                    description = "JSON con los datos de la solicitud. Debe enviarse como string.",
+                    // 👇 Esta es la parte clave: le dices a Swagger cómo es el JSON.
+                    schema = @Schema(implementation = CreditApplicationRequestDTO.class)
+            )
+            @RequestPart("data") String data,
             @RequestPart(value = "files", required = false) List<MultipartFile> files
-    ) {
+    ) throws JsonProcessingException {
         User currentUser = getAuthenticatedUser();
+
+        // Convierte manualmente el JSON recibido a tu DTO
+        ObjectMapper mapper = new ObjectMapper();
+        CreditApplicationRequestDTO dto = mapper.readValue(data, CreditApplicationRequestDTO.class);
 
         CreditApplicationResponseDTO created = creditApplicationService
                 .createApplicationWithFiles(dto, files, currentUser);
@@ -87,7 +89,59 @@ public class CreditApplicationController {
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
+    @Operation(
+            summary = "Actualizar una solicitud de crédito existente con nuevos datos o documentos",
+            description = """
+        Permite modificar una solicitud de crédito existente. 
+        El cuerpo de la solicitud debe enviarse como multipart/form-data, 
+        incluyendo un campo `data` (JSON con los datos a actualizar) 
+        y opcionalmente archivos en el campo `documents`.
+        Ejemplo de campo `data`:
+        {
+            "amount": 75000,
+            "operatorComments": "Se adjuntan nuevos balances"
+        }
+        """
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Solicitud de crédito actualizada exitosamente",
+                    content = @Content(schema = @Schema(implementation = CreditApplicationResponseDTO.class))
+            ),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Solicitud no encontrada", content = @Content)
+    })
 
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<CreditApplicationResponseDTO> updateApplication(
+            @Parameter(description = "ID (UUID) de la solicitud a actualizar", required = true)
+            @PathVariable UUID id,
+
+            @Parameter(
+                    description = "JSON con los datos a actualizar. Debe enviarse como string.",
+                    // 👇 Añade la misma anotación aquí.
+                    schema = @Schema(implementation = CreditApplicationUpdateRequestDTO.class)
+            )
+            @RequestPart("data") String data,
+
+            @Parameter(description = "Archivos PDF o documentos adicionales a adjuntar.")
+            @RequestPart(value = "documents", required = false) List<MultipartFile> documents
+    ) throws JsonProcessingException {
+
+        User currentUser = getAuthenticatedUser();
+
+        List<MultipartFile> safeDocuments = (documents != null) ? documents : List.of();
+
+        // Convertir el JSON (String) recibido en objeto DTO
+        ObjectMapper mapper = new ObjectMapper();
+        CreditApplicationUpdateRequestDTO dto = mapper.readValue(data, CreditApplicationUpdateRequestDTO.class);
+
+        CreditApplicationResponseDTO updated = creditApplicationService
+                .updateApplication(id, dto, safeDocuments, currentUser);
+
+        return ResponseEntity.ok(updated);
+    }
 
     // -------------------------
     // Get application by ID (only if user has access)
@@ -148,30 +202,6 @@ public class CreditApplicationController {
         List<CreditApplicationResponseDTO> list = creditApplicationService.getApplicationsByCompany(companyId, currentUser);
         return ResponseEntity.ok(list);
     }
-
-    // -------------------------
-    // Update an application (amount / operatorComments) — business rules apply inside service
-    // PUT /api/credit-applications/{id}
-    // -------------------------
-    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<CreditApplicationResponseDTO> updateApplication(
-            @Parameter(description = "ID (UUID) de la solicitud a actualizar.")
-            @PathVariable UUID id,
-            @RequestPart("data") @Valid CreditApplicationUpdateRequestDTO dto,
-            @RequestPart(value = "documents", required = false) List<MultipartFile> documents
-    ) {
-        User currentUser = getAuthenticatedUser();
-
-        List<MultipartFile> safeDocuments = (documents != null) ? documents : List.of();
-
-        CreditApplicationResponseDTO updated = creditApplicationService
-                .updateApplication(id, dto, safeDocuments, currentUser);
-
-        return ResponseEntity.ok(updated);
-    }
-
-
-
 
     // -------------------------
     // Change status of an application (creates history entry)
