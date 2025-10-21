@@ -7,6 +7,7 @@ import com.tuempresa.creditflow.creditflow_api.dto.kyc.*;
 import com.tuempresa.creditflow.creditflow_api.enums.KycEntityType;
 import com.tuempresa.creditflow.creditflow_api.enums.KycStatus;
 import com.tuempresa.creditflow.creditflow_api.exception.cloudinaryExc.ImageUploadException;
+import com.tuempresa.creditflow.creditflow_api.exception.kycExc.KycBadRequestException;
 import com.tuempresa.creditflow.creditflow_api.exception.kycExc.KycNotFoundException;
 import com.tuempresa.creditflow.creditflow_api.exception.userExc.UserNotFoundException;
 import com.tuempresa.creditflow.creditflow_api.mapper.KycMapper;
@@ -20,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -159,13 +161,13 @@ public class KycVerificationServiceImpl implements IKycVerificationService {
 
     private void validateRequest(KycFileUploadRequestDTO dto) {
         if (dto.entityId() == null || dto.entityType() == null)
-            throw new ValidationException("Debe indicar el ID y el tipo de entidad (USER o COMPANY).");
+            throw new KycBadRequestException("Debe indicar el ID y el tipo de entidad (USER o COMPANY).");
     }
 
     private void validateAllDocumentsPresent(KycFileUploadRequestDTO dto) {
         if (dto.document1Url() == null || dto.document2Url() == null || dto.document3Url() == null ||
                 dto.document1Url().isEmpty() || dto.document2Url().isEmpty() || dto.document3Url().isEmpty()) {
-            throw new ValidationException("Debe adjuntar los 3 documentos requeridos (document1, document2 y document3).");
+            throw new KycBadRequestException("Debe adjuntar los 3 documentos requeridos (document1, document2 y document3).");
         }
     }
 
@@ -173,11 +175,13 @@ public class KycVerificationServiceImpl implements IKycVerificationService {
         return switch (type) {
             case USER -> createUserKyc(entityId);
             case COMPANY -> createCompanyKyc(entityId);
-            default -> throw new ValidationException("Tipo de entidad no soportado: " + type);
+            default -> throw new IllegalArgumentException("Tipo de entidad KYC no válido: " + type);
         };
     }
 
+
     private KycVerification createUserKyc(UUID userId) {
+
         User user = userRepo.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con ID: " + userId));
 
@@ -193,11 +197,12 @@ public class KycVerificationServiceImpl implements IKycVerificationService {
     }
 
     private KycVerification createCompanyKyc(UUID companyId) {
+
         Company company = companyRepo.findById(companyId)
-                .orElseThrow(() -> new ValidationException("Empresa no encontrada con ID: " + companyId));
+                .orElseThrow(() -> new KycBadRequestException("Empresa no encontrada con ID: " + companyId));
 
         if (kycRepo.existsByCompanyId(companyId))
-            throw new ValidationException("La empresa ya tiene un proceso KYC.");
+            throw new KycBadRequestException("La empresa ya tiene un proceso KYC.");
 
         String ownerEmail = company.getUser().getEmail();
         String externalId = sumsubService.createApplicant(companyId.toString(), ownerEmail, KycEntityType.COMPANY);

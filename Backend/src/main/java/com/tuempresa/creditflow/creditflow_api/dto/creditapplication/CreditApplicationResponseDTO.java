@@ -1,10 +1,11 @@
 package com.tuempresa.creditflow.creditflow_api.dto.creditapplication;
 
-import io.swagger.v3.oas.annotations.media.Schema;
+import com.tuempresa.creditflow.creditflow_api.enums.CreditPurpose;
 import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -14,20 +15,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@Schema(
-    description = "Estructura de datos que contiene todos los detalles de una solicitud de crédito, incluyendo su estado actual y metadatos de tiempo.",
-    example = "{" +
-        "\"idCreditApplication\": \"11223344-5566-7788-99aa-bbccddeeff00\"," +
-        "\"companyId\": \"a1b2c3d4-e5f6-7890-1234-567890abcdef\"," +
-        "\"companyName\": \"Tech Innovators S.A.\"," +
-        "\"amount\": 25000.00," +
-        "\"status\": \"UNDER_REVIEW\"," +
-        "\"operatorComments\": \"Pendiente de adjuntar documentación fiscal.\"," +
-        "\"createdAt\": \"2025-10-15T10:00:00\"," +
-        "\"updatedAt\": \"2025-10-16T09:30:00\"" +
-    "}"
-)
+@Builder(toBuilder = true)
 public class CreditApplicationResponseDTO {
 
     @Schema(
@@ -61,18 +49,8 @@ public class CreditApplicationResponseDTO {
         example = "UNDER_REVIEW"
     )
     private String status;
-
-    @Schema(
-        description = "Últimos comentarios internos añadidos por el operador/analista sobre el estado de la solicitud.",
-        example = "Pendiente de adjuntar documentación fiscal."
-    )
-    private String operatorComments;
-
-    @Schema(
-        description = "Fecha y hora de creación de la solicitud.",
-        example = "2025-10-15T10:00:00",
-        format = "date-time"
-    )
+    private Integer termMonths;
+    private CreditPurpose creditPurpose;
     private LocalDateTime createdAt;
 
     @Schema(
@@ -81,4 +59,8 @@ public class CreditApplicationResponseDTO {
         format = "date-time"
     )
     private LocalDateTime updatedAt;
+    private Integer riskScore;
+    private List<RiskDocumentDTO> documents; // 👈 ahora usamos DTOs de documentos
 }
+
+

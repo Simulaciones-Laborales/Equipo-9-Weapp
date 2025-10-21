@@ -16,7 +16,8 @@ public interface ICreditApplicationMapper {
                 .companyName(app.getCompany().getCompany_name())
                 .amount(app.getAmount())
                 .status(app.getStatus().name())
-                .operatorComments(app.getOperatorComments())
+                .creditPurpose(app.getCreditPurpose())   // nuevo
+                .termMonths(app.getTermMonths())         // nuevo
                 .createdAt(app.getCreatedAt())
                 .updatedAt(app.getUpdatedAt())
                 .build();
