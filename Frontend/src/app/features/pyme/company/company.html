@@ -1,24 +1,56 @@
-<p-card>
-  <article class="flex flex-col gap-y-7">
-    <header>
-      <app-title headline="Mi Empresa" />
+<article class="flex flex-col gap-y-7">
+  <header>
+    <app-title headline="Administración de Mis Empresas" />
+  </header>
+  @if (store.loadingMessage() !== null) {
+  <div class="flex flex-col items-center justify-center gap-y-1 my-12" role="progressbar">
+    <p-progressSpinner />
+    <p class="text-surface-600 font-medium">{{ store.loadingMessage() }}</p>
+  </div>
+  } @else { @if (store.showNewKycForm()) {
+  <section class="flex flex-col gap-y-5">
+    <header class="flex flex-col gap-y-2.5">
+      <app-subtitle headline="Verificación del KYC" />
+      <p class="text-sm sm:text-base text-surface-600 text-pretty">
+        Por favor, adjunta tu documentación para proceder con la verificación y registro de tu
+        empresa.
+      </p>
     </header>
-    @if (store.kycStatus() === 'loading') {
-    <div class="flex flex-col items-center justify-center gap-y-1" role="progressbar">
-      <p-progressSpinner />
-      <p class="text-surface-600 font-medium">Cargando KYC...</p>
-    </div>
-    } @else { @if (store.showNewKycForm()) {
-    <section class="flex flex-col gap-y-5">
-      <header class="flex flex-col gap-y-2.5">
-        <app-subtitle headline="Verificación del KYC" />
-        <p class="text-sm sm:text-base text-surface-600 text-pretty">
-          Por favor, adjunta tu documentación para proceder con la verificación y registro de tu
-          empresa.
-        </p>
-      </header>
-      <app-new-kyc-form />
-    </section>
-    } }
-  </article>
-</p-card>
+    <app-new-kyc-form (onSubmit)="startKycVerification($event)" />
+  </section>
+  } @else if (store.showNewCompanyForm()) {
+  <section class="flex flex-col gap-y-5">
+    <header class="flex flex-col gap-y-2.5">
+      <app-subtitle headline="Registro de Nueva Empresa" />
+      <p class="text-sm sm:text-base text-surface-600 text-pretty">
+        Por favor, completa los datos de tu empresa en el siguiente formulario para proceder con su
+        registro.
+      </p>
+    </header>
+    <p-card
+      ><article class="flex flex-col gap-y-7">
+        <app-subtitle headline="Formulario de Registro" />
+        <app-new-company-form
+          [loading]="store.createCompanyStatus() === 'loading'"
+          (onSubmit)="createNewCompany($event)"
+        /></article
+    ></p-card>
+  </section>
+  } @else if (store.showCompanies()) {
+  <section class="flex flex-col gap-y-5">
+    <header class="flex flex-col gap-y-2.5">
+      <app-subtitle headline="Listado de Empresas" />
+      <p class="text-sm sm:text-base text-surface-600 text-pretty">
+        A continuación listamos todas tus empresas registradas.
+      </p>
+    </header>
+    <ul class="flex flex-col gap-y-3.5">
+      @for (company of store.companies(); track $index) {
+      <li>
+        <p-card> <app-company-info [company]="company" class="w-full" /></p-card>
+      </li>
+      }
+    </ul>
+  </section>
+  } }
+</article>

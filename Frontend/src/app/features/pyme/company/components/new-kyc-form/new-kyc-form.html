@@ -45,6 +45,13 @@
       Al subir tu documentación, estás de acuerdo con nuestros
       <a href="#" class="text-blue-500">términos y condiciones</a>.
     </p-message>
-    <p-button severity="contrast" label="Subir Documentación" fluid icon="pi pi-upload" />
+    <p-button
+      severity="contrast"
+      label="Subir Documentación"
+      fluid
+      icon="pi pi-upload"
+      [disabled]="isInvalid()"
+      (onClick)="submit()"
+    />
   </div>
 </form>

@@ -27,6 +27,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+
 import jakarta.validation.Valid;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,6 +42,10 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+// ----------------------------------------------------------------------
+// ANOTACIONES A NIVEL DE CLASE
+// ----------------------------------------------------------------------
 
 @RestController
 @RequestMapping("/api/credit-applications")
@@ -46,9 +58,7 @@ public class CreditApplicationController {
     private final CreditApplicationHistoryService creditApplicationHistoryService;
     private final IUserService userService;
 
-    // -------------------------
-    // Helper: obtener usuario autenticado desde SecurityContext
-    // -------------------------
+    // Obtener el usuario autenticado (se excluye de la documentación de Swagger)
     private User getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
@@ -84,12 +94,34 @@ public class CreditApplicationController {
     // GET /api/credit-applications/{id}
     // -------------------------
     @GetMapping("/{id}")
-    public ResponseEntity<CreditApplicationResponseDTO> getById(@PathVariable UUID id) {
+    public ResponseEntity<CreditApplicationResponseDTO> getById(
+        @Parameter(description = "ID (UUID) de la solicitud a consultar.")
+        @PathVariable UUID id) {
+        
         User currentUser = getAuthenticatedUser();
         CreditApplicationResponseDTO dto = creditApplicationService.getApplicationByIdAndUser(id, currentUser);
         return ResponseEntity.ok(dto);
     }
 
+    // ------------------------------------------------------------------
+    // ENDPOINT 3: OBTENER POR EMPRESA (GET /company/{companyId})
+    // ------------------------------------------------------------------
+    @Operation(
+        summary = "Obtener solicitudes por empresa",
+        description = "Devuelve todas las solicitudes de crédito asociadas a una empresa específica. La empresa debe pertenecer al usuario autenticado.",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "Lista de solicitudes encontradas para la empresa.",
+                content = @Content(
+                    mediaType = "application/json",
+                    array = @ArraySchema(schema = @Schema(implementation = CreditApplicationResponseDTO.class))
+                )
+            ),
+            @ApiResponse(responseCode = "404", description = "Empresa no encontrada o no pertenece al usuario."),
+            @ApiResponse(responseCode = "401", description = "No autenticado.")
+        }
+    )
     // -------------------------
     // Get all credit applications of the authenticated user
     // GET /api/credit-applications/my
@@ -106,8 +138,12 @@ public class CreditApplicationController {
     // List applications by company (owner or operator/admin)
     // GET /api/credit-applications/company/{companyId}
     // -------------------------
+
     @GetMapping("/company/{companyId}")
-    public ResponseEntity<List<CreditApplicationResponseDTO>> getByCompany(@PathVariable UUID companyId) {
+    public ResponseEntity<List<CreditApplicationResponseDTO>> getByCompany(
+        @Parameter(description = "ID (UUID) de la empresa cuyas solicitudes se desean consultar.")
+        @PathVariable UUID companyId) {
+        
         User currentUser = getAuthenticatedUser();
         List<CreditApplicationResponseDTO> list = creditApplicationService.getApplicationsByCompany(companyId, currentUser);
         return ResponseEntity.ok(list);
@@ -119,6 +155,7 @@ public class CreditApplicationController {
     // -------------------------
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<CreditApplicationResponseDTO> updateApplication(
+            @Parameter(description = "ID (UUID) de la solicitud a actualizar.")
             @PathVariable UUID id,
             @RequestPart("data") @Valid CreditApplicationUpdateRequestDTO dto,
             @RequestPart(value = "documents", required = false) List<MultipartFile> documents
@@ -142,7 +179,13 @@ public class CreditApplicationController {
     // -------------------------
     @PostMapping("/{id}/status")
     public ResponseEntity<CreditApplicationResponseDTO> changeStatus(
+            @Parameter(description = "ID (UUID) de la solicitud cuyo estado se va a cambiar.")
             @PathVariable UUID id,
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                description = "El nuevo estado (e.g., APPROVED, REJECTED) y comentarios opcionales.",
+                required = true,
+                content = @Content(schema = @Schema(implementation = CreditApplicationStatusChangeDTO.class))
+            )
             @RequestBody @Valid CreditApplicationStatusChangeDTO dto) {
 
         User currentUser = getAuthenticatedUser();
@@ -150,24 +193,56 @@ public class CreditApplicationController {
         return ResponseEntity.ok(updated);
     }
 
-    // -------------------------
-    // Delete an application
-    // DELETE /api/credit-applications/{id}
-    // -------------------------
+    // ------------------------------------------------------------------
+    // ENDPOINT 6: ELIMINAR SOLICITUD (DELETE /{id})
+    // ------------------------------------------------------------------
+    @Operation(
+        summary = "Eliminar solicitud",
+        description = "Elimina permanentemente una solicitud de crédito. Solo permitido si el estado lo permite y pertenece al usuario. Retorna 204 No Content.",
+        responses = {
+            @ApiResponse(responseCode = "204", description = "Solicitud eliminada exitosamente."),
+            @ApiResponse(responseCode = "404", description = "Solicitud no encontrada o no pertenece al usuario."),
+            @ApiResponse(responseCode = "401", description = "No autenticado.")
+        }
+    )
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteApplication(@PathVariable UUID id) {
+    public ResponseEntity<Void> deleteApplication(
+        @Parameter(description = "ID (UUID) de la solicitud a eliminar.")
+        @PathVariable UUID id) {
+        
         User currentUser = getAuthenticatedUser();
         creditApplicationService.deleteApplication(id, currentUser);
         return ResponseEntity.noContent().build();
     }
 
-    // -------------------------
-    // Get paginated history for an application
-    // GET /api/credit-applications/{id}/history?page=0&size=20&sort=createdAt,desc
-    // -------------------------
+    // ------------------------------------------------------------------
+    // ENDPOINT 7: OBTENER HISTORIAL (GET /{id}/history)
+    // ------------------------------------------------------------------
+    @Operation(
+        summary = "Consultar historial de la solicitud",
+        description = "Obtiene el registro de auditoría y eventos (cambios de estado, comentarios, actualizaciones) para una solicitud específica. La respuesta está paginada.",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "Página de registros de historial recuperada.",
+                // Para Page<T>, se suele usar un wrapper o simplemente documentar que el contenido es un array, 
+                // pero SpringDoc lo maneja automáticamente para objetos Page.
+                content = @Content(mediaType = "application/json", 
+                                   schema = @Schema(description = "Objeto de página de Spring Data con registros de historial.", 
+                                                    implementation = Page.class, 
+                                                    // Es una técnica común especificar el tipo de contenido de la página
+                                                    // aunque el esquema de Page de Spring sea complejo
+                                                    subTypes = CreditApplicationHistoryDTO.class))
+            ),
+            @ApiResponse(responseCode = "404", description = "Solicitud no encontrada."),
+            @ApiResponse(responseCode = "401", description = "No autenticado.")
+        }
+    )
     @GetMapping("/{id}/history")
     public ResponseEntity<Page<CreditApplicationHistoryDTO>> getHistory(
+            @Parameter(description = "ID (UUID) de la solicitud cuyo historial se desea consultar.")
             @PathVariable UUID id,
+            @Parameter(description = "Parámetros de paginación (ej. page=0&size=10&sort=createdAt,desc).")
             Pageable pageable) {
 
         User currentUser = getAuthenticatedUser();
@@ -175,4 +250,3 @@ public class CreditApplicationController {
         return ResponseEntity.ok(page);
     }
 }
-

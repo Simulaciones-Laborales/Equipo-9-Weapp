@@ -12,26 +12,80 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+// Anotaciones de Swagger/OpenAPI
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+
 import java.util.List;
 import java.util.UUID;
+
+// ----------------------------------------------------------------------
+// ANOTACIONES A NIVEL DE CLASE
+// ----------------------------------------------------------------------
 
 @RestController
 @RequestMapping("/api/companies")
 @RequiredArgsConstructor
+@Tag(name = "Empresas", description = "Gestión de los registros de empresas solicitantes de crédito. Las operaciones están restringidas al usuario autenticado.")
 public class CompanyController {
 
     private final CompanyService companyService;
+
     private final IUserService userService; // Para obtener el usuario autenticado
 
-    //Crear una nueva empresa
+
+    // ------------------------------------------------------------------
+    // ENDPOINT 1: CREAR EMPRESA (POST)
+    // ------------------------------------------------------------------
+    @Operation(
+        summary = "Crear nueva empresa",
+        description = "Registra una nueva empresa asociada al usuario autenticado. El usuario actual será registrado como el creador.",
+        responses = {
+            @ApiResponse(
+                responseCode = "201",
+                description = "Empresa creada exitosamente.",
+                content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = CompanyResponseDTO.class)
+                )
+            ),
+            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos (ej. ID Fiscal duplicado, campos faltantes)."),
+            @ApiResponse(responseCode = "401", description = "No autenticado o Token inválido.")
+        }
+    )
     @PostMapping
-    public ResponseEntity<CompanyResponseDTO> createCompany(@RequestBody CompanyRequestDTO companyRequestDTO) {
+    public ResponseEntity<CompanyResponseDTO> createCompany(
+        @RequestBody CompanyRequestDTO companyRequestDTO) {
+        
         User currentUser = getAuthenticatedUser();
         CompanyResponseDTO createdCompany = companyService.createCompany(companyRequestDTO, currentUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdCompany);
     }
 
-    //Obtener todas las empresas del usuario autenticado
+    // ------------------------------------------------------------------
+    // ENDPOINT 2: OBTENER TODAS LAS EMPRESAS DEL USUARIO (GET /)
+    // ------------------------------------------------------------------
+    @Operation(
+        summary = "Listar empresas del usuario",
+        description = "Devuelve una lista de todas las empresas asociadas al usuario autenticado.",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "Lista de empresas recuperada.",
+                content = @Content(
+                    mediaType = "application/json",
+                    // Uso de ArraySchema para indicar que devuelve una lista del DTO
+                    array = @ArraySchema(schema = @Schema(implementation = CompanyResponseDTO.class))
+                )
+            ),
+            @ApiResponse(responseCode = "401", description = "No autenticado.")
+        }
+    )
     @GetMapping
     public ResponseEntity<List<CompanyResponseDTO>> getAllCompanies() {
         User currentUser = getAuthenticatedUser();
@@ -39,17 +93,58 @@ public class CompanyController {
         return ResponseEntity.ok(companies);
     }
 
-    //Obtener una empresa por su ID (solo si pertenece al usuario)
+    // ------------------------------------------------------------------
+    // ENDPOINT 3: OBTENER EMPRESA POR ID (GET /{id})
+    // ------------------------------------------------------------------
+    @Operation(
+        summary = "Obtener empresa por ID",
+        description = "Consulta una empresa específica. La empresa solo se devuelve si pertenece al usuario autenticado.",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "Empresa encontrada y devuelta.",
+                content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = CompanyResponseDTO.class)
+                )
+            ),
+            @ApiResponse(responseCode = "404", description = "Empresa no encontrada o el ID no pertenece al usuario."),
+            @ApiResponse(responseCode = "401", description = "No autenticado.")
+        }
+    )
     @GetMapping("/{id}")
-    public ResponseEntity<CompanyResponseDTO> getCompanyById(@PathVariable UUID id) {
+    public ResponseEntity<CompanyResponseDTO> getCompanyById(
+        @Parameter(description = "Identificador único (UUID) de la empresa a consultar.")
+        @PathVariable UUID id) {
+        
         User currentUser = getAuthenticatedUser();
         CompanyResponseDTO company = companyService.getCompanyByIdAndUser(id, currentUser);
         return ResponseEntity.ok(company);
     }
 
-    //Actualizar una empresa existente
+    // ------------------------------------------------------------------
+    // ENDPOINT 4: ACTUALIZAR EMPRESA (PUT /{id})
+    // ------------------------------------------------------------------
+    @Operation(
+        summary = "Actualizar empresa",
+        description = "Actualiza la información de una empresa existente. Solo se permite actualizar las empresas del usuario autenticado.",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "Empresa actualizada exitosamente.",
+                content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = CompanyResponseDTO.class)
+                )
+            ),
+            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos."),
+            @ApiResponse(responseCode = "404", description = "Empresa no encontrada o no pertenece al usuario."),
+            @ApiResponse(responseCode = "401", description = "No autenticado.")
+        }
+    )
     @PutMapping("/{id}")
     public ResponseEntity<CompanyResponseDTO> updateCompany(
+            @Parameter(description = "Identificador único (UUID) de la empresa a actualizar.")
             @PathVariable UUID id,
             @RequestBody CompanyRequestDTO companyRequestDTO) {
 
@@ -58,16 +153,30 @@ public class CompanyController {
         return ResponseEntity.ok(updatedCompany);
     }
 
-    //Eliminar una empresa por su ID
+    // ------------------------------------------------------------------
+    // ENDPOINT 5: ELIMINAR EMPRESA (DELETE /{id})
+    // ------------------------------------------------------------------
+    @Operation(
+        summary = "Eliminar empresa",
+        description = "Elimina una empresa por su ID. La empresa solo será eliminada si pertenece al usuario autenticado. Retorna una respuesta 204 sin contenido.",
+        responses = {
+            @ApiResponse(responseCode = "204", description = "Empresa eliminada exitosamente."),
+            @ApiResponse(responseCode = "404", description = "Empresa no encontrada o no pertenece al usuario."),
+            @ApiResponse(responseCode = "401", description = "No autenticado.")
+        }
+    )
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCompany(@PathVariable UUID id) {
+    public ResponseEntity<Void> deleteCompany(
+        @Parameter(description = "Identificador único (UUID) de la empresa a eliminar.")
+        @PathVariable UUID id) {
+        
         User currentUser = getAuthenticatedUser();
         companyService.deleteCompany(id, currentUser);
         return ResponseEntity.noContent().build();
     }
 
     // -----------------------------
-    // Método auxiliar para obtener el usuario autenticado de forma robusta
+    // Método auxiliar (sin anotaciones de Swagger, ya que no es un endpoint)
     // -----------------------------
     private User getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -75,8 +184,6 @@ public class CompanyController {
             throw new IllegalStateException("No se encontró ningún usuario autenticado en el contexto de seguridad");
         }
         String principal = authentication.getName();
-        // Llama al método robusto de UserService
         return userService.findEntityByPrincipal(principal);
     }
 }
-

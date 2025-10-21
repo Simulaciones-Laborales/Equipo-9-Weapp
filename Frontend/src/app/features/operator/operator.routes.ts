@@ -3,6 +3,6 @@ import { Routes } from '@angular/router';
 export default [
   {
     path: '',
-    loadComponent: () => import('./kyc'),
+    loadChildren: () => import('./layout/layout.routes'),
   },
 ] as Routes;

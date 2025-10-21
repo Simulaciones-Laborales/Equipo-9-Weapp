@@ -12,13 +12,12 @@ export class CreditApplicationApi {
   private readonly _http = inject(HttpClient);
 
   /**
-   * Obtienes todas las aplicaciones de crédito realizadas por una compañía.
+   * Obtienes todas las aplicaciones de crédito realizadas por el usuario autenticado.
    *
-   * @param companyId ID de la compañía.
    * @returns listado de aplicaciones de créditos.
    */
-  async getAllByCompanyId(companyId: string) {
-    const call = this._http.get<CreditApplicationResponse[]>(`${this._url}/company/${companyId}`);
+  async getAllMyCreditApplications() {
+    const call = this._http.get<CreditApplicationResponse[]>(`${this._url}/my`);
 
     return await lastValueFrom(call);
   }
