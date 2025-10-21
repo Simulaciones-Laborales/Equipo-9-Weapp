@@ -4,7 +4,7 @@
   <nav class="container mx-auto flex items-center justify-between gap-x-2.5 px-5">
     <app-logo />
     <div
-      class="relative font-semibold text-sm"
+      class="relative font-semibold text-xs sm:text-sm"
       [ngClass]="{
         'text-surface-500': kycStatus() === 'Sin KYC',
         'text-primary-600': kycStatus() === 'KYC Verificado',
