@@ -5,6 +5,11 @@ export enum KYCVerificationStatus {
   REVIEW_REQUIRED = 'REVIEW_REQUIRED',
 }
 
+export enum KYCEntityType {
+  USER = 'USER',
+  COMPANY = 'COMPANY',
+}
+
 export interface KYCVerificationResponse {
   idKyc: string;
   status: KYCVerificationStatus;

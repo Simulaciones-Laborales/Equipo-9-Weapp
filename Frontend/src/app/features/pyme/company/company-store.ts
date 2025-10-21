@@ -1,5 +1,9 @@
 import { computed, inject } from '@angular/core';
-import { KYCVerificationResponse, KYCVerificationStatus } from '@core/models/kyc-model';
+import {
+  KYCEntityType,
+  KYCVerificationResponse,
+  KYCVerificationStatus,
+} from '@core/models/kyc-model';
 import { UserApi } from '@core/services/user-api';
 import { Status } from '@core/types';
 import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
@@ -11,7 +15,7 @@ type State = {
   kyc: KYCVerificationResponse[];
   kycStatus: Status;
   showNewKycForm: boolean;
-  kycVerificationStatus: Status;
+  kycUserVerificationStatus: Status;
   companies: CompanyResponse[];
   getCompaniesStatus: Status;
   showNewCompanyForm: boolean;
@@ -23,7 +27,7 @@ const initialState: State = {
   kyc: [],
   kycStatus: 'pending',
   showNewKycForm: false,
-  kycVerificationStatus: 'pending',
+  kycUserVerificationStatus: 'pending',
   companies: [],
   getCompaniesStatus: 'pending',
   showNewCompanyForm: false,
@@ -39,7 +43,7 @@ export const CompanyStore = signalStore(
         return 'Cargando documentación...';
       }
 
-      if (store.kycVerificationStatus() === 'loading') {
+      if (store.kycUserVerificationStatus() === 'loading') {
         return 'Verificando documentación, puede tardar un poco...';
       }
 
@@ -70,15 +74,27 @@ export const CompanyStore = signalStore(
       setShowNewKycForm: (show: boolean) => {
         patchState(store, { showNewKycForm: show });
       },
-      startKycVerification: async (selfie: File, dniFront: File, dniBack: File) => {
-        patchState(store, { kycVerificationStatus: 'loading' });
+      startUserKycVerification: async (
+        entityId: string,
+        entityType: KYCEntityType,
+        selfie: File,
+        dniFront: File,
+        dniBack: File
+      ) => {
+        patchState(store, { kycUserVerificationStatus: 'loading' });
 
         try {
-          const kyc = await kycApi.startVerification(selfie, dniFront, dniBack);
+          const kyc = await kycApi.startVerification(
+            entityId,
+            entityType,
+            selfie,
+            dniFront,
+            dniBack
+          );
 
-          patchState(store, { kycVerificationStatus: 'success', kyc: [...store.kyc(), kyc!] });
+          patchState(store, { kycUserVerificationStatus: 'success', kyc: [...store.kyc(), kyc!] });
         } catch (e) {
-          patchState(store, { kycVerificationStatus: 'failure' });
+          patchState(store, { kycUserVerificationStatus: 'failure' });
         }
       },
       getCompanies: async () => {

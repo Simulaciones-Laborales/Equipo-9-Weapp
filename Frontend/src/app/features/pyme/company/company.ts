@@ -10,6 +10,7 @@ import { KycVerificationFiles } from '@core/types';
 import { CompanyRequest } from './models/company-model';
 import { CompanyInfo } from './components/company-info/company-info';
 import { Card } from 'primeng/card';
+import { KYCEntityType } from '@core/models/kyc-model';
 
 @Component({
   selector: 'app-company',
@@ -31,10 +32,12 @@ export default class Company {
           await this._fetchKycSuccess();
           break;
       }
+    });
 
-      const kycVerification = this.store.kycVerificationStatus();
+    effect(async () => {
+      const kycUserVerification = this.store.kycUserVerificationStatus();
 
-      switch (kycVerification) {
+      switch (kycUserVerification) {
         case 'success':
           await this._kycVerificationSuccess();
           break;
@@ -42,7 +45,9 @@ export default class Company {
           this._kycVerificationFailure();
           break;
       }
+    });
 
+    effect(async () => {
       const getCompaniesSatus = this.store.getCompaniesStatus();
 
       switch (getCompaniesSatus) {
@@ -64,7 +69,6 @@ export default class Company {
   }
 
   private async _fetchKycSuccess() {
-    console.log(this.store.kyc());
     if (this.store.kyc().length === 0) {
       this.store.setShowNewKycForm(true);
     } else {
@@ -72,10 +76,30 @@ export default class Company {
     }
   }
 
-  async startKycVerification(files: KycVerificationFiles) {
+  async startUserKycVerification(files: KycVerificationFiles) {
+    const user = this._tokenStorage.user();
+
+    if (!user) {
+      return;
+    }
+
+    await this._startKycVerification(user.id, KYCEntityType.USER, files);
+  }
+
+  private async _startKycVerification(
+    entityId: string,
+    entityType: KYCEntityType,
+    files: KycVerificationFiles
+  ) {
     this.store.setShowNewKycForm(false);
 
-    await this.store.startKycVerification(files.selfie!, files.dniFront!, files.dniBack!);
+    await this.store.startUserKycVerification(
+      entityId,
+      entityType,
+      files.selfie!,
+      files.dniFront!,
+      files.dniBack!
+    );
   }
 
   private async _kycVerificationSuccess() {
