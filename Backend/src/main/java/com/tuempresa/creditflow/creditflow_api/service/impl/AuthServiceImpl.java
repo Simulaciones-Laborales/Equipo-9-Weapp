@@ -9,8 +9,8 @@ import com.tuempresa.creditflow.creditflow_api.jwt.JwtService;
 import com.tuempresa.creditflow.creditflow_api.mapper.UserMapper;
 import com.tuempresa.creditflow.creditflow_api.model.User;
 import com.tuempresa.creditflow.creditflow_api.repository.UserRepository;
-import com.tuempresa.creditflow.creditflow_api.service.AuthService;
-import com.tuempresa.creditflow.creditflow_api.service.api.EmailService;
+import com.tuempresa.creditflow.creditflow_api.service.IAuthService;
+import com.tuempresa.creditflow.creditflow_api.service.IEmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,11 +25,11 @@ import java.util.UUID;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class AuthServiceImpl implements AuthService {
+public class AuthServiceImpl implements IAuthService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
-    private final EmailService emailService;
+    private final IEmailService emailService;
     private final UserMapper userMapper;
 
     // Método login

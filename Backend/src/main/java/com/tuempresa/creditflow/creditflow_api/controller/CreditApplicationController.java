@@ -1,18 +1,26 @@
 package com.tuempresa.creditflow.creditflow_api.controller;
 
+import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.CreditApplicationUpdateRequestDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.history.CreditApplicationHistoryDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.CreditApplicationRequestDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.CreditApplicationResponseDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.CreditApplicationStatusChangeDTO;
-import com.tuempresa.creditflow.creditflow_api.model.CreditStatus;
+import com.tuempresa.creditflow.creditflow_api.enums.CreditStatus;
 import com.tuempresa.creditflow.creditflow_api.model.User;
 import com.tuempresa.creditflow.creditflow_api.service.CreditApplicationHistoryService;
 import com.tuempresa.creditflow.creditflow_api.service.CreditApplicationService;
-import com.tuempresa.creditflow.creditflow_api.service.UserService;
+import com.tuempresa.creditflow.creditflow_api.service.IUserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,6 +36,10 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
 import jakarta.validation.Valid;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -39,12 +51,12 @@ import java.util.UUID;
 @RequestMapping("/api/credit-applications")
 @RequiredArgsConstructor
 @Validated
-@Tag(name = "Solicitudes de Crédito", description = "Gestión completa del ciclo de vida de las solicitudes de crédito, incluyendo creación, actualización de datos y cambio de estados.")
+@Slf4j
 public class CreditApplicationController {
 
     private final CreditApplicationService creditApplicationService;
     private final CreditApplicationHistoryService creditApplicationHistoryService;
-    private final UserService userService;
+    private final IUserService userService;
 
     // Obtener el usuario autenticado (se excluye de la documentación de Swagger)
     private User getAuthenticatedUser() {
@@ -52,52 +64,35 @@ public class CreditApplicationController {
         String email = authentication.getName();
         return userService.findEntityByEmail(email);}
 
-    // ------------------------------------------------------------------
-    // ENDPOINT 1: CREAR SOLICITUD (POST /)
-    // ------------------------------------------------------------------
-    @Operation(
-        summary = "Crear nueva solicitud de crédito",
-        description = "Inicia el proceso de solicitud de crédito para una empresa existente. La solicitud se asocia al usuario autenticado.",
-        responses = {
-            @ApiResponse(
-                responseCode = "201",
-                description = "Solicitud creada exitosamente. El estado inicial es PENDING.",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = CreditApplicationResponseDTO.class))
-            ),
-            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos o empresa no válida."),
-            @ApiResponse(responseCode = "401", description = "No autenticado.")
-        }
-    )
-    @PostMapping
-    public ResponseEntity<CreditApplicationResponseDTO> createApplication(
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                description = "Datos necesarios para crear la solicitud (ID de la empresa y monto).",
-                required = true,
-                content = @Content(schema = @Schema(implementation = CreditApplicationRequestDTO.class))
-            )
-            @RequestBody @Valid CreditApplicationRequestDTO dto) {
-
+    @Operation(summary = "Crear una nueva solicitud de crédito con documentos",
+            description = """
+           Permite crear una solicitud de crédito para la empresa del usuario autenticado.
+           Se pueden enviar archivos que serán utilizados para calcular el puntaje de riesgo.
+           """)
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Solicitud de crédito creada exitosamente",
+                    content = @Content(schema = @Schema(implementation = CreditApplicationResponseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Datos inválidos", content = @Content)
+    })
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<CreditApplicationResponseDTO> createApplicationWithFiles(
+            @RequestPart("data") @Valid CreditApplicationRequestDTO dto,
+            @RequestPart(value = "files", required = false) List<MultipartFile> files
+    ) {
         User currentUser = getAuthenticatedUser();
-        CreditApplicationResponseDTO created = creditApplicationService.createApplication(dto, currentUser);
+
+        CreditApplicationResponseDTO created = creditApplicationService
+                .createApplicationWithFiles(dto, files, currentUser);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
-    // ------------------------------------------------------------------
-    // ENDPOINT 2: OBTENER POR ID (GET /{id})
-    // ------------------------------------------------------------------
-    @Operation(
-        summary = "Obtener solicitud por ID",
-        description = "Consulta los detalles de una solicitud de crédito específica. Solo accesible si la solicitud pertenece al usuario.",
-        responses = {
-            @ApiResponse(
-                responseCode = "200",
-                description = "Solicitud encontrada.",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = CreditApplicationResponseDTO.class))
-            ),
-            @ApiResponse(responseCode = "404", description = "Solicitud no encontrada o no pertenece al usuario."),
-            @ApiResponse(responseCode = "401", description = "No autenticado.")
-        }
-    )
+
+
+    // -------------------------
+    // Get application by ID (only if user has access)
+    // GET /api/credit-applications/{id}
+    // -------------------------
     @GetMapping("/{id}")
     public ResponseEntity<CreditApplicationResponseDTO> getById(
         @Parameter(description = "ID (UUID) de la solicitud a consultar.")
@@ -154,56 +149,34 @@ public class CreditApplicationController {
         return ResponseEntity.ok(list);
     }
 
-    // ------------------------------------------------------------------
-    // ENDPOINT 4: ACTUALIZAR SOLICITUD (PUT /{id})
-    // ------------------------------------------------------------------
-    @Operation(
-        summary = "Actualizar monto y comentarios",
-        description = "Permite la actualización del monto solicitado y los comentarios internos de una solicitud existente.",
-        responses = {
-            @ApiResponse(
-                responseCode = "200",
-                description = "Solicitud actualizada con el nuevo monto y/o comentarios.",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = CreditApplicationResponseDTO.class))
-            ),
-            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos."),
-            @ApiResponse(responseCode = "404", description = "Solicitud no encontrada o no pertenece al usuario."),
-            @ApiResponse(responseCode = "401", description = "No autenticado.")
-        }
-    )
-    @PutMapping("/{id}")
+    // -------------------------
+    // Update an application (amount / operatorComments) — business rules apply inside service
+    // PUT /api/credit-applications/{id}
+    // -------------------------
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<CreditApplicationResponseDTO> updateApplication(
             @Parameter(description = "ID (UUID) de la solicitud a actualizar.")
             @PathVariable UUID id,
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                description = "Nuevos datos para el monto y comentarios.",
-                required = true,
-                content = @Content(schema = @Schema(implementation = CreditApplicationRequestDTO.class))
-            )
-            @RequestBody @Valid CreditApplicationRequestDTO dto) {
-
+            @RequestPart("data") @Valid CreditApplicationUpdateRequestDTO dto,
+            @RequestPart(value = "documents", required = false) List<MultipartFile> documents
+    ) {
         User currentUser = getAuthenticatedUser();
-        CreditApplicationResponseDTO updated = creditApplicationService.updateApplication(id, dto, currentUser);
+
+        List<MultipartFile> safeDocuments = (documents != null) ? documents : List.of();
+
+        CreditApplicationResponseDTO updated = creditApplicationService
+                .updateApplication(id, dto, safeDocuments, currentUser);
+
         return ResponseEntity.ok(updated);
     }
 
-    // ------------------------------------------------------------------
-    // ENDPOINT 5: CAMBIAR ESTADO (POST /{id}/status)
-    // ------------------------------------------------------------------
-    @Operation(
-        summary = "Cambiar estado de la solicitud",
-        description = "Transiciona el estado de la solicitud (ej. a APPROVED, REJECTED, UNDER_REVIEW). La acción genera un registro en el historial.",
-        responses = {
-            @ApiResponse(
-                responseCode = "200",
-                description = "Estado de la solicitud cambiado exitosamente. Retorna la solicitud actualizada.",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = CreditApplicationResponseDTO.class))
-            ),
-            @ApiResponse(responseCode = "400", description = "El nuevo estado no es válido o la transición es ilegal."),
-            @ApiResponse(responseCode = "404", description = "Solicitud no encontrada."),
-            @ApiResponse(responseCode = "401", description = "No autenticado.")
-        }
-    )
+
+
+
+    // -------------------------
+    // Change status of an application (creates history entry)
+    // POST /api/credit-applications/{id}/status
+    // -------------------------
     @PostMapping("/{id}/status")
     public ResponseEntity<CreditApplicationResponseDTO> changeStatus(
             @Parameter(description = "ID (UUID) de la solicitud cuyo estado se va a cambiar.")

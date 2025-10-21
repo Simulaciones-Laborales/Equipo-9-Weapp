@@ -4,7 +4,7 @@ import com.tuempresa.creditflow.creditflow_api.dto.company.CompanyRequestDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.company.CompanyResponseDTO;
 import com.tuempresa.creditflow.creditflow_api.model.User;
 import com.tuempresa.creditflow.creditflow_api.service.CompanyService;
-import com.tuempresa.creditflow.creditflow_api.service.UserService;
+import com.tuempresa.creditflow.creditflow_api.service.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +35,9 @@ import java.util.UUID;
 public class CompanyController {
 
     private final CompanyService companyService;
-    private final UserService userService; 
+
+    private final IUserService userService; // Para obtener el usuario autenticado
+
 
     // ------------------------------------------------------------------
     // ENDPOINT 1: CREAR EMPRESA (POST)

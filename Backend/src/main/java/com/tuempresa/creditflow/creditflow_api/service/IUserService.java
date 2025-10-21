@@ -7,7 +7,7 @@ import com.tuempresa.creditflow.creditflow_api.model.User;
 import java.util.List;
 import java.util.UUID;
 
-public interface UserService {
+public interface IUserService {
 
     ExtendedBaseResponse<UserDto> findUserById(UUID id);
 

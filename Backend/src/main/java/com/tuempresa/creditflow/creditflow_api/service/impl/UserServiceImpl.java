@@ -7,7 +7,7 @@ import com.tuempresa.creditflow.creditflow_api.exception.userExc.UserNotFoundExc
 import com.tuempresa.creditflow.creditflow_api.mapper.UserMapper;
 import com.tuempresa.creditflow.creditflow_api.model.User;
 import com.tuempresa.creditflow.creditflow_api.repository.UserRepository;
-import com.tuempresa.creditflow.creditflow_api.service.UserService;
+import com.tuempresa.creditflow.creditflow_api.service.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements IUserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
