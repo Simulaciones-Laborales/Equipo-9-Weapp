@@ -1,5 +1,5 @@
 import { computed, inject } from '@angular/core';
-import { KYCVerificationResponse } from '@core/models/kyc-model';
+import { KYCVerificationResponse, KYCVerificationStatus } from '@core/models/kyc-model';
 import { UserApi } from '@core/services/user-api';
 import { Status } from '@core/types';
 import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
@@ -61,8 +61,8 @@ export const CompanyStore = signalStore(
         patchState(store, { kycStatus: 'loading' });
 
         try {
-          const kyc = await userApi.getAllKYC(userId);
-          patchState(store, { kycStatus: 'success', kyc });
+          const kyc = await userApi.getAllKycByStatus(userId, KYCVerificationStatus.VERIFIED);
+          patchState(store, { kycStatus: 'success', kyc: kyc.data });
         } catch (e) {
           patchState(store, { kycStatus: 'failure', kyc: [] });
         }

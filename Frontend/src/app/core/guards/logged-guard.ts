@@ -19,14 +19,18 @@ export const loggedGuard: CanActivateFn = () => {
       detail: 'Por favor, inicia sesión para poder acceder al sistema',
     });
 
-    router.navigateByUrl('/pyme/auth/login');
+    router.createUrlTree(['pyme', 'auth', 'login']);
     return false;
   }
 
-  const { role } = tokenStorage.user()!;
+  const user = tokenStorage.user();
 
-  const route = role === UserRole.OPERADOR ? 'operador' : 'pyme';
-  router.navigateByUrl(`/${route}`);
+  if (!user) {
+    return false;
+  }
+
+  const route = user.role === UserRole.OPERADOR ? 'operador' : 'pyme';
+  router.createUrlTree([`${route}`]);
 
   return true;
 };

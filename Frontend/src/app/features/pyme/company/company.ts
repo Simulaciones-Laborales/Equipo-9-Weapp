@@ -64,6 +64,7 @@ export default class Company {
   }
 
   private async _fetchKycSuccess() {
+    console.log(this.store.kyc());
     if (this.store.kyc().length === 0) {
       this.store.setShowNewKycForm(true);
     } else {

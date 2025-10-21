@@ -14,7 +14,7 @@ export const authGuard: CanActivateFn = () => {
   const router = inject(Router);
 
   const route = role === UserRole.OPERADOR ? 'operador' : 'pyme';
-  router.navigateByUrl(`/${route}`);
+  router.createUrlTree([`${route}`]);
 
   return false;
 };
