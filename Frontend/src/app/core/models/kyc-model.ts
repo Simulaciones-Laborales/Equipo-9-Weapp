@@ -17,10 +17,9 @@ export interface KYCVerificationResponse {
   externalReferenceId: string;
   submissionDate: Date;
   verificationDate: Date;
-  userId: string;
-  userFullName: string;
-  userEmail: string;
-  selfieUrl: string;
-  dniFrontUrl: string;
-  dniBackUrl: string;
+  kycEntityType: KYCEntityType;
+  entityName: string;
+  document1: string;
+  document2: string;
+  document3: string;
 }
