@@ -5,6 +5,13 @@ export enum KYCVerificationStatus {
   REVIEW_REQUIRED = 'REVIEW_REQUIRED',
 }
 
+export type DisplayKycStatus =
+  | 'Sin KYC'
+  | 'KYC Pendiente'
+  | 'KYC Verificado'
+  | 'KYC Rechazado'
+  | 'KYC Por Revisar';
+
 export enum KYCEntityType {
   USER = 'USER',
   COMPANY = 'COMPANY',
