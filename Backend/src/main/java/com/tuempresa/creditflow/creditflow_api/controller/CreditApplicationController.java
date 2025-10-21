@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -27,6 +28,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -34,10 +36,6 @@ import jakarta.validation.Valid;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.UUID;
-
-// ----------------------------------------------------------------------
-// ANOTACIONES A NIVEL DE CLASE
-// ----------------------------------------------------------------------
 
 @RestController
 @RequestMapping("/api/credit-applications")
@@ -143,23 +141,32 @@ public class CreditApplicationController {
         return ResponseEntity.ok(updated);
     }
 
-    // -------------------------
-    // Get application by ID (only if user has access)
-    // GET /api/credit-applications/{id}
-    // -------------------------
+    @Operation(
+            summary = "Obtener una solicitud de crédito por ID",
+            description = """
+        Permite obtener los detalles de una solicitud de crédito específica por su ID.
+        Solo el propietario de la solicitud, un operador o un administrador puede acceder a esta información.
+        """,
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Solicitud de crédito obtenida correctamente",
+                    content = @Content(schema = @Schema(implementation = CreditApplicationResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Solicitud de crédito no encontrada",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado (usuario no autorizado)",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @GetMapping("/{id}")
     public ResponseEntity<CreditApplicationResponseDTO> getById(
-        @Parameter(description = "ID (UUID) de la solicitud a consultar.")
-        @PathVariable UUID id) {
-        
+            @Parameter(description = "ID (UUID) de la solicitud a consultar.")
+            @PathVariable UUID id) {
+
         User currentUser = getAuthenticatedUser();
         CreditApplicationResponseDTO dto = creditApplicationService.getApplicationByIdAndUser(id, currentUser);
         return ResponseEntity.ok(dto);
     }
 
-    // ------------------------------------------------------------------
-    // ENDPOINT 3: OBTENER POR EMPRESA (GET /company/{companyId})
-    // ------------------------------------------------------------------
     @Operation(
         summary = "Obtener solicitudes por empresa",
         description = "Devuelve todas las solicitudes de crédito asociadas a una empresa específica. La empresa debe pertenecer al usuario autenticado.",
@@ -176,38 +183,68 @@ public class CreditApplicationController {
             @ApiResponse(responseCode = "401", description = "No autenticado.")
         }
     )
-    // -------------------------
-    // Get all credit applications of the authenticated user
-    // GET /api/credit-applications/my
-    // -------------------------
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista de solicitudes obtenida correctamente",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = CreditApplicationResponseDTO.class)))),
+            @ApiResponse(responseCode = "403", description = "Usuario no autenticado o acceso denegado",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @GetMapping("/my")
-    public ResponseEntity<List<CreditApplicationResponseDTO>> getMyCreditApplications(@RequestParam(value = "status", required = false) CreditStatus status
-    ) {
+    public ResponseEntity<List<CreditApplicationResponseDTO>> getMyCreditApplications(
+            @Parameter(description = "Estado de la solicitud para filtrar los resultados (opcional).")
+            @RequestParam(value = "status", required = false) CreditStatus status) {
+
         User currentUser = getAuthenticatedUser();
         List<CreditApplicationResponseDTO> applications = creditApplicationService.getCreditApplicationsByUser(currentUser, status);
         return ResponseEntity.ok(applications);
     }
 
-    // -------------------------
-    // List applications by company (owner or operator/admin)
-    // GET /api/credit-applications/company/{companyId}
-    // -------------------------
-
+    @Operation(
+            summary = "Listar solicitudes de crédito por empresa",
+            description = """
+        Permite obtener todas las solicitudes de crédito asociadas a una empresa específica.
+        Solo el propietario de la empresa o un usuario con rol ADMIN/OPERADOR puede acceder a esta información.
+        """,
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista de solicitudes obtenida correctamente",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = CreditApplicationResponseDTO.class)))),
+            @ApiResponse(responseCode = "404", description = "Empresa no encontrada",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado (no es propietario ni ADMIN/OPERADOR)",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
     @GetMapping("/company/{companyId}")
     public ResponseEntity<List<CreditApplicationResponseDTO>> getByCompany(
-        @Parameter(description = "ID (UUID) de la empresa cuyas solicitudes se desean consultar.")
-        @PathVariable UUID companyId) {
-        
+            @Parameter(description = "ID (UUID) de la empresa cuyas solicitudes se desean consultar.")
+            @PathVariable UUID companyId) {
+
         User currentUser = getAuthenticatedUser();
         List<CreditApplicationResponseDTO> list = creditApplicationService.getApplicationsByCompany(companyId, currentUser);
         return ResponseEntity.ok(list);
     }
 
-    // -------------------------
-    // Change status of an application (creates history entry)
-    // POST /api/credit-applications/{id}/status
-    // -------------------------
-    @PostMapping("/{id}/status")
+    @Operation(
+            summary = "Cambiar el estado de una solicitud de crédito",
+            description = """
+        Permite cambiar el estado de una solicitud de crédito existente.
+        Solo el propietario de la empresa asociada a la solicitud o un usuario con rol ADMIN/OPERADOR puede realizar esta acción.
+        Se pueden agregar comentarios opcionales del operador.
+        """,
+            security = @SecurityRequirement(name = "bearerAuth") // si usas JWT o similar
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Solicitud de crédito actualizada correctamente",
+                    content = @Content(schema = @Schema(implementation = CreditApplicationResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Solicitud de crédito no encontrada",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "409", description = "Conflicto al cambiar el estado (permiso denegado o estado no válido)",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Solicitud inválida",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PutMapping("/{id}/status")
     public ResponseEntity<CreditApplicationResponseDTO> changeStatus(
             @Parameter(description = "ID (UUID) de la solicitud cuyo estado se va a cambiar.")
             @PathVariable UUID id,
