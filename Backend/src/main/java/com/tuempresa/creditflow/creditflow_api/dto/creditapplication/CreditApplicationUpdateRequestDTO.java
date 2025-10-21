@@ -15,17 +15,15 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Schema(description = "Datos necesarios para crear una nueva solicitud de crédito.")
-public class CreditApplicationRequestDTO {
-
-    @NotNull
-    @Schema(description = "Identificador único de la empresa solicitante.", example = "b91e6a2f-8423-4c9a-92ab-4fae54b122f3")
-    private UUID companyId;
-
+@Schema(description = "Datos necesarios para actualizar la solicitud de crédito.")
+public class CreditApplicationUpdateRequestDTO {
     @NotNull
     @Positive
     @Schema(description = "Monto solicitado para el crédito.", example = "50000.00")
     private BigDecimal amount;
+
+    @Schema(description = "Comentario del operador para dar pautas de los detalles que puedan surgir.", example = "EL documento adjunto no es legible y falta un sello.")
+    private String operatorComments;
 
     @NotNull
     @Schema(description = "Destino o propósito del crédito.", example = "CAPITAL_TRABAJO")

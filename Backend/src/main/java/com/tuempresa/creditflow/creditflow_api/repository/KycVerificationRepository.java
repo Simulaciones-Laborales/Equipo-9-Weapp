@@ -21,4 +21,5 @@ public interface KycVerificationRepository extends JpaRepository<KycVerification
     boolean existsByUserIdAndEntityTypeAndStatus(UUID id, KycEntityType kycEntityType, KycStatus kycStatus);
 
     boolean existsByCompanyIdAndEntityTypeAndStatus( UUID companyId, KycEntityType kycEntityType, KycStatus kycStatus);
+
 }

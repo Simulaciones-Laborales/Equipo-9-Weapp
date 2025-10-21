@@ -1,6 +1,7 @@
 package com.tuempresa.creditflow.creditflow_api.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.tuempresa.creditflow.creditflow_api.enums.CreditPurpose;
 import com.tuempresa.creditflow.creditflow_api.enums.CreditStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -13,6 +14,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Entidad que representa una solicitud de crédito dentro del sistema.
+ * Contiene información general, estado, historial y documentos relacionados
+ * que ayudan a determinar el puntaje de riesgo del solicitante.
+ */
 @Entity
 @Table(name = "credit_applications",
        indexes = {
@@ -44,6 +50,13 @@ public class CreditApplication {
     @Column(name = "status", length = 20, nullable = false)
     private CreditStatus status;
 
+    @Column(name = "term_months", nullable = false)
+    private Integer termMonths; // Plazo del crédito en meses
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "credit_purpose", length = 50, nullable = false)
+    private CreditPurpose creditPurpose;
+
     /**
      * Comentario de estado/observación actual del operador.
      * Es el comentario "visible" asociado al registro actual,
@@ -60,6 +73,16 @@ public class CreditApplication {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    //puntaje de riesgo
+    @Column(name = "risk_score")
+    private Integer riskScore;
+
+    // 🔹 Nueva relación: documentos asociados a la solicitud
+    @OneToMany(mappedBy = "creditApplication", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    @ToString.Exclude
+    @Builder.Default
+    private List<RiskDocument> riskDocuments = new ArrayList<>();
     /**
      * Historial de auditoría / acciones (bidireccional).
      * - Cascade ALL + orphanRemoval = true: si borras la solicitud, borras su historial.
@@ -83,5 +106,27 @@ public class CreditApplication {
         entry.setCreditApplication(null);
         this.history.remove(entry);
     }
+
+    public void addRiskDocument(RiskDocument doc) {
+        if (doc == null) return;
+        doc.setCreditApplication(this);
+        this.riskDocuments.add(doc);
+    }
+
+    public void removeRiskDocument(RiskDocument doc) {
+        if (doc == null) return;
+        doc.setCreditApplication(null);
+        this.riskDocuments.remove(doc);
+    }
+    public void calculateRiskScore() {
+        if (riskDocuments == null || riskDocuments.isEmpty()) {
+            this.riskScore = 0;
+            return;
+        }
+        this.riskScore = riskDocuments.stream()
+                .mapToInt(doc -> doc.getScoreImpact() != null ? doc.getScoreImpact() : 0)
+                .sum();
+    }
+
 }
 
