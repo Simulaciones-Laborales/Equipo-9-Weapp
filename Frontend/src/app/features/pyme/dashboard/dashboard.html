@@ -1,7 +1,13 @@
 <article class="flex flex-col gap-y-7">
   <header class="flex items-center justify-between gap-x-5">
-    <app-title [headline]="`Bienvenido ${user?.username ?? ''}`" />
-    <p-button severity="contrast" label="Cerrar sesión" (onClick)="logout()" />
+    <app-title [headline]="`Bienvenido, ${user?.username ?? ''}`" class="w-3/5" />
+    <p-button
+      size="small"
+      severity="contrast"
+      label="Cerrar sesión"
+      (onClick)="logout()"
+      class="w-2/5 text-right"
+    />
   </header>
   <p-divider />
   <section class="w-full max-w-xl">
