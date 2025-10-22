@@ -3,8 +3,11 @@ package com.tuempresa.creditflow.creditflow_api.service;
 import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.CreditApplicationRequestDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.CreditApplicationResponseDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.CreditApplicationStatusChangeDTO;
-import com.tuempresa.creditflow.creditflow_api.model.CreditStatus;
+import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.CreditApplicationUpdateRequestDTO;
+import com.tuempresa.creditflow.creditflow_api.enums.CreditStatus;
 import com.tuempresa.creditflow.creditflow_api.model.User;
+import jakarta.validation.Valid;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -15,10 +18,13 @@ public interface CreditApplicationService {
      * Crea una nueva solicitud de crédito asociada a una empresa y un usuario.
      *
      * @param dto  Datos de la solicitud.
-     * @param user Usuario autenticado que crea la solicitud.
+     * @param owner Usuario autenticado que crea la solicitud.
      * @return DTO con la información de la solicitud creada.
      */
-    CreditApplicationResponseDTO createApplication(CreditApplicationRequestDTO dto, User user);
+    CreditApplicationResponseDTO createApplicationWithFiles(
+            CreditApplicationRequestDTO dto,
+            List<MultipartFile> documents,
+            User owner);
 
     /**
      * Obtiene una solicitud de crédito específica por su ID,
@@ -44,10 +50,14 @@ public interface CreditApplicationService {
      *
      * @param id   ID de la solicitud.
      * @param dto  Datos actualizados.
-     * @param user Usuario autenticado.
+     * @param owner Usuario autenticado.
      * @return DTO con la información actualizada.
      */
-    CreditApplicationResponseDTO updateApplication(UUID id, CreditApplicationRequestDTO dto, User user);
+    CreditApplicationResponseDTO updateApplication(
+            UUID id,
+            CreditApplicationUpdateRequestDTO dto,
+            List<MultipartFile> newDocuments,
+            User owner);
 
     /**
      * Cambia el estado de una solicitud de crédito (por operador o admin).

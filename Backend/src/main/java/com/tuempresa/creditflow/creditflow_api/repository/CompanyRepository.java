@@ -23,5 +23,7 @@ public interface CompanyRepository extends JpaRepository<Company, UUID> {
 
     // (Opcional) Eliminar por id y user — útil para borrar solo si pertenece al user
     void deleteByIdAndUser(UUID id, User user);
+
+    List<Company> findByUserId(UUID id);
 }
 

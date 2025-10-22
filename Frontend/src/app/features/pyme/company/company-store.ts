@@ -1,17 +1,11 @@
 import { computed, inject } from '@angular/core';
-import { KYCVerificationResponse } from '@core/models/kyc-model';
-import { UserApi } from '@core/services/user-api';
 import { Status } from '@core/types';
 import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
 import { CompanyRequest, CompanyResponse } from './models/company-model';
 import { CompanyApi } from './services/company-api';
-import { KycApi } from './services/kyc-api';
 
 type State = {
-  kyc: KYCVerificationResponse[];
-  kycStatus: Status;
-  showNewKycForm: boolean;
-  kycVerificationStatus: Status;
+  showKycMessage: boolean;
   companies: CompanyResponse[];
   getCompaniesStatus: Status;
   showNewCompanyForm: boolean;
@@ -20,10 +14,7 @@ type State = {
 };
 
 const initialState: State = {
-  kyc: [],
-  kycStatus: 'pending',
-  showNewKycForm: false,
-  kycVerificationStatus: 'pending',
+  showKycMessage: false,
   companies: [],
   getCompaniesStatus: 'pending',
   showNewCompanyForm: false,
@@ -35,14 +26,6 @@ export const CompanyStore = signalStore(
   withState(initialState),
   withComputed((store) => ({
     loadingMessage: computed(() => {
-      if (store.kycStatus() === 'loading') {
-        return 'Cargando documentación...';
-      }
-
-      if (store.kycVerificationStatus() === 'loading') {
-        return 'Verificando documentación, puede tardar un poco...';
-      }
-
       if (store.getCompaniesStatus() === 'loading') {
         return 'Cargando empresas...';
       }
@@ -50,66 +33,40 @@ export const CompanyStore = signalStore(
       return null;
     }),
   })),
-  withMethods(
-    (
-      store,
-      userApi = inject(UserApi),
-      companyApi = inject(CompanyApi),
-      kycApi = inject(KycApi)
-    ) => ({
-      getKycByUserId: async (userId: string) => {
-        patchState(store, { kycStatus: 'loading' });
+  withMethods((store, companyApi = inject(CompanyApi)) => ({
+    setShowKycMessage: (showKycMessage: boolean) => {
+      patchState(store, { showKycMessage });
+    },
+    getCompanies: async () => {
+      patchState(store, { getCompaniesStatus: 'loading' });
 
-        try {
-          const kyc = await userApi.getAllKYC(userId);
-          patchState(store, { kycStatus: 'success', kyc });
-        } catch (e) {
-          patchState(store, { kycStatus: 'failure', kyc: [] });
-        }
-      },
-      setShowNewKycForm: (show: boolean) => {
-        patchState(store, { showNewKycForm: show });
-      },
-      startKycVerification: async (selfie: File, dniFront: File, dniBack: File) => {
-        patchState(store, { kycVerificationStatus: 'loading' });
+      try {
+        const companies = await companyApi.getAllByAuthenticatedUser();
+        patchState(store, { getCompaniesStatus: 'success', companies });
+      } catch (e) {
+        patchState(store, { getCompaniesStatus: 'failure' });
+      }
+    },
+    setShowNewCompanyForm: (show: boolean) => {
+      patchState(store, { showNewCompanyForm: show });
+    },
+    createCompany: async (req: CompanyRequest) => {
+      patchState(store, { createCompanyStatus: 'loading' });
 
-        try {
-          const kyc = await kycApi.startVerification(selfie, dniFront, dniBack);
-
-          patchState(store, { kycVerificationStatus: 'success', kyc: [...store.kyc(), kyc!] });
-        } catch (e) {
-          patchState(store, { kycVerificationStatus: 'failure' });
-        }
-      },
-      getCompanies: async () => {
-        patchState(store, { getCompaniesStatus: 'loading' });
-
-        try {
-          const companies = await companyApi.getAllByAuthenticatedUser();
-          patchState(store, { getCompaniesStatus: 'success', companies });
-        } catch (e) {
-          patchState(store, { getCompaniesStatus: 'failure' });
-        }
-      },
-      setShowNewCompanyForm: (show: boolean) => {
-        patchState(store, { showNewCompanyForm: show });
-      },
-      createCompany: async (req: CompanyRequest) => {
-        patchState(store, { createCompanyStatus: 'loading' });
-
-        try {
-          const company = await companyApi.create(req);
-          patchState(store, {
-            createCompanyStatus: 'success',
-            companies: [...store.companies(), company],
-          });
-        } catch (e) {
-          patchState(store, { createCompanyStatus: 'failure' });
-        }
-      },
-      setShowCompanies: (show: boolean) => {
-        patchState(store, { showCompanies: show });
-      },
-    })
-  )
+      try {
+        const company = await companyApi.create(req);
+        patchState(store, {
+          createCompanyStatus: 'success',
+          companies: [...store.companies(), company],
+          showNewCompanyForm: false,
+          showCompanies: true,
+        });
+      } catch (e) {
+        patchState(store, { createCompanyStatus: 'failure' });
+      }
+    },
+    setShowCompanies: (show: boolean) => {
+      patchState(store, { showCompanies: show });
+    },
+  }))
 );

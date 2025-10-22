@@ -3,10 +3,10 @@ package com.tuempresa.creditflow.creditflow_api.controller;
 import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
 import com.tuempresa.creditflow.creditflow_api.dto.kyc.KycVerificationResponseDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.user.*;
-import com.tuempresa.creditflow.creditflow_api.model.KycStatus;
+import com.tuempresa.creditflow.creditflow_api.enums.KycStatus;
 import com.tuempresa.creditflow.creditflow_api.service.CreditApplicationService;
-import com.tuempresa.creditflow.creditflow_api.service.KycVerificationService;
-import com.tuempresa.creditflow.creditflow_api.service.UserService;
+import com.tuempresa.creditflow.creditflow_api.service.impl.KycVerificationServiceImpl;
+import com.tuempresa.creditflow.creditflow_api.service.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -27,8 +27,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RequestMapping("/user")
 public class UserController {
-    private final UserService userService;
-    private final KycVerificationService kycVerificationService;
+    private final IUserService userService;
+    private final KycVerificationServiceImpl kycVerificationService;
     private final CreditApplicationService creditService;
 
     @Operation(
@@ -75,10 +75,15 @@ public class UserController {
             )
     })
     @GetMapping("/{id}/kyc/all")
-    public ResponseEntity<List<KycVerificationResponseDTO>> getAllKycByUserId(@PathVariable("id") UUID userId) {
-        List<KycVerificationResponseDTO> kycList = kycVerificationService.getAllKcyByUserId(userId);
-        return ResponseEntity.ok(kycList);
+    public ResponseEntity<ExtendedBaseResponse<List<KycVerificationResponseDTO>>> getAllKycByUserId(
+            @PathVariable("id") UUID userId) {
+
+        ExtendedBaseResponse<List<KycVerificationResponseDTO>> response =
+                kycVerificationService.getAllKcyByUserId(userId);
+
+        return ResponseEntity.ok(response);
     }
+
 
     @Operation(
             summary = "Consulta KYC por usuario y opcionalmente por estado",
@@ -97,7 +102,7 @@ public class UserController {
             )
     })
     @GetMapping("/{id}/kyc")
-    public ResponseEntity<List<KycVerificationResponseDTO>> getAllKycByUserIdAndStatus(
+    public ResponseEntity<ExtendedBaseResponse<List<KycVerificationResponseDTO>>> getAllKycByUserIdAndStatus(
             @PathVariable("id") UUID userId,
             @RequestParam(value = "status", required = false) KycStatus status
     ) {
