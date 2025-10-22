@@ -1,10 +1,5 @@
 import { computed, inject } from '@angular/core';
-import {
-  KYCEntityType,
-  DisplayKycStatus,
-  KYCVerificationResponse,
-  KYCVerificationStatus,
-} from '@core/models/kyc-model';
+import { KYCEntityType, KYCVerificationResponse, UserKycStatus } from '@core/models/kyc-model';
 import { TokenStorage } from '@core/services/token-storage';
 import { UserApi } from '@core/services/user-api';
 import { Status } from '@core/types';
@@ -24,9 +19,13 @@ export const LayoutStore = signalStore(
   { providedIn: 'root' },
   withState(initialState),
   withComputed((store) => ({
-    userKycStatus: computed((): DisplayKycStatus => {
+    userKycStatus: computed((): UserKycStatus => {
       if (store.kyc().length === 0) {
-        return 'Sin KYC';
+        return {
+          name: 'Sin KYC',
+          message:
+            'Bienvenido, por favor ve al Inicio para iniciar con la verificación de tu KYC personal.',
+        };
       }
 
       const userKyc = store.kyc().filter((k) => k.kycEntityType === KYCEntityType.USER);
@@ -34,7 +33,11 @@ export const LayoutStore = signalStore(
       const n = userKyc.length;
 
       if (n === 0) {
-        return 'Sin KYC';
+        return {
+          name: 'Sin KYC',
+          message:
+            'Bienvenido, por favor ve al Inicio para iniciar con la verificación de tu KYC personal.',
+        };
       }
 
       const lastKyc = userKyc.sort((a, b) => {
@@ -47,15 +50,33 @@ export const LayoutStore = signalStore(
 
       switch (lastKyc.status) {
         case 'PENDING':
-          return 'KYC Pendiente';
+          return {
+            name: 'KYC Pendiente',
+            message:
+              'Tienes un proceso de verificación pendiente, por favor sé paciente hasta que culmine el proceso.',
+          };
         case 'VERIFIED':
-          return 'KYC Verificado';
+          return {
+            name: 'KYC Verificado',
+            message: null,
+          };
         case 'REJECTED':
-          return 'KYC Rechazado';
+          return {
+            name: 'KYC Rechazado',
+            message:
+              'Tu documentación ha sido rechazada, te invitamos a que inicies nuevamente el proceso de verificación.',
+          };
         case 'REVIEW_REQUIRED':
-          return 'KYC Por Revisar';
+          return {
+            name: 'KYC Por Revisar',
+            message:
+              'Estamos verificando tu documentación con nuestros operadores, por favor sé paciente hasta que culmine el proceso.',
+          };
         default:
-          return 'Sin KYC';
+          return {
+            name: 'Sin KYC',
+            message: '',
+          };
       }
     }),
   })),

@@ -10,14 +10,44 @@
     />
   </header>
   <p-divider />
+  @if (store.showKycForm()) {
+  <section class="flex flex-col gap-y-5">
+    <header class="flex max-sm:flex-col items-start gap-y-2.5 gap-x-5">
+      <p-button
+        severity="secondary"
+        label="Volver"
+        icon="pi pi-angle-left"
+        (onClick)="store.setShowUserKycForm(false)"
+        [disabled]="store.startVerificationStatus() === 'loading'"
+      />
+      <div class="flex flex-col gap-y-2.5 border-l border-surface-200 pl-5">
+        <app-subtitle headline="Verificación del KYC" />
+        <p class="text-sm sm:text-base text-surface-600 text-pretty">
+          Por favor, adjunta tu documentación para proceder con la verificación de tu identidad y
+          desbloquear nuestras funciones.
+        </p>
+      </div>
+    </header>
+    <app-new-kyc-form
+      (onSubmit)="store.startUserKycVerification($event)"
+      title1="Foto Frontal de tu DNI"
+      title2="Foto Trasera de tu DNI"
+      title3="Selfie"
+      [loading]="store.startVerificationStatus() === 'loading'"
+    />
+  </section>
+  } @else {
   <section class="w-full max-w-xl">
     <div class="flex items-center justify-between gap-x-5">
       <div class="flex flex-col gap-y-2.5">
         <app-subtitle headline="Estado del KYC" />
-        <p>Por verificar</p>
+        <p class="text-surface-700">{{ layoutStorage.userKycStatus().name }}</p>
       </div>
-      <p-button label="Verificar KYC" />
+      @if (store.showKycButton()) {
+      <p-button label="Verificar KYC" (onClick)="store.setShowUserKycForm(true)" />
+      }
     </div>
   </section>
+  }
   <p-divider />
 </article>

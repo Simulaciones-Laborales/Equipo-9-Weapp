@@ -12,6 +12,11 @@ export type DisplayKycStatus =
   | 'KYC Rechazado'
   | 'KYC Por Revisar';
 
+export interface UserKycStatus {
+  name: DisplayKycStatus;
+  message: string | null;
+}
+
 export enum KYCEntityType {
   USER = 'USER',
   COMPANY = 'COMPANY',
