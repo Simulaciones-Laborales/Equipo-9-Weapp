@@ -39,7 +39,7 @@ public class CreditApplicationRequestDTO {
     @Positive
     @Schema(description = "Plazo del crédito en meses.", example = "12")
     private Integer termMonths;
-
+/*
     @Schema(description = "Lista de documentos utilizados para el cálculo de la fórmula de riesgo o validación.")
-    private List<DocumentFormulaDTO> documentsFormula;
+    private List<DocumentFormulaDTO> documentsFormula;*/
 }
