@@ -8,10 +8,11 @@ import { CompanyRequest } from './models/company-model';
 import { CompanyInfo } from './components/company-info/company-info';
 import { Card } from 'primeng/card';
 import { LayoutStore } from '../layout/layout-store';
+import { Button } from 'primeng/button';
 
 @Component({
   selector: 'app-company',
-  imports: [Title, ProgressSpinner, Subtitle, NewCompanyForm, CompanyInfo, Card],
+  imports: [Title, ProgressSpinner, Subtitle, NewCompanyForm, CompanyInfo, Card, Button],
   templateUrl: './company.html',
   styleUrl: './company.css',
   providers: [CompanyStore],

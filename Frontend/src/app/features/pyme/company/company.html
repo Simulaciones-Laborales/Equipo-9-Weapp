@@ -23,7 +23,7 @@
       </p>
     </header>
     <p-card
-      ><article class="flex flex-col gap-y-7">
+      ><article class="flex flex-col gap-y-7 w-full max-w-lg mx-auto">
         <app-subtitle headline="Formulario de Registro" />
         <app-new-company-form
           [loading]="store.createCompanyStatus() === 'loading'"
@@ -39,6 +39,15 @@
         A continuación listamos todas tus empresas registradas.
       </p>
     </header>
+    <div class="flex items-center justify-between -mb-2.5">
+      <p class="text-sm text-surface-600">Mostrando {{ store.companies().length }} resultados.</p>
+      <p-button
+        size="small"
+        label="Nueva Empresa"
+        icon="pi pi-plus"
+        (onClick)="store.setShowNewCompanyForm(true)"
+      />
+    </div>
     <ul class="flex flex-col gap-y-3.5">
       @for (company of store.companies(); track $index) {
       <li>

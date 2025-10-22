@@ -55,5 +55,10 @@
     </p-message>
     } }
   </div>
-  <p-button label="Completar Registro" type="submit" fluid [loading]="loading()" />
+  <p-button
+    [label]="loading() ? 'Registrando tu Empresa...' : 'Completar Registro'"
+    type="submit"
+    fluid
+    [loading]="loading()"
+  />
 </form>
