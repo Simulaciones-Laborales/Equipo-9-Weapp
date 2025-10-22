@@ -55,6 +55,44 @@ public class CreditApplicationController {
         return userService.findEntityByEmail(email);
     }
 
+    // Dentro de CreditApplicationController class
+
+// ... (después del método getByCompany)
+
+    @Operation(
+            summary = "Listar todas las solicitudes de crédito (Admin/Operador)",
+            description = """
+        Permite a los usuarios con rol ADMIN u OPERADOR obtener una lista paginada de todas las solicitudes de crédito en el sistema.
+        Se puede filtrar por estado (status).
+        """,
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Lista paginada de todas las solicitudes obtenida correctamente.",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Page.class, subTypes = CreditApplicationResponseDTO.class))
+            ),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado (usuario sin rol ADMIN/OPERADOR).",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GetMapping
+    public ResponseEntity<Page<CreditApplicationResponseDTO>> getAllApplications(
+            @Parameter(description = "Estado de la solicitud para filtrar los resultados (opcional).")
+            @RequestParam(value = "status", required = false) CreditStatus status,
+
+            @Parameter(description = "Parámetros de paginación (ej. page=0&size=20&sort=createdAt,desc).")
+            Pageable pageable) {
+
+        // Nota: Aunque getAuthenticatedUser() se llama, no se usa aquí.
+        // La seguridad se maneja con @PreAuthorize, y el servicio solo necesita los filtros.
+        Page<CreditApplicationResponseDTO> applicationsPage =
+                creditApplicationService.getAllCreditApplications(status, pageable);
+
+        return ResponseEntity.ok(applicationsPage);
+    }
+
     @Operation(summary = "Crear una nueva solicitud de crédito con documentos",
             description = """
            Permite crear una solicitud de crédito para la empresa del usuario autenticado.

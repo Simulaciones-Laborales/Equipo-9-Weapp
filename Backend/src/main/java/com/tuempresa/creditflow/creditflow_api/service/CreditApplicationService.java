@@ -7,6 +7,8 @@ import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.CreditAppli
 import com.tuempresa.creditflow.creditflow_api.enums.CreditStatus;
 import com.tuempresa.creditflow.creditflow_api.model.User;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -86,5 +88,8 @@ public interface CreditApplicationService {
      * @return una lista DTO con la información de la solicitud.
      */
     List<CreditApplicationResponseDTO> getCreditApplicationsByUser(User user, CreditStatus status);
+
+    Page<CreditApplicationResponseDTO> getAllCreditApplications(CreditStatus status, Pageable pageable);
+
 }
 
