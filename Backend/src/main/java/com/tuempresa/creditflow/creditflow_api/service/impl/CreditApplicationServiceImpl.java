@@ -14,6 +14,8 @@ import com.tuempresa.creditflow.creditflow_api.service.api.ImageService;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,6 +39,20 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
     private final EntityManager entityManager;
     private final MLModelService mlModelService;
     private final OCRService ocrService;
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<CreditApplicationResponseDTO> getAllCreditApplications(CreditStatus status, Pageable pageable) {
+        Page<CreditApplication> applications;
+
+        if (status != null) {
+            applications = creditApplicationRepository.findAllByStatus(status, pageable);
+        } else {
+            applications = creditApplicationRepository.findAll(pageable);
+        }
+
+        return applications.map(CreditApplicationMapper::toDTO);
+    }
 
     @Override
     @Transactional

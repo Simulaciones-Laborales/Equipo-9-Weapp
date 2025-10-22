@@ -53,7 +53,7 @@ public class SecurityConfiguration {
 
                         // CREDIT  -----------------------------------------------------
                         .requestMatchers(HttpMethod.POST, "/api/credit-applications").hasAnyAuthority("PYME")
-                        .requestMatchers(HttpMethod.GET, "/api/credit-applications").hasAnyAuthority("PYME")
+                        .requestMatchers(HttpMethod.GET, "/api/credit-applications").hasAnyAuthority("OPERADOR")
                         .requestMatchers(HttpMethod.GET, "/api/credit-applications/{id}").hasAnyAuthority("OPERADOR")
                         .requestMatchers(HttpMethod.GET, "/api/credit-applications/my").hasAnyAuthority("PYME")
                         .requestMatchers(HttpMethod.PUT, "/api/credit-applications/{id}").hasAnyAuthority("PYME")
