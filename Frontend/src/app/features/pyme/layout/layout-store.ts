@@ -21,6 +21,7 @@ const initialState: State = {
 };
 
 export const LayoutStore = signalStore(
+  { providedIn: 'root' },
   withState(initialState),
   withComputed((store) => ({
     userKycStatus: computed((): DisplayKycStatus => {

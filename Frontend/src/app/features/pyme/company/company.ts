@@ -11,16 +11,18 @@ import { CompanyRequest } from './models/company-model';
 import { CompanyInfo } from './components/company-info/company-info';
 import { Card } from 'primeng/card';
 import { KYCEntityType } from '@core/models/kyc-model';
+import { LayoutStore } from '../layout/layout-store';
 
 @Component({
   selector: 'app-company',
   imports: [Title, ProgressSpinner, NewKycForm, Subtitle, NewCompanyForm, CompanyInfo, Card],
   templateUrl: './company.html',
   styleUrl: './company.css',
-  providers: [CompanyStore],
+  providers: [LayoutStore, CompanyStore],
 })
 export default class Company {
   private readonly _tokenStorage = inject(TokenStorage);
+  private readonly _layoutStore = inject(LayoutStore);
   readonly store = inject(CompanyStore);
 
   constructor() {
