@@ -1,8 +1,8 @@
-package com.tuempresa.creditflow.creditflow_api.service.api;
+package com.tuempresa.creditflow.creditflow_api.service;
 
 import java.io.IOException;
 
-public interface EmailService {
+public interface IEmailService {
     /**
      * Envía un correo electrónico a un destinatario específico.
      *

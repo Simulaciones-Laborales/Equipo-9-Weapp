@@ -1,4 +1,4 @@
-import { Component, output, signal, WritableSignal } from '@angular/core';
+import { Component, input, output, signal, WritableSignal } from '@angular/core';
 import { FileSelectEvent, FileUpload } from 'primeng/fileupload';
 import { Button } from 'primeng/button';
 import { Message } from 'primeng/message';
@@ -13,10 +13,14 @@ import { KycVerificationFiles } from '@core/types';
   styleUrl: './new-kyc-form.css',
 })
 export class NewKycForm {
+  readonly loading = input.required<boolean>();
+  readonly title1 = input.required<string>();
+  readonly title2 = input.required<string>();
+  readonly title3 = input.required<string>();
   readonly onSubmit = output<KycVerificationFiles>();
-  readonly selfie = signal<File | null>(null);
-  readonly dniFront = signal<File | null>(null);
-  readonly dniBack = signal<File | null>(null);
+  readonly document1 = signal<File | null>(null);
+  readonly document2 = signal<File | null>(null);
+  readonly document3 = signal<File | null>(null);
 
   linkImage(event: FileSelectEvent, to: WritableSignal<File | null>) {
     to.set(event.files[0]);
@@ -27,7 +31,7 @@ export class NewKycForm {
   }
 
   isInvalid() {
-    return this.selfie() === null || this.dniFront() === null || this.dniBack() === null;
+    return this.document1() === null || this.document2() === null || this.document3() === null;
   }
 
   submit() {
@@ -36,9 +40,9 @@ export class NewKycForm {
     }
 
     const files: KycVerificationFiles = {
-      selfie: this.selfie(),
-      dniBack: this.dniBack(),
-      dniFront: this.dniFront(),
+      document1: this.document1(),
+      document3: this.document3(),
+      document2: this.document2(),
     };
 
     this.onSubmit.emit(files);

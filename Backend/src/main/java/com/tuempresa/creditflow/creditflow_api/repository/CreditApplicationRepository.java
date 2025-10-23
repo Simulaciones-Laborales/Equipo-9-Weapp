@@ -1,8 +1,12 @@
 package com.tuempresa.creditflow.creditflow_api.repository;
 
+import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
+import com.tuempresa.creditflow.creditflow_api.dto.kyc.KycVerificationResponseDTO;
 import com.tuempresa.creditflow.creditflow_api.model.CreditApplication;
 import com.tuempresa.creditflow.creditflow_api.model.Company;
-import com.tuempresa.creditflow.creditflow_api.model.CreditStatus;
+import com.tuempresa.creditflow.creditflow_api.enums.CreditStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -23,4 +27,6 @@ public interface CreditApplicationRepository extends JpaRepository<CreditApplica
     List<CreditApplication> findAllByCompany_User_Id(UUID userId);
 
     List<CreditApplication> findAllByCompany_User_IdAndStatus(UUID userId, CreditStatus status);
+
+    Page<CreditApplication> findAllByStatus(CreditStatus status, Pageable pageable);
 }

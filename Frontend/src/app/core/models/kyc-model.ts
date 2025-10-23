@@ -5,6 +5,23 @@ export enum KYCVerificationStatus {
   REVIEW_REQUIRED = 'REVIEW_REQUIRED',
 }
 
+export type DisplayKycStatus =
+  | 'Sin KYC'
+  | 'KYC Pendiente'
+  | 'KYC Verificado'
+  | 'KYC Rechazado'
+  | 'KYC Por Revisar';
+
+export interface UserKycStatus {
+  name: DisplayKycStatus;
+  message: string | null;
+}
+
+export enum KYCEntityType {
+  USER = 'USER',
+  COMPANY = 'COMPANY',
+}
+
 export interface KYCVerificationResponse {
   idKyc: string;
   status: KYCVerificationStatus;
@@ -12,10 +29,9 @@ export interface KYCVerificationResponse {
   externalReferenceId: string;
   submissionDate: Date;
   verificationDate: Date;
-  userId: string;
-  userFullName: string;
-  userEmail: string;
-  selfieUrl: string;
-  dniFrontUrl: string;
-  dniBackUrl: string;
+  kycEntityType: KYCEntityType;
+  entityName: string;
+  document1: string;
+  document2: string;
+  document3: string;
 }

@@ -1,0 +1,278 @@
+package com.tuempresa.creditflow.creditflow_api.service.impl;
+
+import com.cloudinary.utils.ObjectUtils;
+import com.tuempresa.creditflow.creditflow_api.dto.BaseResponse;
+import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
+import com.tuempresa.creditflow.creditflow_api.dto.kyc.*;
+import com.tuempresa.creditflow.creditflow_api.enums.KycEntityType;
+import com.tuempresa.creditflow.creditflow_api.enums.KycStatus;
+import com.tuempresa.creditflow.creditflow_api.exception.cloudinaryExc.ImageUploadException;
+import com.tuempresa.creditflow.creditflow_api.exception.kycExc.KycBadRequestException;
+import com.tuempresa.creditflow.creditflow_api.exception.kycExc.KycNotFoundException;
+import com.tuempresa.creditflow.creditflow_api.exception.userExc.UserNotFoundException;
+import com.tuempresa.creditflow.creditflow_api.mapper.KycMapper;
+import com.tuempresa.creditflow.creditflow_api.model.*;
+import com.tuempresa.creditflow.creditflow_api.repository.*;
+import com.tuempresa.creditflow.creditflow_api.service.IKycVerificationService;
+import com.tuempresa.creditflow.creditflow_api.service.api.ImageService;
+import com.tuempresa.creditflow.creditflow_api.service.api.SumsubService;
+import jakarta.validation.ValidationException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
+
+@Service
+@Slf4j
+@RequiredArgsConstructor
+public class KycVerificationServiceImpl implements IKycVerificationService {
+
+    private final KycVerificationRepository kycRepo;
+    private final UserRepository userRepo;
+    private final CompanyRepository companyRepo;
+    private final SumsubService sumsubService;
+    private final ImageService imageService;
+    private final KycMapper kycMapper;
+
+    // ====================================================
+    //  MÉTODOS PÚBLICOS
+    // ====================================================
+
+    @Transactional
+    public ExtendedBaseResponse<KycVerificationResponseDTO> startVerificationWithFiles(KycFileUploadRequestDTO dto) {
+        validateRequest(dto);
+        validateAllDocumentsPresent(dto);
+
+        KycVerification kyc = createKycEntity(dto.entityType(), dto.entityId());
+        kycRepo.save(kyc);
+
+        Map<String, String> uploadedDocs = uploadKycFiles(kyc.getIdKyc(), dto);
+        updateKycWithUploadedDocs(kyc, uploadedDocs);
+        kycRepo.save(kyc);
+
+        log.info("[KYC] Verificación iniciada: idKyc={} externalId={} tipo={} estado={}",
+                kyc.getIdKyc(), kyc.getExternalReferenceId(), dto.entityType(), kyc.getStatus());
+
+        return ExtendedBaseResponse.of(
+                BaseResponse.created("Verificación KYC iniciada correctamente"),
+                kycMapper.toResponseDto(kyc)
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public ExtendedBaseResponse<List<KycVerificationResponseDTO>> getAll() {
+        List<KycVerificationResponseDTO> kycs = kycRepo.findAll().stream()
+                .map(kycMapper::toResponseDto)
+                .collect(Collectors.toList());
+
+        return ExtendedBaseResponse.of(
+                BaseResponse.ok("Listado completo de KYC"),
+                kycs
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public ExtendedBaseResponse<List<KycVerificationResponseDTO>> getAllKcyByUserId(UUID userId) {
+        if (!userRepo.existsById(userId))
+            throw new UserNotFoundException("Usuario no encontrado con ID: " + userId);
+
+        List<KycVerificationResponseDTO> kycs = kycRepo.findByUserId(userId).stream()
+                .map(kycMapper::toResponseDto)
+                .toList();
+
+        return ExtendedBaseResponse.of(
+                BaseResponse.ok("Listado de KYC para el usuario"),
+                kycs
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public ExtendedBaseResponse<List<KycVerificationResponseDTO>> getAllByUserIdAndOptionalStatus(UUID userId, KycStatus status) {
+        if (!userRepo.existsById(userId))
+            throw new UserNotFoundException("Usuario no encontrado con ID: " + userId);
+
+        List<KycVerificationResponseDTO> kycs = (status != null
+                ? kycRepo.findByUserIdAndStatus(userId, status)
+                : kycRepo.findByUserId(userId))
+                .stream()
+                .map(kycMapper::toResponseDto)
+                .toList();
+
+        return ExtendedBaseResponse.of(
+                BaseResponse.ok("Listado de KYC filtrado por estado"),
+                kycs
+        );
+    }
+
+    public ExtendedBaseResponse<KycVerificationResponseDTO> getById(UUID id) {
+        KycVerification kyc = kycRepo.findById(id)
+                .orElseThrow(() -> new KycNotFoundException("KYC no encontrado con ID: " + id));
+
+        return ExtendedBaseResponse.of(
+                BaseResponse.ok("KYC encontrado"),
+                kycMapper.toResponseDto(kyc)
+        );
+    }
+
+    @Transactional
+    public ExtendedBaseResponse<KycVerificationResponseDTO> updateStatus(UUID id, KycStatusUpdateDTO dto) {
+        KycVerification kyc = kycRepo.findById(id)
+                .orElseThrow(() -> new KycNotFoundException("KYC no encontrado con ID: " + id));
+
+        kyc.setStatus(dto.getStatus());
+        kyc.setVerificationNotes(Optional.ofNullable(dto.getNotes()).orElse("Estado actualizado manualmente"));
+        kyc.setVerificationDate(LocalDateTime.now());
+        kycRepo.save(kyc);
+
+        return ExtendedBaseResponse.of(
+                BaseResponse.ok("Estado de KYC actualizado correctamente"),
+                kycMapper.toResponseDto(kyc)
+        );
+    }
+
+    @Transactional
+    public ExtendedBaseResponse<String> delete(UUID id) {
+        if (!kycRepo.existsById(id)) {
+            throw new KycNotFoundException("No se encontró el KYC con ID: " + id);
+        }
+
+        kycRepo.deleteById(id);
+
+        log.info("[KYC] KYC eliminado correctamente: id={}", id);
+
+        return ExtendedBaseResponse.of(
+                BaseResponse.ok("KYC eliminado correctamente"),
+                id.toString()
+        );
+    }
+
+
+    // ====================================================
+    //  MÉTODOS PRIVADOS
+    // ====================================================
+
+    private void validateRequest(KycFileUploadRequestDTO dto) {
+        if (dto.entityId() == null || dto.entityType() == null)
+            throw new KycBadRequestException("Debe indicar el ID y el tipo de entidad (USER o COMPANY).");
+    }
+
+    private void validateAllDocumentsPresent(KycFileUploadRequestDTO dto) {
+        if (dto.document1Url() == null || dto.document2Url() == null || dto.document3Url() == null ||
+                dto.document1Url().isEmpty() || dto.document2Url().isEmpty() || dto.document3Url().isEmpty()) {
+            throw new KycBadRequestException("Debe adjuntar los 3 documentos requeridos (document1, document2 y document3).");
+        }
+    }
+
+    private KycVerification createKycEntity(KycEntityType type, UUID entityId) {
+        return switch (type) {
+            case USER -> createUserKyc(entityId);
+            case COMPANY -> createCompanyKyc(entityId);
+            default -> throw new IllegalArgumentException("Tipo de entidad KYC no válido: " + type);
+        };
+    }
+
+
+    private KycVerification createUserKyc(UUID userId) {
+
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con ID: " + userId));
+
+        if (kycRepo.existsByUserId(userId))
+            throw new ValidationException("El usuario ya tiene un proceso KYC.");
+
+        String externalId = sumsubService.createApplicant(userId.toString(), user.getEmail(), KycEntityType.USER);
+        Map<String, Object> statusInfo = sumsubService.getApplicantStatus(externalId, KycEntityType.USER);
+
+        return buildKycVerification(KycEntityType.USER, externalId, statusInfo)
+                .user(user)
+                .build();
+    }
+
+    private KycVerification createCompanyKyc(UUID companyId) {
+
+        Company company = companyRepo.findById(companyId)
+                .orElseThrow(() -> new KycBadRequestException("Empresa no encontrada con ID: " + companyId));
+
+        if (kycRepo.existsByCompanyId(companyId))
+            throw new KycBadRequestException("La empresa ya tiene un proceso KYC.");
+
+        String ownerEmail = company.getUser().getEmail();
+        String externalId = sumsubService.createApplicant(companyId.toString(), ownerEmail, KycEntityType.COMPANY);
+        Map<String, Object> statusInfo = sumsubService.getApplicantStatus(externalId, KycEntityType.COMPANY);
+
+        return buildKycVerification(KycEntityType.COMPANY, externalId, statusInfo)
+                .company(company)
+                .build();
+    }
+
+    private KycVerification.KycVerificationBuilder buildKycVerification(KycEntityType type, String externalId, Map<String, Object> statusInfo) {
+        String statusStr = (String) statusInfo.get("status");
+        String notes = (String) statusInfo.getOrDefault("verificationNotes", "Verificación iniciada.");
+        String dateStr = (String) statusInfo.get("verificationDate");
+
+        return KycVerification.builder()
+                .entityType(type)
+                .externalReferenceId(externalId)
+                .status(parseKycStatus(statusStr))
+                .submissionDate(LocalDateTime.now())
+                .verificationNotes(notes)
+                .verificationDate(dateStr != null ? OffsetDateTime.parse(dateStr).toLocalDateTime() : null);
+    }
+
+    private KycStatus parseKycStatus(String statusStr) {
+        try {
+            return statusStr != null ? KycStatus.valueOf(statusStr.toUpperCase()) : KycStatus.PENDING;
+        } catch (IllegalArgumentException e) {
+            return KycStatus.PENDING;
+        }
+    }
+
+    private Map<String, String> uploadKycFiles(UUID kycId, KycFileUploadRequestDTO dto) {
+        Map<String, String> uploadedUrls = new HashMap<>();
+        Map<String, MultipartFile> files = Map.of(
+                "document1", dto.document1Url(),
+                "document2", dto.document2Url(),
+                "document3", dto.document3Url()
+        );
+
+        files.forEach((key, file) -> uploadedUrls.put(key, uploadFile(file, "kyc/" + kycId + "/" + key)));
+        return uploadedUrls;
+    }
+
+    private void updateKycWithUploadedDocs(KycVerification kyc, Map<String, String> uploaded) {
+        kyc.setDocument1Url(uploaded.get("document1"));
+        kyc.setDocument2Url(uploaded.get("document2"));
+        kyc.setDocument3Url(uploaded.get("document3"));
+        kyc.setVerificationNotes("Archivos cargados correctamente: " + uploaded.keySet());
+    }
+
+    @SuppressWarnings("unchecked")
+    private String uploadFile(MultipartFile file, String publicId) {
+        try {
+            Map<String, Object> uploadParams = ObjectUtils.asMap(
+                    "resource_type", "image",
+                    "folder", "creditflow/kyc",
+                    "public_id", publicId,
+                    "overwrite", true
+            );
+
+            Map<String, Object> result = (Map<String, Object>)
+                    imageService.getCloudinary().uploader().upload(file.getBytes(), uploadParams);
+
+            Object url = Optional.ofNullable(result.get("secure_url")).orElse(result.get("url"));
+            return url != null ? url.toString() : null;
+
+        } catch (IOException e) {
+            log.error("[KYC] Error subiendo imagen: {}", e.getMessage());
+            throw new ImageUploadException("Error al subir archivo: " + e.getMessage());
+        }
+    }
+}

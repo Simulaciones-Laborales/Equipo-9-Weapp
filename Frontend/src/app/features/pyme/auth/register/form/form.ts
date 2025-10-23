@@ -106,6 +106,6 @@ export class Form {
   private _successful() {
     this.form.reset();
     this._tokenStorage.save(this.store.response()!.data);
-    this._router.navigate(['../..', 'empresa'], { relativeTo: this._route });
+    this._router.navigate(['../..', 'dashboard'], { relativeTo: this._route });
   }
 }

@@ -1,6 +1,7 @@
 package com.tuempresa.creditflow.creditflow_api.service.impl;
 
 import com.tuempresa.creditflow.creditflow_api.dto.history.CreditApplicationHistoryDTO;
+import com.tuempresa.creditflow.creditflow_api.enums.CreditApplicationActionType;
 import com.tuempresa.creditflow.creditflow_api.exception.ResourceNotFoundException;
 import com.tuempresa.creditflow.creditflow_api.mapper.CreditApplicationHistoryMapper;
 import com.tuempresa.creditflow.creditflow_api.model.CreditApplication;
@@ -61,8 +62,8 @@ public class CreditApplicationHistoryServiceImpl implements CreditApplicationHis
                 .creditApplication(app)
                 .actionType(
                         dto.getActionType() != null
-                                ? com.tuempresa.creditflow.creditflow_api.model.CreditApplicationActionType.valueOf(dto.getActionType())
-                                : com.tuempresa.creditflow.creditflow_api.model.CreditApplicationActionType.OPERATOR_ACTION
+                                ? CreditApplicationActionType.valueOf(dto.getActionType())
+                                : CreditApplicationActionType.OPERATOR_ACTION
                 )
                 .action(dto.getAction())
                 .comments(dto.getComments())

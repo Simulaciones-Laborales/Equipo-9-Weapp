@@ -1,7 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { KYCVerificationResponse } from '@core/models/kyc-model';
-import { TokenStorage } from '@core/services/token-storage';
+import { KYCEntityType, KYCVerificationResponse } from '@core/models/kyc-model';
 import { environment } from 'environments/environment.development';
 import { lastValueFrom } from 'rxjs';
 
@@ -11,26 +10,24 @@ import { lastValueFrom } from 'rxjs';
 export class KycApi {
   private readonly _url = `${environment.apiUrl}/api/kyc`;
   private readonly _http = inject(HttpClient);
-  private readonly _tokenStorage = inject(TokenStorage);
 
-  async startVerification(selfie: File, dniFront: File, dniBack: File) {
-    const user = this._tokenStorage.user();
-
-    if (!user) {
-      return;
-    }
-
+  async startVerification(
+    entityId: string,
+    entityType: KYCEntityType,
+    document1: File,
+    document2: File,
+    document3: File
+  ) {
     const formData = new FormData();
 
-    formData.append('selfie', selfie);
-    formData.append('dniFront', dniFront);
-    formData.append('dniBack', dniBack);
+    formData.append('document1', document1);
+    formData.append('document2', document2);
+    formData.append('document3', document3);
 
-    const params = new HttpParams().set('userId', user.id);
+    const params = new HttpParams().append('entityId', entityId).append('entityType', entityType);
 
-    const call = this._http.post<KYCVerificationResponse>(`${this._url}/start`, {
+    const call = this._http.post<KYCVerificationResponse>(`${this._url}/start`, formData, {
       params,
-      formData,
     });
 
     return await lastValueFrom(call);
