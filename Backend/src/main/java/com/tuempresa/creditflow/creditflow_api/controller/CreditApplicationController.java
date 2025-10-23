@@ -2,6 +2,7 @@ package com.tuempresa.creditflow.creditflow_api.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
 import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.CreditApplicationUpdateRequestDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.history.CreditApplicationHistoryDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.CreditApplicationRequestDTO;
@@ -353,5 +354,15 @@ public class CreditApplicationController {
         User currentUser = getAuthenticatedUser();
         Page<CreditApplicationHistoryDTO> page = creditApplicationHistoryService.getHistoryByApplication(id, currentUser, pageable);
         return ResponseEntity.ok(page);
+    }
+
+    @Operation(summary = "Eliminar TODOS los pdfs e imágenes (limpieza completa) en cloudinary")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Todos los contenidos eliminados exitosamente"),
+            @ApiResponse(responseCode = "500", description = "Error al eliminar los contenidos")
+    })
+    @DeleteMapping("/risk-document/purge-docs")
+    public ResponseEntity<ExtendedBaseResponse<Void>> purgeAllContents() {
+        return ResponseEntity.ok(creditApplicationService.purgeAllImageCloudinary());
     }
 }

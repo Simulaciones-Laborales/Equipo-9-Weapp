@@ -1,8 +1,11 @@
 package com.tuempresa.creditflow.creditflow_api.service.impl;
 
+import com.tuempresa.creditflow.creditflow_api.dto.BaseResponse;
+import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
 import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.*;
 import com.tuempresa.creditflow.creditflow_api.enums.*;
 import com.tuempresa.creditflow.creditflow_api.exception.*;
+import com.tuempresa.creditflow.creditflow_api.exception.cloudinaryExc.RiskDocumentNotFoundException;
 import com.tuempresa.creditflow.creditflow_api.exception.kycExc.CompanyNotVerifiedException;
 import com.tuempresa.creditflow.creditflow_api.mapper.CreditApplicationMapper;
 import com.tuempresa.creditflow.creditflow_api.model.*;
@@ -11,11 +14,13 @@ import com.tuempresa.creditflow.creditflow_api.service.CreditApplicationService;
 import com.tuempresa.creditflow.creditflow_api.service.MLModelService;
 import com.tuempresa.creditflow.creditflow_api.service.OCRService;
 import com.tuempresa.creditflow.creditflow_api.service.api.ImageService;
+import com.tuempresa.creditflow.creditflow_api.utils.AuthenticationUtils;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,6 +44,7 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
     private final EntityManager entityManager;
     private final MLModelService mlModelService;
     private final OCRService ocrService;
+    private final AuthenticationUtils authenticationUtils;
 
     @Override
     @Transactional(readOnly = true)
@@ -52,6 +58,63 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
         }
 
         return applications.map(CreditApplicationMapper::toDTO);
+    }
+
+    @Override
+    @Transactional
+    public ExtendedBaseResponse<Void> purgeAllImageCloudinary() {
+        List<RiskDocument> allRiskDocuments = riskDocumentRepository.findAll();
+        int successCount = 0;
+        List<UUID> failedIds = new ArrayList<>();
+        UUID loggedInUserId = authenticationUtils.getLoggedInUserId();
+
+        if (loggedInUserId == null) {
+            return ExtendedBaseResponse.of(BaseResponse.error(HttpStatus.UNAUTHORIZED, "Usuario no autenticado."), null);
+        }
+
+        for (RiskDocument riskDocument : allRiskDocuments) {
+            try {
+                deleteRiskDocument(riskDocument.getId()); // Reutilizar el método de eliminación individual
+                successCount++;
+            } catch (Exception e) {
+                failedIds.add(riskDocument.getId());
+                System.err.println("Error eliminando contenido ID: " + riskDocument.getId() + " - " + e.getMessage());
+            }
+        }
+
+        if (failedIds.isEmpty()) {
+            return ExtendedBaseResponse.of(
+                    BaseResponse.ok("Todos los contenidos (" + successCount + ") eliminados exitosamente"),
+                    null
+            );
+        } else {
+            String message = String.format(
+                    "Eliminados %d de %d contenidos. Fallos en IDs: %s",
+                    successCount,
+                    allRiskDocuments.size(),
+                    failedIds
+            );
+            return ExtendedBaseResponse.of(
+                    BaseResponse.error(HttpStatus.valueOf(HttpStatus.MULTI_STATUS.value()), message),
+                    null
+            );
+        }
+    }
+
+    @Transactional
+    @Override
+    public ExtendedBaseResponse<Void> deleteRiskDocument(UUID id) {
+        RiskDocument riskDocument = riskDocumentRepository.findById(id)
+                .orElseThrow(() -> new RiskDocumentNotFoundException("Contenido no encontrado"));
+        UUID loggedInUserId = authenticationUtils.getLoggedInUserId();
+
+        if (loggedInUserId == null) {
+            return ExtendedBaseResponse.of(BaseResponse.error(HttpStatus.UNAUTHORIZED, "Usuario no autenticado."), null);
+        }
+        String filePath = riskDocument.getDocumentUrl();
+        imageService.deleteImage(filePath);
+        riskDocumentRepository.delete(riskDocument);
+        return ExtendedBaseResponse.of(BaseResponse.ok("Contenido eliminado exitosamente"), null);
     }
 
     @Override
@@ -117,7 +180,10 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
                 log.info("➡️ Procesando archivo: {} ({} bytes)", file.getOriginalFilename(), file.getSize());
 
                 log.info("📤 Subiendo archivo a ImageService...");
-                String url = imageService.uploadImage(file);
+                // ✅ Corrección: pasar carpeta y publicId
+                String folderPath = "credit-flow/credit-applications/" + creditApplication.getId();
+                String publicId = UUID.randomUUID() + "_" + file.getOriginalFilename();
+                String url = imageService.uploadFile(file, folderPath, publicId);
                 log.info("✅ Archivo subido correctamente: {}", url);
 
                 log.info("🔍 Ejecutando OCR...");
@@ -165,7 +231,6 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
         return uploadedDocs;
     }
 
-
     // Ejemplo simple del helper countFinancialTerms
     private int countFinancialTerms(String text) {
         if (text == null || text.isBlank()) return 0;
@@ -210,17 +275,24 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
             if (file == null || file.isEmpty()) continue;
 
             try {
-                String url = imageService.uploadImage(file);
+                // Subir archivo a Cloudinary usando ImageService
+                String folderPath = "credit-flow/credit-applications/" + creditApplication.getId();
+                String publicId = UUID.randomUUID() + "_" + file.getOriginalFilename();
+                String url = imageService.uploadFile(file, folderPath, publicId);
 
+                // Extraer texto con OCR
                 String text = ocrService.extractText(file);
 
+                // Generar features para ML
                 Map<String, Object> features = new HashMap<>();
-                features.put("wordCount", text.split("\\s+").length);
+                features.put("wordCount", text != null ? text.split("\\s+").length : 0);
                 features.put("documentSize", file.getSize());
                 features.put("financialTermsCount", countFinancialTerms(text));
 
+                // Predecir impacto en score
                 int scoreImpact = mlModelService.predictScore(features);
 
+                // Crear entidad RiskDocument
                 RiskDocument doc = RiskDocument.builder()
                         .creditApplication(creditApplication)
                         .name(file.getOriginalFilename())
@@ -238,10 +310,12 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
             }
         }
 
+        // Recalcular puntaje de riesgo
         creditApplication.calculateRiskScore();
 
         return uploadedDocs;
     }
+
 
     @Override
     @Transactional(readOnly = true)

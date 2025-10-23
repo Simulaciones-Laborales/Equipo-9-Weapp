@@ -6,6 +6,7 @@ import com.tuempresa.creditflow.creditflow_api.dto.user.*;
 import com.tuempresa.creditflow.creditflow_api.service.IAuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -35,25 +36,60 @@ public class AuthController {
      * @param request Datos de inicio de sesión del usuario
      * @return Respuesta con el token JWT de autenticación
      */
-    @Operation(summary = "Iniciar sesión",
-            description = "Autentica a un usuario con sus credenciales y devuelve un token de autenticación.")
+    @Operation(
+            summary = "Iniciar sesión",
+            description = "Autentica a un usuario con sus credenciales y devuelve un token de autenticación.",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Credenciales del usuario",
+                    required = true,
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = LoginRequestDto.class),
+                            examples = {
+                                    @ExampleObject(
+                                            name = "Operador",
+                                            summary = "Ejemplo de login de un usuario OPERADOR",
+                                            value = """
+                                                {
+                                                  "email": "operador1@creditflow.com",
+                                                  "password": "Pass1234!"
+                                                }
+                                                """
+                                    ),
+                                    @ExampleObject(
+                                            name = "Usuario PYME",
+                                            summary = "Ejemplo de login de un usuario normal",
+                                            value = """
+                                                {
+                                                  "email": "juan.martinez@pyme1.com",
+                                                  "password": "Pass1234!"
+                                                }
+                                                """
+                                    )
+                            }
+                    )
+            )
+    )
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
                     description = "Inicio de sesión exitoso.",
-                    content = {
-                            @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = AuthRegisterResponseExampleDto.class))
-                    }),
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = AuthRegisterResponseExampleDto.class)
+                    )
+            ),
             @ApiResponse(responseCode = "400", description = "Credenciales inválidas proporcionadas.", content = {@Content}),
             @ApiResponse(responseCode = "401", description = "No autorizado (credenciales incorrectas o expiradas).", content = {@Content}),
             @ApiResponse(responseCode = "500", description = "Error del servidor.", content = {@Content})
     })
     @PostMapping(value = "login")
-    public ResponseEntity<ExtendedBaseResponse<AuthResponseDto>> login(@Valid @RequestBody LoginRequestDto request) {
+    public ResponseEntity<ExtendedBaseResponse<AuthResponseDto>> login(
+            @Valid @RequestBody LoginRequestDto request) {
         ExtendedBaseResponse<AuthResponseDto> authResponse = authService.login(request);
         return ResponseEntity.ok(authResponse);
     }
+
 
     /**
      * Endpoint para registrar un nuevo usuario Pyme en el sistema.

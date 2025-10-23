@@ -4,15 +4,19 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.tuempresa.creditflow.creditflow_api.exception.cloudinaryExc.ImageUploadException;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 @Getter
 @Service
+@Slf4j
 public class ImageService {
     private final Cloudinary cloudinary;
 
@@ -26,35 +30,59 @@ public class ImageService {
     }
 
     @SuppressWarnings("unchecked")
-    public String uploadImage(MultipartFile file) {
+    public String uploadFile(MultipartFile file, String subfolder, String publicId) {
         try {
+            String resourceType = "auto"; // permite imágenes, PDFs u otros
+            String folderPath = "credit-flow/" + subfolder; // raíz + subcarpeta
+
+            if (publicId == null || publicId.isBlank()) {
+                publicId = UUID.randomUUID().toString();
+            }
+
             Map<String, Object> uploadParams = ObjectUtils.asMap(
-                    "resource_type", "image",
-                    "folder", "images-play-attention"
+                    "resource_type", resourceType,
+                    "folder", folderPath,
+                    "public_id", publicId,
+                    "overwrite", true
             );
 
-            Map<String, Object> uploadResult = cloudinary.uploader().upload(file.getBytes(), uploadParams);
-            return uploadResult.get("secure_url").toString();
-        } catch (Exception ex) {
-            throw new ImageUploadException("Error subiendo imagen a Cloudinary: " + ex.getMessage());
+            Map<String, Object> result = (Map<String, Object>)
+                    cloudinary.uploader().upload(file.getBytes(), uploadParams);
+
+            Object url = Optional.ofNullable(result.get("secure_url")).orElse(result.get("url"));
+            return url != null ? url.toString() : null;
+
+        } catch (IOException e) {
+            log.error("💥 [Cloudinary] Error subiendo archivo '{}': {}", file.getOriginalFilename(), e.getMessage());
+            throw new ImageUploadException("Error al subir archivo: " + e.getMessage());
         }
     }
 
-    public void deleteImage(String imageUrl) {
-        String publicId = extractPublicId(imageUrl);
+
+
+    public void deleteImage(String fileUrl) {
         try {
-            cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
-        } catch (IOException e) {
-            throw new ImageUploadException("Error deleting image from Cloudinary", e.getMessage());
+            String publicId = extractPublicId(fileUrl);
+            if (publicId != null) {
+                cloudinary.uploader().destroy(publicId, ObjectUtils.asMap("resource_type", "auto"));
+                log.info("🗑️ Archivo eliminado de Cloudinary: {}", publicId);
+            }
+        } catch (Exception e) {
+            log.error("💥 Error eliminando archivo Cloudinary: {}", e.getMessage());
         }
     }
 
     // Método auxiliar para extraer el ID público de la URL de la imagen
-    private String extractPublicId(String imageUrl) {
-        // Extraer el public_id eliminando la parte de Cloudinary en la URL
-        String[] parts = imageUrl.split("/");
-        String lastPart = parts[parts.length - 1];
-        String[] fileNameParts = lastPart.split("\\.");
-        return "images/" + fileNameParts[0]; // 🔥 Se agrega el prefijo "images/" para eliminar correctamente
+    private String extractPublicId(String fileUrl) {
+        if (fileUrl == null) return null;
+        try {
+            String[] parts = fileUrl.split("/upload/");
+            if (parts.length > 1) {
+                return parts[1].replaceAll("\\.[^.]+$", ""); // quita extensión
+            }
+        } catch (Exception e) {
+            log.warn("⚠️ No se pudo extraer publicId de: {}", fileUrl);
+        }
+        return null;
     }
 }
