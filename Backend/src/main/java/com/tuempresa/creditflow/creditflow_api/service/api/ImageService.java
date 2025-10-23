@@ -85,4 +85,15 @@ public class ImageService {
         }
         return null;
     }
+
+    public void deleteFolder(String folderPath) {
+        try {
+            Map result = cloudinary.api().deleteResourcesByPrefix("credit-flow/" + folderPath, ObjectUtils.emptyMap());
+            log.info("🗑️ Archivos eliminados de la carpeta '{}': {}", folderPath, result);
+        } catch (Exception e) {
+            log.error("💥 Error eliminando carpeta '{}': {}", folderPath, e.getMessage(), e);
+            throw new ImageUploadException("Error al eliminar carpeta: " + e.getMessage());
+        }
+    }
+
 }

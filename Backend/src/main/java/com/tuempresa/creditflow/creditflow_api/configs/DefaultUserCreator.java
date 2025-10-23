@@ -4,10 +4,7 @@ import com.tuempresa.creditflow.creditflow_api.enums.CreditPurpose;
 import com.tuempresa.creditflow.creditflow_api.enums.CreditStatus;
 import com.tuempresa.creditflow.creditflow_api.enums.KycEntityType;
 import com.tuempresa.creditflow.creditflow_api.enums.KycStatus;
-import com.tuempresa.creditflow.creditflow_api.model.Company;
-import com.tuempresa.creditflow.creditflow_api.model.CreditApplication;
-import com.tuempresa.creditflow.creditflow_api.model.KycVerification;
-import com.tuempresa.creditflow.creditflow_api.model.User;
+import com.tuempresa.creditflow.creditflow_api.model.*;
 import com.tuempresa.creditflow.creditflow_api.repository.CompanyRepository;
 import com.tuempresa.creditflow.creditflow_api.repository.CreditApplicationRepository;
 import com.tuempresa.creditflow.creditflow_api.repository.KycVerificationRepository;
@@ -60,7 +57,7 @@ public class DefaultUserCreator implements CommandLineRunner {
             seedKycVerifications(allUsers, companies);
 
             // 4. Crear Solicitudes de Crédito (usando las primeras 7 Compañías)
-            seedCreditApplications(companies.subList(0, 7));
+            seedCreditApplications(companies.subList(0, 7)); // <-- EL MÉTODO YA HA SIDO MEJORADO
 
             log.info("--- ✅ Precarga de datos finalizada. ---");
         } else {
@@ -69,93 +66,128 @@ public class DefaultUserCreator implements CommandLineRunner {
     }
 
     private void seedCreditApplications(List<Company> companies) {
-        log.info("💾 Creando 7 Solicitudes de Crédito...");
+        log.info("💾 Creando 7 Solicitudes de Crédito y asociando documentos de riesgo...");
 
-        List<CreditApplication> applications = List.of(
-                CreditApplication.builder()
-                        .company(companies.get(0))
-                        .amount(new BigDecimal("250000.00")) // Monto Alto
-                        .termMonths(36)
-                        .status(CreditStatus.APPROVED)
-                        .creditPurpose(CreditPurpose.INVERSION)
-                        .riskScore(95)
-                        .operatorComments("Aprobación automática. Score superior y KYC completo.")
-                        .build(),
+        // NOTA: Se creará la aplicación, se le agregarán los documentos, se calculará
+        // el score y luego se guardarán todas las entidades en cascada.
 
-                // Solicitud 2: REJECTED
-                // Compañía 2 (KYC VERIFIED, Ingreso Medio)
-                CreditApplication.builder()
-                        .company(companies.get(1))
-                        .amount(new BigDecimal("30000.00")) // Monto Bajo
-                        .termMonths(6)
-                        .status(CreditStatus.REJECTED)
-                        .creditPurpose(CreditPurpose.COMPRA_INVENTARIO)
-                        .riskScore(45)
-                        .operatorComments("Rechazo manual. Score de riesgo bajo post-análisis financiero.")
-                        .build(),
+        // ------------------------------------------------
+        // Solicitud 1: APPROVED (Company 1) - Score Alto
+        // ------------------------------------------------
+        CreditApplication app1 = CreditApplication.builder()
+                .company(companies.getFirst()).amount(new BigDecimal("250000.00")).termMonths(36)
+                .status(CreditStatus.APPROVED).creditPurpose(CreditPurpose.INVERSION)
+                .operatorComments("Aprobación automática. Score superior y KYC completo.")
+                // No asignamos riskScore aquí; lo calcularemos después.
+                .build();
 
-                // Solicitud 3: UNDER_REVIEW (Alta prioridad)
-                // Compañía 3 (KYC VERIFIED, Ingreso Medio)
-                CreditApplication.builder()
-                        .company(companies.get(2))
-                        .amount(new BigDecimal("90000.00"))
-                        .termMonths(18)
-                        .status(CreditStatus.UNDER_REVIEW)
-                        .creditPurpose(CreditPurpose.MEJORA_INFRAESTRUCTURA)
-                        .riskScore(78)
-                        .operatorComments("Pendiente de la firma de contrato digital.")
-                        .build(),
+        createRiskDocument(app1, "Plan de inversión", 40, "https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761246452/Plan_de_inversi%C3%B3n_2_bu8auk.pdf");
+        createRiskDocument(app1, "Flujo de Caja Proyectado", 35, "url/docs/https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761246455/FLUJO_DE_CAJA_PROYECTADO_3_qcrk5v.pdf");
+        createRiskDocument(app1, "Poderes del representante legal", 20, "https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761246452/Plan_de_inversi%C3%B3n_2_bu8auk.pdf");
+        // Score esperado: 40 + 35 + 20 = 95
+        app1.calculateRiskScore();
 
-                // Solicitud 4: PENDING (Requiere que el operador la tome)
-                // Compañía 4 (KYC VERIFIED, Ingreso Bajo)
-                CreditApplication.builder()
-                        .company(companies.get(3))
-                        .amount(new BigDecimal("15000.00"))
-                        .termMonths(12)
-                        .status(CreditStatus.PENDING)
-                        .creditPurpose(CreditPurpose.CAPITAL_TRABAJO)
-                        .riskScore(62)
-                        .build(),
+        // ------------------------------------------------
+        // Solicitud 2: REJECTED (Company 2) - Score Bajo
+        // ------------------------------------------------
+        CreditApplication app2 = CreditApplication.builder()
+                .company(companies.get(1)).amount(new BigDecimal("30000.00")).termMonths(6)
+                .status(CreditStatus.REJECTED).creditPurpose(CreditPurpose.COMPRA_INVENTARIO)
+                .operatorComments("Rechazo manual. Score de riesgo bajo post-análisis financiero.")
+                .build();
 
-                // Solicitud 5: REJECTED (Por incumplimiento de KYC)
-                // Compañía 5 (KYC VERIFIED, Alto Ingreso) -> Nota: Podría fallar en algún otro criterio
-                CreditApplication.builder()
-                        .company(companies.get(4))
-                        .amount(new BigDecimal("400000.00")) // Monto Muy Alto
-                        .termMonths(48)
-                        .status(CreditStatus.REJECTED)
-                        .creditPurpose(CreditPurpose.INVERSION)
-                        .riskScore(50)
-                        .operatorComments("Rechazado. El modelo de riesgo superó el límite de exposición para este sector.")
-                        .build(),
+        createRiskDocument(app2, "Extracto bancario", 10, "https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761246450/Extracto_Bancario_2_owfyl6.pdf");
+        createRiskDocument(app2, "Estatuto social", 5, "https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761246451/ESTATUTO_SOCIAL_2_n84agv.pdf");
+        // Score esperado: 10 + 5 = 15
+        app2.calculateRiskScore();
 
-                // Solicitud 6: PENDING (de KYC de Compañía)
-                // Compañía 6 (KYC PENDING: falta DJI)
-                CreditApplication.builder()
-                        .company(companies.get(5))
-                        .amount(new BigDecimal("50000.00"))
-                        .termMonths(12)
-                        .status(CreditStatus.PENDING)
-                        .creditPurpose(CreditPurpose.COMPRA_INVENTARIO)
-                        .riskScore(72)
-                        .operatorComments("Solicitud retenida automáticamente. KYC de Compañía incompleto.")
-                        .build(),
 
-                // Solicitud 7: UNDER_REVIEW (Pendiente por KYC de Compañía)
-                // Compañía 7 (KYC PENDING: falta Acta Representante)
-                CreditApplication.builder()
-                        .company(companies.get(6))
-                        .amount(new BigDecimal("100000.00"))
-                        .termMonths(24)
-                        .status(CreditStatus.UNDER_REVIEW)
-                        .creditPurpose(CreditPurpose.MEJORA_INFRAESTRUCTURA)
-                        .riskScore(85)
-                        .operatorComments("En revisión. El analista contactó al cliente para completar documentación legal (KYC).")
-                        .build()
-        );
+        // ------------------------------------------------
+        // Solicitud 3: UNDER_REVIEW (Company 3) - Score Medio
+        // ------------------------------------------------
+        CreditApplication app3 = CreditApplication.builder()
+                .company(companies.get(2)).amount(new BigDecimal("90000.00")).termMonths(18)
+                .status(CreditStatus.UNDER_REVIEW).creditPurpose(CreditPurpose.MEJORA_INFRAESTRUCTURA)
+                .operatorComments("Pendiente de la firma de contrato digital.")
+                .build();
 
+        createRiskDocument(app3, "Estados de Cuenta Bancarios", 25, "https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761246451/Extracto_Bancario_1_wbjau9.pdf");
+        createRiskDocument(app3, "Acta constitutiva", 35, "https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761246453/ACTA_CONSTITUTIVA_Y_ESTATUTO_SOCIAL_1_yajoar.pdf");
+        // Score esperado: 25 + 35 = 60
+        app3.calculateRiskScore();
+
+
+        // ------------------------------------------------
+        // Solicitud 4: PENDING (Company 4) - SIN DOCUMENTOS
+        // ------------------------------------------------
+        CreditApplication app4 = CreditApplication.builder()
+                .company(companies.get(3)).amount(new BigDecimal("15000.00")).termMonths(12)
+                .status(CreditStatus.PENDING).creditPurpose(CreditPurpose.CAPITAL_TRABAJO)
+                .build();
+        // Score esperado: 0 (No hay documentos, el método calculateRiskScore debe establecerlo en 0)
+        app4.calculateRiskScore();
+
+
+        // ------------------------------------------------
+        // Solicitud 5: REJECTED (Company 5) - Score Medio-Bajo
+        // ------------------------------------------------
+        CreditApplication app5 = CreditApplication.builder()
+                .company(companies.get(4)).amount(new BigDecimal("400000.00")).termMonths(48)
+                .status(CreditStatus.REJECTED).creditPurpose(CreditPurpose.INVERSION)
+                .operatorComments("Rechazado. El modelo de riesgo superó el límite de exposición para este sector.")
+                .build();
+
+        createRiskDocument(app5, "Certificado de libre de deuda", 50, "https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761246450/Certificado_de_Libre_Deuda_1_jjbidy.pdf");
+        // Score esperado: 50
+        app5.calculateRiskScore();
+
+
+        // ------------------------------------------------
+        // Solicitud 6: PENDING (Company 6) - Score Medio
+        // ------------------------------------------------
+        CreditApplication app6 = CreditApplication.builder()
+                .company(companies.get(5)).amount(new BigDecimal("50000.00")).termMonths(12)
+                .status(CreditStatus.PENDING).creditPurpose(CreditPurpose.COMPRA_INVENTARIO)
+                .operatorComments("Solicitud retenida automáticamente. KYC de Compañía incompleto.")
+                .build();
+
+        createRiskDocument(app6, "Certificado de libre de deuda", 30, "https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761246450/Certificado_de_Libre_Deuda_2_p4xrog.pdf");
+        createRiskDocument(app6, "Extracto bancario 2025", 40, "https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761246451/Extracto_Bancario_1_wbjau9.pdf");
+        // Score esperado: 30 + 40 = 70
+        app6.calculateRiskScore();
+
+
+        // ------------------------------------------------
+        // Solicitud 7: UNDER_REVIEW (Company 7) - Score Alto
+        // ------------------------------------------------
+        CreditApplication app7 = CreditApplication.builder()
+                .company(companies.get(6)).amount(new BigDecimal("100000.00")).termMonths(24)
+                .status(CreditStatus.UNDER_REVIEW).creditPurpose(CreditPurpose.MEJORA_INFRAESTRUCTURA)
+                .operatorComments("En revisión. El analista contactó al cliente para completar documentación legal (KYC).")
+                .build();
+
+        createRiskDocument(app7, "Constancia de inscripción fiscal", 33, "https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761246451/Constancia_de_Inscripci%C3%B3n_Fiscal_2_xtmndu.pdf");
+        createRiskDocument(app7, "Estatuto social", 32, "https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761246451/ESTATUTO_SOCIAL_1_o7zzf8.pdf");
+        createRiskDocument(app7, "Poderes del representante legal", 20, "https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761246452/Poderes_del_Representante_Legal_1_qjcfij.pdf");
+        // Score esperado: 33 + 32 + 20 = 85
+        app7.calculateRiskScore();
+
+
+        List<CreditApplication> applications = List.of(app1, app2, app3, app4, app5, app6, app7);
         creditApplicationRepository.saveAll(applications);
-        log.info("✅ 7 Solicitudes de Crédito creadas. La precarga de datos está completa.");
+        log.info("✅ 7 Solicitudes de Crédito y sus documentos creados. Precarga completa.");
+    }
+
+    private RiskDocument createRiskDocument(CreditApplication app, String name, int scoreImpact, String url) {
+        // 1. Crear la entidad RiskDocument
+        RiskDocument doc = RiskDocument.builder()
+                .name(name)
+                .scoreImpact(scoreImpact)
+                .documentUrl(url)
+                .build();
+        app.addRiskDocument(doc);
+
+        return doc;
     }
 
     private void seedKycVerifications(List<User> allUsers, List<Company> companies) {
@@ -216,9 +248,9 @@ public class DefaultUserCreator implements CommandLineRunner {
                     .entityType(KycEntityType.COMPANY)
                     .verificationNotes("Estatutos y registros mercantiles verificados y aprobados.")
                     .externalReferenceId("company-mock-dca05a69-2e8b-46de-b889-69be38d65b60")
-                    .document1Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761092931/creditflow/kyc/kyc/05a8b784-fd46-4c82-833e-da339078fc9a/document1.pdf")
-                    .document1Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761092931/creditflow/kyc/kyc/05a8b784-fd46-4c82-833e-da339078fc9a/document2.pdf")
-                    .document1Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761092931/creditflow/kyc/kyc/05a8b784-fd46-4c82-833e-da339078fc9a/document3.pdf")
+                    .document1Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761248147/ejemplo_documento_1_ssjfnv.pdf")
+                    .document1Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761248147/ejemplo_documento_4_svhtjf.pdf")
+                    .document1Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761248147/ejemplo_documento_3_hw2nlq.pdf")
                     .verificationDate(LocalDateTime.now().minusMonths(1))
                     .build());
         }

@@ -63,43 +63,27 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
     @Override
     @Transactional
     public ExtendedBaseResponse<Void> purgeAllImageCloudinary() {
-        List<RiskDocument> allRiskDocuments = riskDocumentRepository.findAll();
-        int successCount = 0;
-        List<UUID> failedIds = new ArrayList<>();
         UUID loggedInUserId = authenticationUtils.getLoggedInUserId();
-
         if (loggedInUserId == null) {
             return ExtendedBaseResponse.of(BaseResponse.error(HttpStatus.UNAUTHORIZED, "Usuario no autenticado."), null);
         }
 
-        for (RiskDocument riskDocument : allRiskDocuments) {
-            try {
-                deleteRiskDocument(riskDocument.getId()); // Reutilizar el método de eliminación individual
-                successCount++;
-            } catch (Exception e) {
-                failedIds.add(riskDocument.getId());
-                System.err.println("Error eliminando contenido ID: " + riskDocument.getId() + " - " + e.getMessage());
-            }
-        }
-
-        if (failedIds.isEmpty()) {
+        try {
+            imageService.deleteFolder("");
+            riskDocumentRepository.deleteAll();
             return ExtendedBaseResponse.of(
-                    BaseResponse.ok("Todos los contenidos (" + successCount + ") eliminados exitosamente"),
+                    BaseResponse.ok("Todos los contenidos eliminados exitosamente"),
                     null
             );
-        } else {
-            String message = String.format(
-                    "Eliminados %d de %d contenidos. Fallos en IDs: %s",
-                    successCount,
-                    allRiskDocuments.size(),
-                    failedIds
-            );
+        } catch (Exception e) {
+            log.error("💥 Error eliminando contenidos: {}", e.getMessage(), e);
             return ExtendedBaseResponse.of(
-                    BaseResponse.error(HttpStatus.valueOf(HttpStatus.MULTI_STATUS.value()), message),
+                    BaseResponse.error(HttpStatus.INTERNAL_SERVER_ERROR, "Error al eliminar los contenidos"),
                     null
             );
         }
     }
+
 
     @Transactional
     @Override
@@ -181,7 +165,7 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
 
                 log.info("📤 Subiendo archivo a ImageService...");
                 // ✅ Corrección: pasar carpeta y publicId
-                String folderPath = "credit-flow/credit-applications/" + creditApplication.getId();
+                String folderPath = "credit-applications/" + creditApplication.getId();
                 String publicId = UUID.randomUUID() + "_" + file.getOriginalFilename();
                 String url = imageService.uploadFile(file, folderPath, publicId);
                 log.info("✅ Archivo subido correctamente: {}", url);
