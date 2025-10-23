@@ -3,6 +3,7 @@ import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
 import com.tuempresa.creditflow.creditflow_api.dto.kyc.KycFileUploadRequestDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.kyc.KycStatusUpdateDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.kyc.KycVerificationResponseDTO;
+import com.tuempresa.creditflow.creditflow_api.dto.kyc.KycVerifiedCompanyResponseDTO;
 import com.tuempresa.creditflow.creditflow_api.enums.KycStatus;
 
 import java.util.List;
@@ -27,6 +28,7 @@ public interface IKycVerificationService {
      * @return Lista de verificaciones
      */
     ExtendedBaseResponse<List<KycVerificationResponseDTO>> getAll();
+    ExtendedBaseResponse<List<KycVerifiedCompanyResponseDTO>> getVerifiedCompaniesDetails();
 
     /**
      * Obtiene todas las verificaciones de un usuario por su ID.

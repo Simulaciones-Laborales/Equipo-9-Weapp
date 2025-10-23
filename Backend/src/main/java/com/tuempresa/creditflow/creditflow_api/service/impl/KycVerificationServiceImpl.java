@@ -21,7 +21,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -80,17 +79,15 @@ public class KycVerificationServiceImpl implements IKycVerificationService {
     }
 
     @Transactional(readOnly = true)
-    public ExtendedBaseResponse<List<KycVerificationResponseDTO>> getAllKcyByUserId(UUID userId) {
-        if (!userRepo.existsById(userId))
-            throw new UserNotFoundException("Usuario no encontrado con ID: " + userId);
-
-        List<KycVerificationResponseDTO> kycs = kycRepo.findByUserId(userId).stream()
-                .map(kycMapper::toResponseDto)
-                .toList();
+    public ExtendedBaseResponse<List<KycVerifiedCompanyResponseDTO>> getVerifiedCompaniesDetails() {
+        
+        List<KycVerifiedCompanyResponseDTO> verifiedCompanies = 
+            kycRepo.findVerifiedCompanyDetails();
 
         return ExtendedBaseResponse.of(
-                BaseResponse.ok("Listado de KYC para el usuario"),
-                kycs
+                BaseResponse.ok("Empresas con verificación"+
+                "KYC obtenidas exitosamente."),
+                verifiedCompanies
         );
     }
 
@@ -274,5 +271,10 @@ public class KycVerificationServiceImpl implements IKycVerificationService {
             log.error("[KYC] Error subiendo imagen: {}", e.getMessage());
             throw new ImageUploadException("Error al subir archivo: " + e.getMessage());
         }
+    }
+
+    @Override
+    public ExtendedBaseResponse<List<KycVerificationResponseDTO>> getAllKcyByUserId(UUID userId) {
+        throw new UnsupportedOperationException("Unimplemented method 'getAllKcyByUserId'");
     }
 }

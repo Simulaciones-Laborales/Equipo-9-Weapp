@@ -1,7 +1,5 @@
 package com.tuempresa.creditflow.creditflow_api.repository;
 
-import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
-import com.tuempresa.creditflow.creditflow_api.dto.kyc.KycVerificationResponseDTO;
 import com.tuempresa.creditflow.creditflow_api.model.CreditApplication;
 import com.tuempresa.creditflow.creditflow_api.model.Company;
 import com.tuempresa.creditflow.creditflow_api.enums.CreditStatus;
