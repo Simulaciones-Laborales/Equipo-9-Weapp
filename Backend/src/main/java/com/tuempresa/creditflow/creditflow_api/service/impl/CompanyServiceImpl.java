@@ -2,15 +2,20 @@ package com.tuempresa.creditflow.creditflow_api.service.impl;
 
 import com.tuempresa.creditflow.creditflow_api.dto.company.CompanyRequestDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.company.CompanyResponseDTO;
+import com.tuempresa.creditflow.creditflow_api.enums.KycEntityType;
+import com.tuempresa.creditflow.creditflow_api.exception.kycExc.UserNotVerifiedException;
 import com.tuempresa.creditflow.creditflow_api.model.Company;
+import com.tuempresa.creditflow.creditflow_api.enums.KycStatus;
 import com.tuempresa.creditflow.creditflow_api.model.User;
 import com.tuempresa.creditflow.creditflow_api.repository.CompanyRepository;
+import com.tuempresa.creditflow.creditflow_api.repository.KycVerificationRepository;
 import com.tuempresa.creditflow.creditflow_api.service.CompanyService;
 import com.tuempresa.creditflow.creditflow_api.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -20,6 +25,7 @@ import java.util.stream.Collectors;
 public class CompanyServiceImpl implements CompanyService {
 
     private final CompanyRepository companyRepository;
+    private final KycVerificationRepository kycVerificationRepository;
 
     @Override
     @Transactional
@@ -27,10 +33,16 @@ public class CompanyServiceImpl implements CompanyService {
         if (companyRepository.existsByTaxId(dto.getTaxId())) {
             throw new IllegalArgumentException("A company with this tax ID already exists");
         }
+
+        if(!kycVerificationRepository.existsByUserIdAndEntityTypeAndStatus(user.getId(), KycEntityType.USER, KycStatus.VERIFIED)){
+            throw new UserNotVerifiedException("EL usuario no esta verificado, No puede crear una empresa");
+        }
+
         Company company = Company.builder()
                 .company_name(dto.getName())
                 .taxId(dto.getTaxId())
                 .annualIncome(dto.getAnnualIncome())
+                .createdAt(LocalDateTime.now())
                 .user(user)
                 .build();
 
@@ -50,7 +62,7 @@ public class CompanyServiceImpl implements CompanyService {
     public CompanyResponseDTO getCompanyByIdAndUser(UUID id, User owner) {
         Company company = companyRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("No se encontró la empresa"));
-        
+
         boolean isOwner = company.getUser() != null && company.getUser().getId().equals(owner.getId());
         if (!isOwner) {
             throw new ResourceNotFoundException("El propietario no coincide");
@@ -63,7 +75,7 @@ public class CompanyServiceImpl implements CompanyService {
     public CompanyResponseDTO updateCompany(UUID id, CompanyRequestDTO dto, User owner) {
         Company company = companyRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("No se encontró la empresa"));
-        
+
         boolean isOwner = company.getUser() != null && company.getUser().getId().equals(owner.getId());
         if (!isOwner) {
             throw new ResourceNotFoundException("El propietario no coincide");
@@ -84,10 +96,10 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     @Transactional
-    public void deleteCompany(UUID id, User owner) {        
+    public void deleteCompany(UUID id, User owner) {
         Company company = companyRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("No se encontró la empresa"));
-        
+
         boolean isOwner = company.getUser() != null && company.getUser().getId().equals(owner.getId());
         if (!isOwner) {
             throw new ResourceNotFoundException("El propietario no coincide");

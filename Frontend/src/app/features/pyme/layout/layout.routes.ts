@@ -1,9 +1,10 @@
 import { Routes } from '@angular/router';
+import Layout from './layout';
 
 export default [
   {
     path: '',
-    loadComponent: () => import('./layout'),
+    component: Layout,
     children: [
       {
         path: '',

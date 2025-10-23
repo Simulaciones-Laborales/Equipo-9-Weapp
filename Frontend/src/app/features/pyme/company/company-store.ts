@@ -1,37 +1,72 @@
-import { inject } from '@angular/core';
-import { KYCVerificationResponse } from '@core/models/kyc-model';
-import { Response } from '@core/models/response-model';
-import { UserApi } from '@core/services/user-api';
+import { computed, inject } from '@angular/core';
 import { Status } from '@core/types';
-import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
+import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
+import { CompanyRequest, CompanyResponse } from './models/company-model';
+import { CompanyApi } from './services/company-api';
 
 type State = {
-  kyc: Response<KYCVerificationResponse[]> | null;
-  kycStatus: Status;
-  showNewKycForm: boolean;
+  showKycMessage: boolean;
+  companies: CompanyResponse[];
+  getCompaniesStatus: Status;
+  showNewCompanyForm: boolean;
+  createCompanyStatus: Status;
+  showCompanies: boolean;
 };
 
 const initialState: State = {
-  kyc: null,
-  kycStatus: 'pending',
-  showNewKycForm: false,
+  showKycMessage: false,
+  companies: [],
+  getCompaniesStatus: 'pending',
+  showNewCompanyForm: false,
+  createCompanyStatus: 'pending',
+  showCompanies: false,
 };
 
 export const CompanyStore = signalStore(
   withState(initialState),
-  withMethods((store, userApi = inject(UserApi)) => ({
-    getKycByUserId: async (userId: string) => {
-      patchState(store, { kycStatus: 'loading' });
+  withComputed((store) => ({
+    loadingMessage: computed(() => {
+      if (store.getCompaniesStatus() === 'loading') {
+        return 'Cargando empresas...';
+      }
+
+      return null;
+    }),
+  })),
+  withMethods((store, companyApi = inject(CompanyApi)) => ({
+    setShowKycMessage: (showKycMessage: boolean) => {
+      patchState(store, { showKycMessage });
+    },
+    getCompanies: async () => {
+      patchState(store, { getCompaniesStatus: 'loading' });
 
       try {
-        const kyc = await userApi.getAllKYC(userId);
-        patchState(store, { kycStatus: 'success', kyc });
+        const companies = await companyApi.getAllByAuthenticatedUser();
+        patchState(store, { getCompaniesStatus: 'success', companies });
       } catch (e) {
-        patchState(store, { kycStatus: 'failure', kyc: null });
+        patchState(store, { getCompaniesStatus: 'failure' });
       }
     },
-    setShowNewKycForm: (show: boolean) => {
-      patchState(store, { showNewKycForm: show });
+    setShowNewCompanyForm: (show: boolean) => {
+      patchState(store, { showNewCompanyForm: show });
+    },
+    createCompany: async (req: CompanyRequest) => {
+      patchState(store, { createCompanyStatus: 'loading' });
+
+      try {
+        const company = await companyApi.create(req);
+        patchState(store, {
+          createCompanyStatus: 'success',
+          companies: [...store.companies(), company],
+          showNewCompanyForm: false,
+          showCompanies: true,
+        });
+      } catch (e) {
+        patchState(store, { createCompanyStatus: 'failure' });
+      }
+    },
+    setShowCompanies: (show: boolean) => {
+      patchState(store, { showCompanies: show });
     },
   }))
 );

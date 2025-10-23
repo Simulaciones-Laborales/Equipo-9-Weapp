@@ -3,7 +3,7 @@ package com.tuempresa.creditflow.creditflow_api.controller;
 import com.tuempresa.creditflow.creditflow_api.dto.BaseResponse;
 import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
 import com.tuempresa.creditflow.creditflow_api.dto.user.*;
-import com.tuempresa.creditflow.creditflow_api.service.AuthService;
+import com.tuempresa.creditflow.creditflow_api.service.IAuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/auth")
 @RestController
 public class AuthController {
-    private final AuthService authService;
+    private final IAuthService authService;
 
     /**
      * Endpoint para iniciar sesión con las credenciales de un usuario.

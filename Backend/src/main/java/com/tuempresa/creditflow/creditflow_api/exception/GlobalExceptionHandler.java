@@ -3,7 +3,10 @@ package com.tuempresa.creditflow.creditflow_api.exception;
 import com.tuempresa.creditflow.creditflow_api.dto.BaseResponse;
 import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
 import com.tuempresa.creditflow.creditflow_api.exception.cloudinaryExc.ImageUploadException;
+import com.tuempresa.creditflow.creditflow_api.exception.kycExc.KycBadRequestException;
+import com.tuempresa.creditflow.creditflow_api.exception.kycExc.CompanyNotVerifiedException;
 import com.tuempresa.creditflow.creditflow_api.exception.kycExc.KycNotFoundException;
+import com.tuempresa.creditflow.creditflow_api.exception.kycExc.UserNotVerifiedException;
 import com.tuempresa.creditflow.creditflow_api.exception.userExc.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -21,101 +25,61 @@ import java.util.stream.Collectors;
 @Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
     // -------------------------
-    // Existing user-related handlers (kept as in your project)
+    // 404 Not Found
     // -------------------------
-    @ExceptionHandler(EmailNotFoundException.class)
-    public ResponseEntity<BaseResponse> handleEmailNotFound(EmailNotFoundException ex) {
-        log.warn("EmailNotFoundException: {}", ex.getMessage());
+    @ExceptionHandler({
+            EmailNotFoundException.class,
+            UserNotFoundException.class,
+            KycNotFoundException.class,
+            ResourceNotFoundException.class
+    })
+    public ResponseEntity<BaseResponse> handleNotFound(RuntimeException ex, HttpServletRequest req) {
+        log.warn("NotFoundException at {}: {}", req.getRequestURI(), ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(BaseResponse.error(HttpStatus.NOT_FOUND, ex.getMessage()));
     }
 
-    @ExceptionHandler(InvalidCredentialsException.class)
-    public ResponseEntity<BaseResponse> handleInvalidCredentials(InvalidCredentialsException ex) {
-        log.warn("InvalidCredentialsException: {}", ex.getMessage());
+    // -------------------------
+    // 401 Unauthorized
+    // -------------------------
+    @ExceptionHandler({ InvalidCredentialsException.class })
+    public ResponseEntity<BaseResponse> handleUnauthorized(RuntimeException ex, HttpServletRequest req) {
+        log.warn("UnauthorizedException at {}: {}", req.getRequestURI(), ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
                 .body(BaseResponse.error(HttpStatus.UNAUTHORIZED, ex.getMessage()));
     }
 
-    @ExceptionHandler(UserDisabledException.class)
-    public ResponseEntity<BaseResponse> handleUserDisabled(UserDisabledException ex) {
-        log.warn("UserDisabledException: {}", ex.getMessage());
+    // -------------------------
+    // 403 Forbidden
+    // -------------------------
+    @ExceptionHandler({
+            UserDisabledException.class,
+            UserNotVerifiedException.class,
+            CompanyNotVerifiedException.class
+    })
+    public ResponseEntity<BaseResponse> handleForbidden(RuntimeException ex, HttpServletRequest req) {
+        log.warn("ForbiddenException at {}: {}", req.getRequestURI(), ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
                 .body(BaseResponse.error(HttpStatus.FORBIDDEN, ex.getMessage()));
     }
 
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<BaseResponse> handleUserNotFound(UserNotFoundException ex) {
-        log.warn("UserNotFoundException: {}", ex.getMessage());
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(BaseResponse.error(HttpStatus.NOT_FOUND, ex.getMessage()));
-    }
-
-    @ExceptionHandler(EmailAlreadyExistsException.class)
-    public ResponseEntity<BaseResponse> handleEmailAlreadyExists(EmailAlreadyExistsException ex, HttpServletRequest req) {
-        log.warn("EmailAlreadyExistsException at {}: {}", req.getRequestURI(), ex.getMessage());
-        return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body(BaseResponse.error(HttpStatus.CONFLICT, ex.getMessage()));
-    }
-
-    @ExceptionHandler(ContactAlreadyExistsException.class)
-    public ResponseEntity<BaseResponse> handleEmailAlreadyExists(ContactAlreadyExistsException ex, HttpServletRequest req) {
-        log.warn("PhoneAlreadyExistsException at {}: {}", req.getRequestURI(), ex.getMessage());
-        return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body(BaseResponse.error(HttpStatus.CONFLICT, ex.getMessage()));
-    }
-
-    @ExceptionHandler(DniAlreadyExistsException.class)
-    public ResponseEntity<BaseResponse> handleEmailAlreadyExists(DniAlreadyExistsException ex, HttpServletRequest req) {
-        log.warn("DniAlreadyExistsException at {}: {}", req.getRequestURI(), ex.getMessage());
-        return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body(BaseResponse.error(HttpStatus.CONFLICT, ex.getMessage()));
-    }
-    // ----------------------------
-    //Kyc Error
-    @ExceptionHandler(KycNotFoundException.class)
-    public ResponseEntity<BaseResponse> handleKycNotFound(KycNotFoundException ex) {
-        log.warn("KycNotFoundException: {}", ex.getMessage());
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(BaseResponse.error(HttpStatus.NOT_FOUND, ex.getMessage()));
-    }
-
-    // ----------------------------
-    //Cloudinary Error
-    @ExceptionHandler(ImageUploadException.class)
-    public ResponseEntity<BaseResponse> handleImageUploadException(ImageUploadException ex) {
-        logger.error("Error subiendo imagen", ex);
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(BaseResponse.error("Error subiendo imagen: " + ex.getMessage()));
-    }
-
     // -------------------------
-    // ResourceNotFoundException -> return BaseResponse (404)
+    // 409 Conflict
     // -------------------------
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<BaseResponse> handleResourceNotFound(ResourceNotFoundException ex, HttpServletRequest req) {
-        log.warn("ResourceNotFoundException at {}: {}", req.getRequestURI(), ex.getMessage());
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(BaseResponse.error(HttpStatus.NOT_FOUND, ex.getMessage()));
-    }
-
-    // -------------------------
-    // ConflictException -> return BaseResponse (409)
-    // -------------------------
-    @ExceptionHandler(ConflictException.class)
-    public ResponseEntity<BaseResponse> handleConflict(ConflictException ex, HttpServletRequest req) {
+    @ExceptionHandler({
+            EmailAlreadyExistsException.class,
+            ContactAlreadyExistsException.class,
+            DniAlreadyExistsException.class,
+            ConflictException.class
+    })
+    public ResponseEntity<BaseResponse> handleConflict(RuntimeException ex, HttpServletRequest req) {
         log.warn("ConflictException at {}: {}", req.getRequestURI(), ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
@@ -123,7 +87,17 @@ public class GlobalExceptionHandler {
     }
 
     // -------------------------
-    // Validation errors -> return ExtendedBaseResponse with validation map (400)
+    // 500 Internal Server Error: Cloudinary errors
+    // -------------------------
+    @ExceptionHandler(ImageUploadException.class)
+    public ResponseEntity<BaseResponse> handleImageUpload(ImageUploadException ex, HttpServletRequest req) {
+        logger.error("ImageUploadException at {}: {}", req.getRequestURI(), ex.getMessage(), ex);
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(BaseResponse.error(HttpStatus.INTERNAL_SERVER_ERROR, "Error subiendo imagen: " + ex.getMessage()));
+    }
+    // -------------------------
+    // 400 Bad Request: Validation errors
     // -------------------------
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ExtendedBaseResponse<Map<String, String>>> handleValidation(MethodArgumentNotValidException ex, HttpServletRequest req) {
@@ -140,19 +114,52 @@ public class GlobalExceptionHandler {
 
         BaseResponse base = BaseResponse.badRequest("Validation failed for one or more fields");
         ExtendedBaseResponse<Map<String, String>> payload = ExtendedBaseResponse.of(base, validationErrors);
+
         return ResponseEntity.badRequest().body(payload);
     }
 
     // -------------------------
-    // Generic fallback -> return BaseResponse (500)
+    // 500 Internal Server Error: Generic fallback
     // -------------------------
     @ExceptionHandler(Exception.class)
     public ResponseEntity<BaseResponse> handleGeneric(Exception ex, HttpServletRequest req) {
         log.error("Unhandled exception at {}: {}", req.getRequestURI(), ex.toString(), ex);
-        // No expongamos stacktrace al cliente
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(BaseResponse.error(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred"));
     }
-}
 
+    @ExceptionHandler(KycBadRequestException.class)
+    public ResponseEntity<ExtendedBaseResponse<String>> handleBadRequestException(KycBadRequestException ex, HttpServletRequest request) {
+        log.warn("[BAD REQUEST] {} at {}", ex.getMessage(), request.getRequestURI());
+
+        return ResponseEntity
+                .badRequest()
+                .body(ExtendedBaseResponse.of(BaseResponse.badRequest(ex.getMessage()), ex.getMessage()));
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ExtendedBaseResponse<String>> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex, HttpServletRequest request) {
+        assert ex.getRequiredType() != null;
+        String message = String.format("Valor inválido '%s' para el parámetro '%s'. Esperado tipo: %s",
+                ex.getValue(), ex.getName(), ex.getRequiredType().getSimpleName());
+
+        log.warn("[ARG MISMATCH] {} at {}", message, request.getRequestURI());
+
+        return ResponseEntity
+                .badRequest()
+                .body(ExtendedBaseResponse.of(BaseResponse.badRequest(message), message));
+    }
+
+    // -------------------------
+// IllegalArgumentException -> return BaseResponse (400)
+// -------------------------
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<BaseResponse> handleIllegalArgument(IllegalArgumentException ex, HttpServletRequest req) {
+        log.warn("IllegalArgumentException at {}: {}", req.getRequestURI(), ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(BaseResponse.error(HttpStatus.BAD_REQUEST, ex.getMessage()));
+    }
+
+}

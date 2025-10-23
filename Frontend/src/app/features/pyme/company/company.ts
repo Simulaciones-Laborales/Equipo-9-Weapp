@@ -1,48 +1,58 @@
 import { Component, effect, inject } from '@angular/core';
 import { CompanyStore } from './company-store';
-import { TokenStorage } from '@core/services/token-storage';
-import { Card } from 'primeng/card';
 import { Title } from '@components/title/title';
 import { ProgressSpinner } from 'primeng/progressspinner';
-import { NewKycForm } from './components/new-kyc-form/new-kyc-form';
 import { Subtitle } from '@components/subtitle/subtitle';
+import { NewCompanyForm } from './components/new-company-form/new-company-form';
+import { CompanyRequest } from './models/company-model';
+import { CompanyInfo } from './components/company-info/company-info';
+import { Card } from 'primeng/card';
+import { LayoutStore } from '../layout/layout-store';
+import { Button } from 'primeng/button';
 
 @Component({
   selector: 'app-company',
-  imports: [Card, Title, ProgressSpinner, NewKycForm, Subtitle],
+  imports: [Title, ProgressSpinner, Subtitle, NewCompanyForm, CompanyInfo, Card, Button],
   templateUrl: './company.html',
   styleUrl: './company.css',
   providers: [CompanyStore],
 })
 export default class Company {
-  private readonly _tokenStorage = inject(TokenStorage);
+  readonly layoutStore = inject(LayoutStore);
   readonly store = inject(CompanyStore);
 
   constructor() {
-    effect(() => {
-      const kycStatus = this.store.kycStatus();
+    effect(async () => {
+      const status = this.layoutStore.userKycStatus();
 
-      switch (kycStatus) {
+      if (status.name === 'KYC Verificado') {
+        this.store.setShowKycMessage(false);
+        await this.store.getCompanies();
+      } else {
+        this.store.setShowKycMessage(true);
+      }
+    });
+
+    effect(async () => {
+      const getCompaniesSatus = this.store.getCompaniesStatus();
+
+      switch (getCompaniesSatus) {
         case 'success':
-          this._success();
+          this._fetchCompaniesSuccess();
           break;
       }
     });
   }
 
-  async ngOnInit() {
-    const user = this._tokenStorage.user();
-
-    if (!user) {
-      return;
+  private _fetchCompaniesSuccess() {
+    if (this.store.companies().length === 0) {
+      this.store.setShowNewCompanyForm(true);
+    } else {
+      this.store.setShowCompanies(true);
     }
-
-    await this.store.getKycByUserId(user.id);
   }
 
-  private _success() {
-    if (this.store.kyc()?.data.length === 0) {
-      this.store.setShowNewKycForm(true);
-    }
+  async createNewCompany(req: CompanyRequest) {
+    await this.store.createCompany(req);
   }
 }
