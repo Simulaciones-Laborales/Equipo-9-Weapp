@@ -1,14 +1,8 @@
 package com.tuempresa.creditflow.creditflow_api.configs;
 
-import com.tuempresa.creditflow.creditflow_api.enums.CreditPurpose;
-import com.tuempresa.creditflow.creditflow_api.enums.CreditStatus;
-import com.tuempresa.creditflow.creditflow_api.enums.KycEntityType;
-import com.tuempresa.creditflow.creditflow_api.enums.KycStatus;
+import com.tuempresa.creditflow.creditflow_api.enums.*;
 import com.tuempresa.creditflow.creditflow_api.model.*;
-import com.tuempresa.creditflow.creditflow_api.repository.CompanyRepository;
-import com.tuempresa.creditflow.creditflow_api.repository.CreditApplicationRepository;
-import com.tuempresa.creditflow.creditflow_api.repository.KycVerificationRepository;
-import com.tuempresa.creditflow.creditflow_api.repository.UserRepository;
+import com.tuempresa.creditflow.creditflow_api.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -31,6 +25,7 @@ public class DefaultUserCreator implements CommandLineRunner {
     private final KycVerificationRepository kycVerificationRepository;
     private final CreditApplicationRepository creditApplicationRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CreditApplicationHistoryRepository creditApplicationHistoryRepository;
 
     // Constantes de prueba
     private static final String DEFAULT_PASS = "Pass1234!";
@@ -56,8 +51,11 @@ public class DefaultUserCreator implements CommandLineRunner {
             // 3. Crear Verificaciones KYC (usando TODA la lista de usuarios, ya que el método lo maneja)
             seedKycVerifications(allUsers, companies);
 
-            // 4. Crear Solicitudes de Crédito (usando las primeras 7 Compañías)
-            seedCreditApplications(companies.subList(0, 7)); // <-- EL MÉTODO YA HA SIDO MEJORADO
+            // 4. Crear Solicitudes de Crédito
+            List<CreditApplication> applications = seedCreditApplications(companies.subList(0, 7)); // <-- Capturar las Apps
+
+            // 5. CREAR HISTORIAL (30 Registros)
+            seedApplicationHistory(applications, operators); // <-- NUEVA LLAMADA
 
             log.info("--- ✅ Precarga de datos finalizada. ---");
         } else {
@@ -65,7 +63,227 @@ public class DefaultUserCreator implements CommandLineRunner {
         }
     }
 
-    private void seedCreditApplications(List<Company> companies) {
+    // Dentro de la clase DefaultUserCreator
+
+    private void seedApplicationHistory(List<CreditApplication> applications, List<User> operators) {
+        log.info("💾 Creando 30 registros de historial para las solicitudes...");
+        List<CreditApplicationHistory> historyList = new ArrayList<>();
+
+        // Identificando Operadores para el historial manual
+        User opSofia = operators.get(0); // Operador 1
+        User opMarcelo = operators.get(1); // Operador 2
+
+        // Referencias a las aplicaciones para facilitar la creación de eventos
+        CreditApplication app1 = applications.get(0); // APPROVED, Company 1
+        CreditApplication app2 = applications.get(1); // REJECTED, Company 2
+        CreditApplication app3 = applications.get(2); // UNDER_REVIEW, Company 3
+        CreditApplication app4 = applications.get(3); // PENDING, Company 4 (sin docs, necesita más acción)
+        CreditApplication app6 = applications.get(5); // PENDING, Company 6 (KYC incompleto)
+
+        LocalDateTime now = LocalDateTime.now().minusHours(10); // Base de tiempo
+
+        // ====================================================================
+        // BLOQUE 1: Creación y Primera Revisión (15 Registros)
+        // ====================================================================
+
+        // 1. REGISTROS DE CREACIÓN (Base para las 7 Apps)
+        for (int i = 0; i < applications.size(); i++) {
+            CreditApplication app = applications.get(i);
+            historyList.add(CreditApplicationHistory.builder()
+                    .creditApplication(app)
+                    .actionType(CreditApplicationActionType.CREATION)
+                    .action("Solicitud inicial creada por el cliente.")
+                    .operator(app.getCompany().getUser()) // El cliente PYME es el "operador" de la creación
+                    .createdAt(now.plusMinutes(i * 5L))
+                    .build());
+        }
+
+        // 2. Transición de PENDING a UNDER_REVIEW (App 3, 6, 7)
+        // App 3: Pasa a revisión rápidamente
+        historyList.add(CreditApplicationHistory.builder()
+                .creditApplication(app3)
+                .actionType(CreditApplicationActionType.STATUS_CHANGE)
+                .action("Estado cambiado de PENDING a UNDER_REVIEW")
+                .comments("Inicio de análisis financiero y validación de documentos.")
+                .operator(opSofia)
+                .createdAt(now.plusHours(1))
+                .build());
+
+        // App 7: Pasa a revisión, pero con KYC pendiente
+        CreditApplication app7 = applications.get(6);
+        historyList.add(CreditApplicationHistory.builder()
+                .creditApplication(app7)
+                .actionType(CreditApplicationActionType.STATUS_CHANGE)
+                .action("Estado cambiado de PENDING a UNDER_REVIEW")
+                .comments("Revisión iniciada. Solicitud retenida por falta de Acta de Representación de la empresa.")
+                .operator(opMarcelo)
+                .createdAt(now.plusHours(1).plusMinutes(30))
+                .build());
+
+        // 3. Comentario/Acción sobre Solicitudes con Score Bajo/Alto
+        // App 1: Comentario de aprobación preliminar (Alto Score)
+        historyList.add(CreditApplicationHistory.builder()
+                .creditApplication(app1)
+                .actionType(CreditApplicationActionType.COMMENT)
+                .action("Comentario de Analista: Solicitud con alto potencial. Priorizar.")
+                .comments("Score inicial de 95/100. Pasar a firma electrónica.")
+                .operator(opSofia)
+                .createdAt(now.plusHours(2))
+                .build());
+
+        // App 2: Comentario de bajo score (previo al rechazo)
+        historyList.add(CreditApplicationHistory.builder()
+                .creditApplication(app2)
+                .actionType(CreditApplicationActionType.COMMENT)
+                .action("Comentario de Analista: Score bajo (15). Contactar por documentación faltante.")
+                .comments("Riesgo elevado. Analizar posibilidad de rechazo inmediato.")
+                .operator(opMarcelo)
+                .createdAt(now.plusHours(2).plusMinutes(15))
+                .build());
+
+        // App 5: Comentario sobre el límite de riesgo
+        historyList.add(CreditApplicationHistory.builder()
+                .creditApplication(applications.get(4))
+                .actionType(CreditApplicationActionType.COMMENT)
+                .action("Comentario de Sistema: Límite de exposición sectorial superado.")
+                .comments("El monto de $400k excede el máximo permitido para el sector actual de la empresa. Pasa a rechazo.")
+                .operator(opSofia)
+                .createdAt(now.plusHours(2).plusMinutes(30))
+                .build());
+
+        // 4. Rechazo Automático/Decisión (App 2, App 5)
+
+        // App 5: Rechazo definitivo por límite de riesgo (Score 50, pero muy alto monto)
+        historyList.add(CreditApplicationHistory.builder()
+                .creditApplication(applications.get(4))
+                .actionType(CreditApplicationActionType.STATUS_CHANGE)
+                .action("Estado cambiado de PENDING a REJECTED")
+                .comments("Rechazado por exceder el límite de exposición crediticia sectorial.")
+                .operator(opSofia)
+                .createdAt(now.plusHours(3))
+                .build());
+
+        // App 2: Rechazo definitivo por riesgo bajo
+        historyList.add(CreditApplicationHistory.builder()
+                .creditApplication(app2)
+                .actionType(CreditApplicationActionType.STATUS_CHANGE)
+                .action("Estado cambiado de PENDING a REJECTED")
+                .comments("Rechazado por score de riesgo insuficiente (15) y poca solvencia demostrada en extractos.")
+                .operator(opMarcelo)
+                .createdAt(now.plusHours(3).plusMinutes(10))
+                .build());
+
+
+        // ====================================================================
+        // BLOQUE 2: Aprobaciones, Actualizaciones y Trazabilidad (15 Registros)
+        // ====================================================================
+
+        // 5. Aprobación (App 1)
+        historyList.add(CreditApplicationHistory.builder()
+                .creditApplication(app1)
+                .actionType(CreditApplicationActionType.STATUS_CHANGE)
+                .action("Estado cambiado de PENDING a APPROVED")
+                .comments("Aprobación finalizada. Solicitud lista para desembolso.")
+                .operator(opSofia)
+                .createdAt(now.plusHours(4))
+                .build());
+
+        // 6. Actualización por el cliente (App 4)
+        // El cliente sube un documento adicional (simulación de Update)
+        historyList.add(CreditApplicationHistory.builder()
+                .creditApplication(app4)
+                .actionType(CreditApplicationActionType.UPDATE)
+                .action("Cliente actualiza información: sube Certificado de PyME.")
+                .comments("Cliente sube documento: Certificado PyME.")
+                .operator(app4.getCompany().getUser())
+                .createdAt(now.plusHours(5))
+                .build());
+
+        // App 4: Pasa a revisión tras la actualización
+        historyList.add(CreditApplicationHistory.builder()
+                .creditApplication(app4)
+                .actionType(CreditApplicationActionType.STATUS_CHANGE)
+                .action("Estado cambiado de PENDING a UNDER_REVIEW")
+                .comments("Revisión iniciada tras actualización de documentos por cliente.")
+                .operator(opMarcelo)
+                .createdAt(now.plusHours(5).plusMinutes(30))
+                .build());
+
+        // 7. Acciones de Analista en App 3 (En Revisión)
+        historyList.add(CreditApplicationHistory.builder()
+                .creditApplication(app3)
+                .actionType(CreditApplicationActionType.COMMENT)
+                .action("Analista solicitó aclaración sobre flujos de caja.")
+                .comments("Se envió email al cliente (luis.cruz@pyme3.com) solicitando detalle de egresos no recurrentes.")
+                .operator(opSofia)
+                .createdAt(now.plusHours(6))
+                .build());
+
+        // 8. Acciones sobre App 6 (PENDING por KYC)
+        historyList.add(CreditApplicationHistory.builder()
+                .creditApplication(app6)
+                .actionType(CreditApplicationActionType.COMMENT)
+                .action("Analista verifica estado de KYC de Compañía.")
+                .comments("Se notificó al equipo de KYC que la solicitud está retenida a la espera del Balance Anual de la Compañía 6.")
+                .operator(opMarcelo)
+                .createdAt(now.plusHours(7))
+                .build());
+
+        // 9. Simulación de Cambio de Comentario (App 7)
+        historyList.add(CreditApplicationHistory.builder()
+                .creditApplication(app7)
+                .actionType(CreditApplicationActionType.COMMENT)
+                .action("Comentario de Analista: Se reintentó contactar al representante legal.")
+                .comments("Se dejó mensaje de voz al contacto +5491145007777 para pedir acta pendiente.")
+                .operator(opSofia)
+                .createdAt(now.plusHours(8))
+                .build());
+
+        // 10. Movimientos internos de revisión (App 4, 3, 7) - 6 entradas más para llegar a 30
+
+        // App 4 (revisión de nuevos docs)
+        historyList.add(CreditApplicationHistory.builder()
+                .creditApplication(app4)
+                .actionType(CreditApplicationActionType.COMMENT)
+                .action("Documento adicional (Certificado PyME) validado.")
+                .comments("El nuevo certificado incrementa el score potencial, continuar con revisión crediticia.")
+                .operator(opMarcelo)
+                .createdAt(now.plusHours(8).plusMinutes(30))
+                .build());
+
+        // App 3 (revisión avanzada)
+        historyList.add(CreditApplicationHistory.builder()
+                .creditApplication(app3)
+                .actionType(CreditApplicationActionType.COMMENT)
+                .action("Pasa a revisión de Gerencia.")
+                .comments("Revisión de crédito finalizada, se espera aprobación de riesgo de Gerencia.")
+                .operator(opSofia)
+                .createdAt(now.plusHours(9))
+                .build());
+
+        // App 7 (aún en UNDER_REVIEW)
+        historyList.add(CreditApplicationHistory.builder()
+                .creditApplication(app7)
+                .actionType(CreditApplicationActionType.UPDATE)
+                .action("Sistema actualiza el recordatorio de documentación pendiente.")
+                .comments("Recordatorio automático enviado al cliente por email.")
+                .operator(opSofia) // Simula acción automatizada asociada a un operador
+                .createdAt(now.plusHours(9).plusMinutes(15))
+                .build());
+
+        // 4 registros adicionales (App 6, 4, 3, 7)
+        historyList.add(CreditApplicationHistory.builder().creditApplication(app6).actionType(CreditApplicationActionType.COMMENT).action("Revisión de antigüedad de CUIT.").operator(opMarcelo).createdAt(now.plusHours(9).plusMinutes(20)).build());
+        historyList.add(CreditApplicationHistory.builder().creditApplication(app4).actionType(CreditApplicationActionType.COMMENT).action("Pendiente de asignación a analista Senior.").operator(opSofia).createdAt(now.plusHours(9).plusMinutes(25)).build());
+        historyList.add(CreditApplicationHistory.builder().creditApplication(app3).actionType(CreditApplicationActionType.UPDATE).action("Gerencia da pre-aprobación, esperando firma.").operator(opSofia).createdAt(now.plusHours(9).plusMinutes(30)).build());
+        historyList.add(CreditApplicationHistory.builder().creditApplication(app7).actionType(CreditApplicationActionType.COMMENT).action("Analista llamó a contacto alternativo.").operator(opMarcelo).createdAt(now.plusHours(9).plusMinutes(35)).build());
+
+
+        // 11. Persistir todo el historial
+        creditApplicationHistoryRepository.saveAll(historyList);
+        log.info("✅ 30 registros de historial creados y persistidos.");
+    }
+
+    private List<CreditApplication> seedCreditApplications(List<Company> companies) {
         log.info("💾 Creando 7 Solicitudes de Crédito y asociando documentos de riesgo...");
 
         // NOTA: Se creará la aplicación, se le agregarán los documentos, se calculará
@@ -176,9 +394,10 @@ public class DefaultUserCreator implements CommandLineRunner {
         List<CreditApplication> applications = List.of(app1, app2, app3, app4, app5, app6, app7);
         creditApplicationRepository.saveAll(applications);
         log.info("✅ 7 Solicitudes de Crédito y sus documentos creados. Precarga completa.");
+        return applications;
     }
 
-    private RiskDocument createRiskDocument(CreditApplication app, String name, int scoreImpact, String url) {
+    private void createRiskDocument(CreditApplication app, String name, int scoreImpact, String url) {
         // 1. Crear la entidad RiskDocument
         RiskDocument doc = RiskDocument.builder()
                 .name(name)
@@ -187,7 +406,6 @@ public class DefaultUserCreator implements CommandLineRunner {
                 .build();
         app.addRiskDocument(doc);
 
-        return doc;
     }
 
     private void seedKycVerifications(List<User> allUsers, List<Company> companies) {
