@@ -1,5 +1,6 @@
 package com.tuempresa.creditflow.creditflow_api.service;
 
+import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
 import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.CreditApplicationRequestDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.CreditApplicationResponseDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.CreditApplicationStatusChangeDTO;
@@ -90,5 +91,8 @@ public interface CreditApplicationService {
 
     Page<CreditApplicationResponseDTO> getAllCreditApplications(CreditStatus status, Pageable pageable);
 
+    ExtendedBaseResponse<Void> purgeAllImageCloudinary();
+
+    ExtendedBaseResponse<Void> deleteRiskDocument(UUID id);
 }
 

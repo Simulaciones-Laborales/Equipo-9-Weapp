@@ -60,6 +60,7 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.GET, "/api/credit-applications/company/{companyId}").hasAnyAuthority("OPERADOR")
                         .requestMatchers(HttpMethod.PUT, "/api/credit-applications/{id}/status").hasAnyAuthority("OPERADOR")
                         .requestMatchers(HttpMethod.DELETE, "/api/credit-applications/{id}").hasAnyAuthority("OPERADOR")
+                        .requestMatchers(HttpMethod.DELETE, "/api/credit-applications/purge-docs").hasAnyAuthority("OPERADOR")
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2

@@ -1,5 +1,6 @@
 package com.tuempresa.creditflow.creditflow_api.service;
 
+import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
 import com.tuempresa.creditflow.creditflow_api.dto.history.CreditApplicationHistoryDTO;
 import com.tuempresa.creditflow.creditflow_api.model.User;
 import org.springframework.data.domain.Page;
