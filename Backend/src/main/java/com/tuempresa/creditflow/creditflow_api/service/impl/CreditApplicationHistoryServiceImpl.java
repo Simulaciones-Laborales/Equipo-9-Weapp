@@ -15,7 +15,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.UUID;
 
 @Service
@@ -24,7 +23,6 @@ public class CreditApplicationHistoryServiceImpl implements CreditApplicationHis
 
     private final CreditApplicationHistoryRepository historyRepository;
     private final CreditApplicationRepository creditApplicationRepository;
-
     /**
      * Verifica existencia y acceso, luego devuelve página de historial mapeada a DTO.
      */

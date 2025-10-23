@@ -21,7 +21,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -235,6 +234,13 @@ public class KycVerificationServiceImpl implements IKycVerificationService {
         }
     }
 
+    private void updateKycWithUploadedDocs(KycVerification kyc, Map<String, String> uploaded) {
+        kyc.setDocument1Url(uploaded.get("document1"));
+        kyc.setDocument2Url(uploaded.get("document2"));
+        kyc.setDocument3Url(uploaded.get("document3"));
+        kyc.setVerificationNotes("Archivos cargados correctamente: " + uploaded.keySet());
+    }
+
     private Map<String, String> uploadKycFiles(UUID kycId, KycFileUploadRequestDTO dto) {
         Map<String, String> uploadedUrls = new HashMap<>();
         Map<String, MultipartFile> files = Map.of(
@@ -243,36 +249,14 @@ public class KycVerificationServiceImpl implements IKycVerificationService {
                 "document3", dto.document3Url()
         );
 
-        files.forEach((key, file) -> uploadedUrls.put(key, uploadFile(file, "kyc/" + kycId + "/" + key)));
+        files.forEach((key, file) -> {
+            if (file != null && !file.isEmpty()) {
+                String publicId = UUID.randomUUID() + "_" + file.getOriginalFilename();
+                String url = imageService.uploadFile(file, "kyc/" + kycId + "/" + key, publicId);
+                uploadedUrls.put(key, url);
+            }
+        });
+
         return uploadedUrls;
-    }
-
-    private void updateKycWithUploadedDocs(KycVerification kyc, Map<String, String> uploaded) {
-        kyc.setDocument1Url(uploaded.get("document1"));
-        kyc.setDocument2Url(uploaded.get("document2"));
-        kyc.setDocument3Url(uploaded.get("document3"));
-        kyc.setVerificationNotes("Archivos cargados correctamente: " + uploaded.keySet());
-    }
-
-    @SuppressWarnings("unchecked")
-    private String uploadFile(MultipartFile file, String publicId) {
-        try {
-            Map<String, Object> uploadParams = ObjectUtils.asMap(
-                    "resource_type", "image",
-                    "folder", "creditflow/kyc",
-                    "public_id", publicId,
-                    "overwrite", true
-            );
-
-            Map<String, Object> result = (Map<String, Object>)
-                    imageService.getCloudinary().uploader().upload(file.getBytes(), uploadParams);
-
-            Object url = Optional.ofNullable(result.get("secure_url")).orElse(result.get("url"));
-            return url != null ? url.toString() : null;
-
-        } catch (IOException e) {
-            log.error("[KYC] Error subiendo imagen: {}", e.getMessage());
-            throw new ImageUploadException("Error al subir archivo: " + e.getMessage());
-        }
     }
 }

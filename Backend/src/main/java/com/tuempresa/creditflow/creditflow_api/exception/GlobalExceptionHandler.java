@@ -3,6 +3,7 @@ package com.tuempresa.creditflow.creditflow_api.exception;
 import com.tuempresa.creditflow.creditflow_api.dto.BaseResponse;
 import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
 import com.tuempresa.creditflow.creditflow_api.exception.cloudinaryExc.ImageUploadException;
+import com.tuempresa.creditflow.creditflow_api.exception.cloudinaryExc.RiskDocumentNotFoundException;
 import com.tuempresa.creditflow.creditflow_api.exception.kycExc.KycBadRequestException;
 import com.tuempresa.creditflow.creditflow_api.exception.kycExc.CompanyNotVerifiedException;
 import com.tuempresa.creditflow.creditflow_api.exception.kycExc.KycNotFoundException;
@@ -95,6 +96,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(BaseResponse.error(HttpStatus.INTERNAL_SERVER_ERROR, "Error subiendo imagen: " + ex.getMessage()));
+    }
+
+    @ExceptionHandler(RiskDocumentNotFoundException.class)
+    public ResponseEntity<BaseResponse> handleRiskDocumentNotFound(RiskDocumentNotFoundException ex) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(BaseResponse.error(HttpStatus.NOT_FOUND, ex.getMessage()));
     }
     // -------------------------
     // 400 Bad Request: Validation errors
