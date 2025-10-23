@@ -79,17 +79,15 @@ public class KycVerificationServiceImpl implements IKycVerificationService {
     }
 
     @Transactional(readOnly = true)
-    public ExtendedBaseResponse<List<KycVerificationResponseDTO>> getAllKcyByUserId(UUID userId) {
-        if (!userRepo.existsById(userId))
-            throw new UserNotFoundException("Usuario no encontrado con ID: " + userId);
-
-        List<KycVerificationResponseDTO> kycs = kycRepo.findByUserId(userId).stream()
-                .map(kycMapper::toResponseDto)
-                .toList();
+    public ExtendedBaseResponse<List<KycVerifiedCompanyResponseDTO>> getVerifiedCompaniesDetails() {
+        
+        List<KycVerifiedCompanyResponseDTO> verifiedCompanies = 
+            kycRepo.findVerifiedCompanyDetails();
 
         return ExtendedBaseResponse.of(
-                BaseResponse.ok("Listado de KYC para el usuario"),
-                kycs
+                BaseResponse.ok("Empresas con verificación"+
+                "KYC obtenidas exitosamente."),
+                verifiedCompanies
         );
     }
 
@@ -258,5 +256,10 @@ public class KycVerificationServiceImpl implements IKycVerificationService {
         });
 
         return uploadedUrls;
+    }
+
+    @Override
+    public ExtendedBaseResponse<List<KycVerificationResponseDTO>> getAllKcyByUserId(UUID userId) {
+        throw new UnsupportedOperationException("Unimplemented method 'getAllKcyByUserId'");
     }
 }
