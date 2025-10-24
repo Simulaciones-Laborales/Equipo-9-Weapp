@@ -2,6 +2,9 @@ package com.tuempresa.creditflow.creditflow_api.utils;
 
 import com.tuempresa.creditflow.creditflow_api.exception.kycExc.KycBadRequestException;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class CuilCuitUtils {
     // Factores para el cálculo del dígito verificador (DV)
     private static final int[] FACTORS = {5, 4, 3, 2, 7, 6, 5, 4, 3, 2};
@@ -61,5 +64,37 @@ public class CuilCuitUtils {
         }
 
         throw new KycBadRequestException("No se pudo generar un CUIL válido de 11 dígitos para el DNI proporcionado.");
+    }
+
+    /**
+     * Genera una lista de los CUILs más probables (usando prefijos 20 y 27) a partir de un DNI.
+     * Esto se usa para verificar ambos géneros en el BCRA.
+     * @param dni El DNI de 7 u 8 dígitos.
+     * @return Una lista de CUILs de 11 dígitos.
+     */
+    public static List<String> generatePossibleCuilsFromDni(String dni) {
+        String dniPadded = String.format("%08d", Long.parseLong(dni.replaceAll("[^0-9]", "")));
+
+        // Probaremos 27 primero (por el ejemplo de tu log) y luego 20.
+        // También incluimos 24 y 23 aunque son menos comunes, para ser exhaustivos.
+        String[] prefixes = {"27", "20", "24", "23"};
+        List<String> possibleCuils = new ArrayList<>();
+
+        for (String prefix : prefixes) {
+            String incompleteId = prefix + dniPadded;
+            int dv = calculateDv(incompleteId);
+
+            if (dv < 10) {
+                possibleCuils.add(incompleteId + dv);
+            } else if ((prefix.equals("23") || prefix.equals("27")) && dv == 10) {
+                possibleCuils.add(incompleteId + 9);
+            }
+        }
+
+        if (possibleCuils.isEmpty()) {
+            throw new KycBadRequestException("No se pudo generar ningún CUIL válido de 11 dígitos para el DNI proporcionado.");
+        }
+
+        return possibleCuils;
     }
 }

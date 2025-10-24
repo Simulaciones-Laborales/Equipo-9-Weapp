@@ -5,9 +5,11 @@ import com.tuempresa.creditflow.creditflow_api.dto.kyc.KycFileUploadRequestDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.kyc.KycStatusUpdateDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.kyc.KycVerificationResponseDTO;
 import com.tuempresa.creditflow.creditflow_api.enums.KycEntityType;
+import com.tuempresa.creditflow.creditflow_api.service.IKycVerificationService;
 import com.tuempresa.creditflow.creditflow_api.service.impl.KycVerificationServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -29,7 +31,7 @@ import java.util.UUID;
 @RequestMapping("/api/kyc")
 public class KycVerificationController {
 
-    private final KycVerificationServiceImpl kycService;
+    private final IKycVerificationService kycService;
 
     public KycVerificationController(KycVerificationServiceImpl kycService) {
         this.kycService = kycService;
@@ -46,11 +48,80 @@ public class KycVerificationController {
      * @return Información de la verificación creada
      */
     @Operation(summary = "Inicia verificación KYC con archivos",
-            description = "Permite iniciar la verificación KYC de un usuario o empresa cargando hasta 3 documentos obligatorios.")
+            description = "Permite iniciar la verificación KYC de un usuario o empresa cargando hasta 3 documentos obligatorios, incluyendo la **consulta crediticia en la Central de Deudores del BCRA**.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Verificación creada exitosamente",
+            @ApiResponse(responseCode = "200", description = "Verificación creada exitosamente. Incluye el resumen BCRA.",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = KycVerificationResponseDTO.class))),
+                            schema = @Schema(implementation = KycVerificationResponseDTO.class),
+                            examples = {
+                                    @ExampleObject(
+                                            name = "Respuesta con Deuda Grave",
+                                            summary = "Ejemplo de respuesta de verificación para un USER o COMPANY con riesgo crediticio (Situación 3 o superior).",
+                                            value = """
+                                                {
+                                                  "status": 200,
+                                                  "message": "Verificación KYC iniciada correctamente",
+                                                  "data": {
+                                                    "idKyc": "007668d5-9fa1-4aab-9b86-deb4c6f49940",
+                                                    "status": "PENDING",
+                                                    "kycEntityType": "USER",
+                                                    "entityName": "Juan Pérez",
+                                                    "document1Url": "https://cloudinary.com/doc1...",
+                                                    "bcraSummary": {
+                                                      "isConsulted": true,
+                                                      "hasSeriousDebt": true,
+                                                      "hasUnpaidCheques": false,
+                                                      "worstSituation": "SITUACION 4: Con Alto Riesgo de Insolvencia",
+                                                      "currentDebts": [
+                                                        {
+                                                          "entityName": "BANCO X",
+                                                          "situationCode": 4,
+                                                          "situationDesc": "SITUACION 4: Con Alto Riesgo de Insolvencia",
+                                                          "debtAmount": 1500.50,
+                                                          "daysOverdue": 120,
+                                                          "isJudicialProcess": false
+                                                        }
+                                                      ]
+                                                    }
+                                                  }
+                                                }
+                                                """
+                                    ),
+                                    @ExampleObject(
+                                            name = "Respuesta Normal Sin Deudas",
+                                            summary = "Ejemplo de respuesta de verificación para una entidad sin deudas o con deuda en Situación 1 (Normal).",
+                                            value = """
+                                                {
+                                                  "status": 200,
+                                                  "message": "Verificación KYC iniciada correctamente",
+                                                  "data": {
+                                                    "idKyc": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+                                                    "status": "PENDING",
+                                                    "kycEntityType": "COMPANY",
+                                                    "entityName": "MiEmpresa S.A.",
+                                                    "document1Url": "https://cloudinary.com/doc1...",
+                                                    "bcraSummary": {
+                                                      "isConsulted": true,
+                                                      "hasSeriousDebt": false,
+                                                      "hasUnpaidCheques": false,
+                                                      "worstSituation": "SITUACION 1: Normal (Riesgo Bajo)",
+                                                      "currentDebts": [
+                                                         {
+                                                          "entityName": "BANCO Z",
+                                                          "situationCode": 1,
+                                                          "situationDesc": "SITUACION 1: Normal (Riesgo Bajo)",
+                                                          "debtAmount": 0.0,
+                                                          "daysOverdue": 0,
+                                                          "isJudicialProcess": false
+                                                         }
+                                                      ]
+                                                    }
+                                                  }
+                                                }
+                                                """
+                                    )
+                            }
+                    )),
             @ApiResponse(responseCode = "400", description = "Error en los archivos enviados o datos inválidos", content = @Content),
             @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content)
     })

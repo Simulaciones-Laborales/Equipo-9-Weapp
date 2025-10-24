@@ -2,6 +2,8 @@ package com.tuempresa.creditflow.creditflow_api.service;
 
 import com.tuempresa.creditflow.creditflow_api.enums.KycEntityType;
 
+import java.util.List;
+
 public interface IIdentificationService {
     /**
      * Obtiene el identificador fiscal (CUIT/CUIL) de 11 dígitos.
@@ -11,5 +13,5 @@ public interface IIdentificationService {
      * @return El identificador fiscal de 11 dígitos.
      * @throws KycBadRequestException si la identificación es inválida o no se puede generar.
      */
-    String getFiscalId(String originalId, KycEntityType type);
+    List<String> getFiscalIds(String originalId, KycEntityType type);
 }

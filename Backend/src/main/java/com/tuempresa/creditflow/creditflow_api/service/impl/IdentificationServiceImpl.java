@@ -7,11 +7,13 @@ import com.tuempresa.creditflow.creditflow_api.utils.CuilCuitUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @Slf4j
 public class IdentificationServiceImpl implements IIdentificationService {
     @Override
-    public String getFiscalId(String originalId, KycEntityType type) {
+    public List<String> getFiscalIds(String originalId, KycEntityType type) {
         if (originalId == null || originalId.isEmpty()) {
             throw new KycBadRequestException("La identificación no puede ser nula o vacía.");
         }
@@ -19,24 +21,23 @@ public class IdentificationServiceImpl implements IIdentificationService {
         String cleanedId = originalId.replaceAll("[^0-9]", "");
 
         if (cleanedId.length() == 11) {
-            // Si ya tiene 11 dígitos, asumimos que es CUIT/CUIL válido para BCRA
-            return cleanedId;
+            // Caso 1: Ya es CUIT/CUIL de 11 dígitos (COMPANY o USER conocido). Retornamos la lista con un solo elemento.
+            return List.of(cleanedId);
         }
 
         if (type == KycEntityType.COMPANY) {
-            // Las empresas SIEMPRE deben proveer CUIT de 11 dígitos
-            throw new KycBadRequestException("La entidad de tipo COMPANY debe proporcionar CUIT de 11 dígitos.");
+            // Caso 2: COMPANY debe tener 11 dígitos y fallar si no los tiene.
+            throw new KycBadRequestException("La entidad de tipo COMPANY debe proporcionar CUIT/CDI de 11 dígitos.");
         }
 
         if (type == KycEntityType.USER) {
-            // Usuario: intentamos generar CUIL a partir del DNI.
+            // Caso 3: USER. Generamos todos los CUILs posibles.
             if (cleanedId.length() >= 7 && cleanedId.length() <= 8) {
                 try {
-                    String cuil = CuilCuitUtils.generateCuilFromDni(cleanedId);
-                    log.info("[ID Service] DNI ({}) convertido a CUIL: {}", cleanedId, cuil);
-                    return cuil;
+                    // Llama al utilitario que devuelve la LISTA de CUILs posibles (20..., 27..., etc.)
+                    return CuilCuitUtils.generatePossibleCuilsFromDni(cleanedId);
                 } catch (Exception e) {
-                    throw new KycBadRequestException("No se pudo generar un CUIL válido de 11 dígitos a partir del DNI.");
+                    throw new KycBadRequestException("No se pudo generar ningún CUIL válido de 11 dígitos a partir del DNI.");
                 }
             }
             throw new KycBadRequestException("El DNI debe tener 7 u 8 dígitos para generar el CUIL de consulta BCRA.");

@@ -1,5 +1,6 @@
 package com.tuempresa.creditflow.creditflow_api.dto.kyc;
 
+import com.tuempresa.creditflow.creditflow_api.dto.bcra.BcraSummaryDTO;
 import com.tuempresa.creditflow.creditflow_api.enums.KycEntityType;
 import com.tuempresa.creditflow.creditflow_api.enums.KycStatus;
 import lombok.Data;
@@ -20,4 +21,5 @@ public class KycVerificationResponseDTO {
     private String document1Url;
     private String document2Url;
     private String document3Url;
+    private BcraSummaryDTO bcraSummary;
 }
