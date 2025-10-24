@@ -4,6 +4,8 @@ import com.tuempresa.creditflow.creditflow_api.enums.KycEntityType;
 import com.tuempresa.creditflow.creditflow_api.enums.KycStatus;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -53,6 +55,15 @@ public class KycVerification {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id")
     private Company company;
+
+    @Column(name = "bcra_situacion")
+    private Integer bcraSituacion;
+
+    @Column(name = "bcra_monto_deuda")
+    private BigDecimal bcraMontoDeuda;
+
+    @Column(name = "bcra_cheques_rechazados")
+    private Integer bcraChequesRechazados;
 
     @PrePersist
     public void onCreate() {

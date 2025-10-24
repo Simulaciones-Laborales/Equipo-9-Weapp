@@ -3,6 +3,8 @@ package com.tuempresa.creditflow.creditflow_api.service.impl;
 import com.cloudinary.utils.ObjectUtils;
 import com.tuempresa.creditflow.creditflow_api.dto.BaseResponse;
 import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
+import com.tuempresa.creditflow.creditflow_api.dto.bcra.BcraChequesResults;
+import com.tuempresa.creditflow.creditflow_api.dto.bcra.BcraDeudasResults;
 import com.tuempresa.creditflow.creditflow_api.dto.kyc.*;
 import com.tuempresa.creditflow.creditflow_api.enums.KycEntityType;
 import com.tuempresa.creditflow.creditflow_api.enums.KycStatus;
@@ -16,6 +18,7 @@ import com.tuempresa.creditflow.creditflow_api.repository.*;
 import com.tuempresa.creditflow.creditflow_api.service.IKycVerificationService;
 import com.tuempresa.creditflow.creditflow_api.service.api.ImageService;
 import com.tuempresa.creditflow.creditflow_api.service.api.SumsubService;
+import com.tuempresa.creditflow.creditflow_api.service.api.bcra.BcraClientService;
 import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +43,7 @@ public class KycVerificationServiceImpl implements IKycVerificationService {
     private final SumsubService sumsubService;
     private final ImageService imageService;
     private final KycMapper kycMapper;
+    private final BcraClientService bcraClientService;
 
     // ====================================================
     //  MÉTODOS PÚBLICOS
@@ -50,9 +54,19 @@ public class KycVerificationServiceImpl implements IKycVerificationService {
         validateRequest(dto);
         validateAllDocumentsPresent(dto);
 
+        // 1. Crear y guardar la entidad KYC
         KycVerification kyc = createKycEntity(dto.entityType(), dto.entityId());
-        kycRepo.save(kyc);
 
+        // 2. Obtener la identificación y validar su existencia (asumo que se obtiene de los modelos User/Company)
+        String identificacion = getKycIdentification(kyc); // <-- NUEVO MÉTODO NECESARIO
+        validateBcraIdentification(identificacion); // <-- NUEVO MÉTODO NECESARIO
+
+        // 3. Consultar BCRA antes de guardar el KYC (o después de subir archivos, como prefieras)
+        processBcraVerification(kyc, identificacion); // <-- NUEVO MÉTODO A IMPLEMENTAR
+
+        kycRepo.save(kyc); // Guardamos la entidad KYC con la información del BCRA (si se añade un campo)
+
+        // 4. Carga de Archivos
         Map<String, String> uploadedDocs = uploadKycFiles(kyc.getIdKyc(), dto);
         updateKycWithUploadedDocs(kyc, uploadedDocs);
         kycRepo.save(kyc);
@@ -64,6 +78,67 @@ public class KycVerificationServiceImpl implements IKycVerificationService {
                 BaseResponse.created("Verificación KYC iniciada correctamente"),
                 kycMapper.toResponseDto(kyc)
         );
+    }
+
+    /**
+     * Obtiene la identificación (CUIT/CUIL/CDI) de la entidad KYC.
+     */
+    private String getKycIdentification(KycVerification kyc) {
+        if (kyc.getEntityType() == KycEntityType.USER && kyc.getUser() != null) {
+            // ASUMIMOS que el modelo User tiene un campo 'identificacion' (CUIT/CUIL/CDI)
+            return kyc.getUser().getDni();
+        } else if (kyc.getEntityType() == KycEntityType.COMPANY && kyc.getCompany() != null) {
+            // ASUMIMOS que el modelo Company tiene un campo 'identificacion' (CUIT/CUIL/CDI)
+            return kyc.getCompany().getTaxId();
+        }
+        throw new KycBadRequestException("No se pudo obtener la identificación (CUIT/CUIL/CDI) para la entidad.");
+    }
+
+    /**
+     * Valida que la identificación tenga 11 dígitos, como requiere el BCRA. [cite: 30, 139, 239]
+     */
+    private void validateBcraIdentification(String identificacion) {
+        if (identificacion == null /*|| !identificacion.matches("^\\d{11}$")*/) {
+            throw new KycBadRequestException("La identificación (CUIT/CUIL/CDI) debe ser de 11 dígitos para la consulta BCRA.");
+        }
+    }
+
+    /**
+     * Procesa la consulta a la Central de Deudores y Cheques Rechazados.
+     */
+    private void processBcraVerification(KycVerification kyc, String identificacion) {
+        // 1. Consultar Deudas
+        Optional<BcraDeudasResults> deudas = bcraClientService.consultarDeudas(identificacion);
+
+        deudas.ifPresent(results -> {
+            // Corrección para Deudas: usando getPeriodos() y getEntidades()
+            // El primer .stream() es necesario si getPeriodos() retorna una List
+            boolean tieneDeudasGraves = results.periodos().stream()
+                    .flatMap(p -> p.entidades().stream())
+                    .anyMatch(e -> e.situacion() >= 3); // Usar getSituacion() si es POJO
+
+            if (tieneDeudasGraves) {
+                log.warn("[BCRA] KYC {}/{} tiene deudas en situación de riesgo (>=3).",
+                        kyc.getEntityType(), kyc.getExternalReferenceId());
+            }
+        });
+
+        // 2. Consultar Cheques Rechazados
+        Optional<BcraChequesResults> cheques = bcraClientService.consultarChequesRechazados(identificacion);
+
+        cheques.ifPresent(results -> {
+            // Corrección para Cheques: usando getCausales(), getEntidades(), getDetalle() y getEstadoMulta()
+            // El primer .stream() es necesario si getCausales() retorna una List
+            boolean tieneMultaImpaga = results.causales().stream()
+                    .flatMap(c -> c.entidades().stream())
+                    .flatMap(e -> e.detalle().stream())
+                    .anyMatch(d -> "IMPAGA".equalsIgnoreCase(d.estadoMulta())); // Usar getEstadoMulta() si es POJO
+
+            if (tieneMultaImpaga) {
+                log.warn("[BCRA] KYC {}/{} tiene cheques rechazados con multa IMPAGA.",
+                        kyc.getEntityType(), kyc.getExternalReferenceId());
+            }
+        });
     }
 
     @Transactional(readOnly = true)
@@ -259,4 +334,5 @@ public class KycVerificationServiceImpl implements IKycVerificationService {
 
         return uploadedUrls;
     }
+
 }

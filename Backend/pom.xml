@@ -117,6 +117,12 @@
 			<version>1.37.0</version>
 		</dependency>
 
+		<!-- Bcra -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-openfeign</artifactId>
+			<version>4.1.0</version> </dependency>
+
 		<!-- Lombok Dependency -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
