@@ -15,6 +15,7 @@ import com.tuempresa.creditflow.creditflow_api.exception.userExc.UserNotFoundExc
 import com.tuempresa.creditflow.creditflow_api.mapper.KycMapper;
 import com.tuempresa.creditflow.creditflow_api.model.*;
 import com.tuempresa.creditflow.creditflow_api.repository.*;
+import com.tuempresa.creditflow.creditflow_api.service.IIdentificationService;
 import com.tuempresa.creditflow.creditflow_api.service.IKycVerificationService;
 import com.tuempresa.creditflow.creditflow_api.service.api.ImageService;
 import com.tuempresa.creditflow.creditflow_api.service.api.SumsubService;
@@ -44,6 +45,7 @@ public class KycVerificationServiceImpl implements IKycVerificationService {
     private final ImageService imageService;
     private final KycMapper kycMapper;
     private final BcraClientService bcraClientService;
+    private final IIdentificationService identificationService;
 
     // ====================================================
     //  MÉTODOS PÚBLICOS
@@ -81,25 +83,34 @@ public class KycVerificationServiceImpl implements IKycVerificationService {
     }
 
     /**
-     * Obtiene la identificación (CUIT/CUIL/CDI) de la entidad KYC.
+     * Obtiene el DNI/TaxId original y lo convierte a CUIT/CUIL de 11 dígitos para consulta BCRA.
+     * La lógica de conversión está en IIdentificationService.
+     * @return Identificador fiscal de 11 dígitos (CUIT/CUIL).
      */
     private String getKycIdentification(KycVerification kyc) {
+        String originalId;
+
         if (kyc.getEntityType() == KycEntityType.USER && kyc.getUser() != null) {
-            // ASUMIMOS que el modelo User tiene un campo 'identificacion' (CUIT/CUIL/CDI)
-            return kyc.getUser().getDni();
+            // ASUMIMOS que el modelo User tiene el DNI (ej: 8 dígitos)
+            originalId = kyc.getUser().getDni();
         } else if (kyc.getEntityType() == KycEntityType.COMPANY && kyc.getCompany() != null) {
-            // ASUMIMOS que el modelo Company tiene un campo 'identificacion' (CUIT/CUIL/CDI)
-            return kyc.getCompany().getTaxId();
+            // ASUMIMOS que el modelo Company tiene el CUIT (debe ser 11 dígitos)
+            originalId = kyc.getCompany().getTaxId();
+        } else {
+            throw new KycBadRequestException("No se pudo obtener la identificación base para la entidad.");
         }
-        throw new KycBadRequestException("No se pudo obtener la identificación (CUIT/CUIL/CDI) para la entidad.");
+
+        // El servicio garantiza que SIEMPRE devuelve 11 dígitos.
+        return identificationService.getFiscalId(originalId, kyc.getEntityType());
     }
 
     /**
-     * Valida que la identificación tenga 11 dígitos, como requiere el BCRA. [cite: 30, 139, 239]
+     * Valida que la identificación final generada tenga 11 dígitos, como requiere el BCRA.
      */
     private void validateBcraIdentification(String identificacion) {
-        if (identificacion == null /*|| !identificacion.matches("^\\d{11}$")*/) {
-            throw new KycBadRequestException("La identificación (CUIT/CUIL/CDI) debe ser de 11 dígitos para la consulta BCRA.");
+        // Validación final de que el resultado de IIdentificationService es 11 dígitos numéricos
+        if (identificacion == null || !identificacion.matches("^\\d{11}$")) {
+            throw new KycBadRequestException("Error: La identificación fiscal procesada no cumple el formato de 11 dígitos (CUIT/CUIL).");
         }
     }
 

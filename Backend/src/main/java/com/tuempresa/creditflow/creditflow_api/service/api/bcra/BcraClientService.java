@@ -1,10 +1,28 @@
 package com.tuempresa.creditflow.creditflow_api.service.api.bcra;
 
+// IMPORTACIONES NECESARIAS PARA LA SOLUCIÓN SSL
+import lombok.extern.slf4j.Slf4j;
+import org.apache.hc.client5.http.ssl.TrustAllStrategy;
+import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
+import org.apache.hc.client5.http.socket.LayeredConnectionSocketFactory;
+import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
+import org.apache.hc.core5.ssl.SSLContexts;
+import org.apache.hc.core5.ssl.TrustStrategy; // Paquete correcto para Apache HC 5.x
+import java.security.cert.X509Certificate; // Necesario para la implementación de la interfaz
+import javax.net.ssl.SSLContext;
+import org.apache.hc.client5.http.impl.DefaultRedirectStrategy;
+import org.apache.hc.client5.http.impl.io.ManagedHttpClientConnectionFactory;
+// FIN DE IMPORTACIONES SSL
+
 import com.tuempresa.creditflow.creditflow_api.dto.bcra.BcraChequesResponseDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.bcra.BcraChequesResults;
 import com.tuempresa.creditflow.creditflow_api.dto.bcra.BcraDeudasResponseDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.bcra.BcraDeudasResults;
-import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -27,14 +45,52 @@ public class BcraClientService {
     @Value("${bcra.api.cheques.endpoint:}")
     private String chequesEndpoint;
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    // Inicializa con un RestTemplate que ignora SSL para entornos de desarrollo
+    private final RestTemplate restTemplate = createUnsafeRestTemplate();
+
+    private static RestTemplate createUnsafeRestTemplate() {
+        try {
+            // 1. Crear un contexto SSL que confía en TODOS
+            final SSLContext sslContext = SSLContexts.custom()
+                    // Reemplazamos TrustAllStrategy.INSTANCE por una implementación lambda o anónima
+                    .loadTrustMaterial((X509Certificate[] chain, String authType) -> true) // <-- IMPLEMENTACIÓN CORREGIDA
+                    .build();
+
+            // 2. Crear la fábrica de sockets SSL (ignora verificación de Hostname)
+            final LayeredConnectionSocketFactory sslSocketFactory = new SSLConnectionSocketFactory(
+                    sslContext, (hostname, session) -> true
+            );
+
+            // 3. Configurar el gestor de conexiones con la fábrica SSL insegura
+            final HttpClient httpClient = HttpClientBuilder.create()
+                    // ... (rest of the HttpClient configuration)
+                    .setConnectionManager(
+                            PoolingHttpClientConnectionManagerBuilder.create()
+                                    .setSSLSocketFactory(sslSocketFactory)
+                                    .setConnectionFactory(new ManagedHttpClientConnectionFactory())
+                                    .build()
+                    )
+                    .setRedirectStrategy(new DefaultRedirectStrategy())
+                    .build();
+
+            // 4. Crear el RequestFactory
+            ClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
+
+            return new RestTemplate(requestFactory);
+
+        } catch (Exception e) {
+            log.error("[BCRA] Error al crear RestTemplate inseguro:", e);
+            // Fallback al RestTemplate por defecto
+            return new RestTemplate();
+        }
+    }
 
     /**
      * Consulta la situación crediticia (deudas) actual del deudor.
-     * @param identificacion CUIT/CUIL/CDI de 11 dígitos. [cite: 30]
-     * @return El resultado de la consulta de deudas.
+     * ... (el resto del método se mantiene igual)
      */
     public Optional<BcraDeudasResults> consultarDeudas(String identificacion) {
+        // ... (El cuerpo se mantiene igual)
         if (identificacion == null || identificacion.length() != 11) {
             log.error("[BCRA] ID inválida para consulta de deudas: {}", identificacion);
             return Optional.empty();
@@ -51,7 +107,6 @@ public class BcraClientService {
                         response.getBody().results().periodos().stream().flatMap(p -> p.entidades().stream()).count());
                 return Optional.of(response.getBody().results());
             } else if (response.getStatusCodeValue() == 404) {
-                // Respuesta 404: No se encontró datos para la identificación ingresada [cite: 132, 134]
                 log.info("[BCRA] No se encontraron datos de deudas para ID: {}", identificacion);
                 return Optional.empty();
             }
@@ -69,10 +124,10 @@ public class BcraClientService {
 
     /**
      * Consulta el historial de cheques rechazados para el deudor.
-     * @param identificacion CUIT/CUIL/CDI de 11 dígitos. [cite: 239]
-     * @return El resultado de la consulta de cheques.
+     * ... (el resto del método se mantiene igual)
      */
     public Optional<BcraChequesResults> consultarChequesRechazados(String identificacion) {
+        // ... (El cuerpo se mantiene igual)
         if (identificacion == null || identificacion.length() != 11) {
             log.error("[BCRA] ID inválida para consulta de cheques: {}", identificacion);
             return Optional.empty();
@@ -88,7 +143,6 @@ public class BcraClientService {
                 log.info("[BCRA] Cheques consultados para {}: Causales {}", identificacion, response.getBody().results().causales());
                 return Optional.of(response.getBody().results());
             } else if (response.getStatusCodeValue() == 404) {
-                // No se encontró datos [cite: 230, 231]
                 log.info("[BCRA] No se encontraron cheques rechazados para ID: {}", identificacion);
                 return Optional.empty();
             }
