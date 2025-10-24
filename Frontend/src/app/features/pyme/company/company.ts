@@ -5,14 +5,14 @@ import { ProgressSpinner } from 'primeng/progressspinner';
 import { Subtitle } from '@components/subtitle/subtitle';
 import { NewCompanyForm } from './components/new-company-form/new-company-form';
 import { CompanyRequest } from './models/company-model';
-import { CompanyInfo } from './components/company-info/company-info';
-import { Card } from 'primeng/card';
 import { LayoutStore } from '../layout/layout-store';
 import { Button } from 'primeng/button';
+import { TableModule } from 'primeng/table';
+import { Table } from './components/table/table';
 
 @Component({
   selector: 'app-company',
-  imports: [Title, ProgressSpinner, Subtitle, NewCompanyForm, CompanyInfo, Card, Button],
+  imports: [Title, ProgressSpinner, Subtitle, NewCompanyForm, Button, TableModule, Table],
   templateUrl: './company.html',
   styleUrl: './company.css',
   providers: [CompanyStore],

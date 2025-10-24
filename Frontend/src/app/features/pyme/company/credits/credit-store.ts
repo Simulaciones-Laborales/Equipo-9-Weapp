@@ -1,8 +1,8 @@
 import { Status } from '@core/types';
-import { CreditApplicationResponse } from '../../../core/models/credit-application-model';
+import { CreditApplicationResponse } from '@core/models/credit-application-model';
 import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
 import { computed, inject } from '@angular/core';
-import { CreditApplicationApi } from '../../../core/services/credit-application-api';
+import { CreditApplicationApi } from '@core/services/credit-application-api';
 
 type State = {
   credits: CreditApplicationResponse[];

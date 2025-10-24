@@ -1,7 +1,5 @@
-<article class="flex flex-col gap-y-7">
-  <header>
-    <app-title headline="Administración de Mis Empresas" />
-  </header>
+<section class="flex flex-col gap-y-7">
+  <app-title headline="Administración de Mis Empresas" />
   @if (store.loadingMessage() !== null) {
   <div class="flex flex-col items-center justify-center gap-y-1 my-12" role="progressbar">
     <p-progressSpinner />
@@ -33,14 +31,13 @@
         </p>
       </div>
     </header>
-    <p-card
-      ><article class="flex flex-col gap-y-7 w-full max-w-lg mx-auto">
-        <app-subtitle headline="Formulario de Registro" />
-        <app-new-company-form
-          [loading]="store.createCompanyStatus() === 'loading'"
-          (onSubmit)="createNewCompany($event)"
-        /></article
-    ></p-card>
+    <article class="flex flex-col gap-y-7 w-full max-w-lg mx-auto mt-3">
+      <app-subtitle headline="Formulario de Registro" />
+      <app-new-company-form
+        [loading]="store.createCompanyStatus() === 'loading'"
+        (onSubmit)="createNewCompany($event)"
+      />
+    </article>
   </section>
   } @else if (store.showCompanies()) {
   <section class="flex flex-col gap-y-5">
@@ -59,13 +56,10 @@
         (onClick)="store.setShowNewCompanyForm(true)"
       />
     </div>
-    <ul class="flex flex-col gap-y-3.5">
-      @for (company of store.companies(); track $index) {
-      <li>
-        <p-card> <app-company-info [company]="company" class="w-full" /></p-card>
-      </li>
-      }
-    </ul>
+    <app-table [companies]="store.companies()" />
   </section>
   } }
-</article>
+</section>
+@if (store.showCompanyCredits()) {
+<section class="">{{ store.selectedCompany() }}</section>
+}
