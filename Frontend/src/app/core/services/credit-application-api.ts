@@ -21,4 +21,16 @@ export class CreditApplicationApi {
 
     return await lastValueFrom(call);
   }
+
+  /**
+   * Permite obtener todas las solicitudes de crédito asociadas a una empresa específica. Solo el propietario de la empresa o un usuario con rol ADMIN/OPERADOR puede acceder a esta información.
+   *
+   * @param companyId ID (UUID) de la empresa cuyas solicitudes se desean consultar.
+   * @returns Devuelve el listado de todas las solicitudes de crédito asociadas a la empresa.
+   */
+  async getAllByCompanyId(companyId: string) {
+    const call = this._http.get<CreditApplicationResponse[]>(`${this._url}/company/${companyId}`);
+
+    return await lastValueFrom(call);
+  }
 }

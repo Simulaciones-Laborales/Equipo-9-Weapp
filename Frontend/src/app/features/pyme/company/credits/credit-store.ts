@@ -3,15 +3,18 @@ import { CreditApplicationResponse } from '@core/models/credit-application-model
 import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
 import { computed, inject } from '@angular/core';
 import { CreditApplicationApi } from '@core/services/credit-application-api';
+import { HttpErrorResponse } from '@angular/common/http';
 
 type State = {
   credits: CreditApplicationResponse[];
   status: Status;
+  errorStatus: number | null;
 };
 
 const initialState: State = {
   credits: [],
   status: 'pending',
+  errorStatus: null,
 };
 
 export const CreditStore = signalStore(
@@ -26,14 +29,15 @@ export const CreditStore = signalStore(
     }),
   })),
   withMethods((store, service = inject(CreditApplicationApi)) => ({
-    fetchAllMyCredits: async () => {
+    fetchAll: async (companyId: string) => {
       patchState(store, { status: 'loading' });
 
       try {
-        const credits = await service.getAllMyCreditApplications();
+        const credits = await service.getAllByCompanyId(companyId);
         patchState(store, { credits, status: 'success' });
       } catch (e) {
-        patchState(store, { status: 'failure' });
+        const errorStatus = e instanceof HttpErrorResponse ? e.status : null;
+        patchState(store, { status: 'failure', errorStatus });
       }
     },
   }))
