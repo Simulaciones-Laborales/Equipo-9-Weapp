@@ -1,0 +1,39 @@
+<div class="w-full flex items-center justify-between gap-x-2.5">
+  <p class="text-surface-500 text-xs sm:text-sm">
+    Mostrando {{ credits()?.content?.length ?? 0 }} resultados.
+  </p>
+  <p-button
+    icon="pi pi-filter"
+    severity="secondary"
+    label="Filtrar"
+    size="small"
+    (onClick)="menu().toggle($event)"
+  />
+</div>
+<p-table [value]="credits()?.content ?? []" [tableStyle]="{ 'min-width': '100rem' }">
+  <ng-template #header>
+    <tr>
+      <th scope="col">Empresa</th>
+      <th scope="col">Cantidad</th>
+      <th scope="col">Estado</th>
+      <th scope="col">Duración</th>
+      <th scope="col">Razón</th>
+      <th scope="col">Puntaje</th>
+      <th scope="col">Fecha</th>
+      <th scope="col">Actualizado</th>
+    </tr>
+  </ng-template>
+  <ng-template #body let-credit>
+    <tr>
+      <td>{{ credit.companyName }}</td>
+      <td>{{ credit.amount }}</td>
+      <td>{{ credit.status }}</td>
+      <td>{{ credit.termMonths }}</td>
+      <td>{{ credit.creditPurpose }}</td>
+      <td>{{ credit.riskScore }}</td>
+      <td>{{ credit.createdAt }}</td>
+      <td>{{ credit.updatedAt }}</td>
+    </tr>
+  </ng-template>
+</p-table>
+<p-paginator [rows]="credits()?.size" [totalRecords]="credits()?.content?.length" />

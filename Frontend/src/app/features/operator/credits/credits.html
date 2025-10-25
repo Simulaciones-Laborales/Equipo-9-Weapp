@@ -2,47 +2,8 @@
   headline="Solicitudes de Créditos"
   description="Gestiona las solicitudes de créditos realizadas por cuentas PYME verificadas."
 />
-<section class="mt-8">
-  <p-tabs value="0">
-    <p-tablist>
-      <p-tab value="0">Todas</p-tab>
-      <p-tab value="1">Pendientes</p-tab>
-      <p-tab value="2">En Revisión</p-tab>
-      <p-tab value="3">Aprobadas</p-tab>
-      <p-tab value="4">Rechazadas</p-tab>
-      <p-tab value="5">Canceladas</p-tab>
-    </p-tablist>
-    <p-tabpanels class="sr-only">
-      <p-tabpanel value="0"> 1</p-tabpanel>
-      <p-tabpanel value="1"> 2</p-tabpanel>
-      <p-tabpanel value="2"> 3</p-tabpanel>
-      <p-tabpanel value="3"> 4</p-tabpanel>
-      <p-tabpanel value="4"> 5</p-tabpanel>
-      <p-tabpanel value="5"> 6</p-tabpanel>
-    </p-tabpanels>
-  </p-tabs>
-  <p-table>
-    <ng-template #header>
-      <tr>
-        <th scope="col">Empresa</th>
-        <th scope="col">Cantidad</th>
-        <th scope="col">Estado</th>
-        <th scope="col">Duración</th>
-        <th scope="col">Razón</th>
-        <th scope="col">Puntaje</th>
-        <th scope="col">Fecha</th>
-        <th scope="col">Actualizado</th>
-      </tr>
-    </ng-template>
-    <ng-template #body>
-      <tr>
-        <td>{{ 280 | currency }}</td>
-        <td>Pendiente</td>
-        <td>{{ today | date }}</td>
-        <td>
-          <p-button label="Aceptar" severity="success" />
-        </td>
-      </tr>
-    </ng-template>
-  </p-table>
+<p-menu #menu [popup]="true" [model]="filterItems" />
+<section class="mt-8 w-full flex flex-col gap-y-2">
+  <app-subtitle headline="Listado de registros realizados" />
+  <app-credits-table [credits]="store.credits()" [menu]="menu" />
 </section>

@@ -5,3 +5,17 @@ export type KycVerificationFiles = {
   document2: File | null;
   document3: File | null;
 };
+
+export type Pageable = {
+  page: number;
+  size: number;
+  sort: string[];
+};
+
+export type PageableResponse<T> = {
+  totalPages: number;
+  totalElements: number;
+  size: number;
+  pageable: { pageNumber: number };
+  content: T[];
+};

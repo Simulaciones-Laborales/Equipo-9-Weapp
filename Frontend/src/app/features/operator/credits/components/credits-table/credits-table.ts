@@ -1,0 +1,18 @@
+import { Component, input, signal } from '@angular/core';
+import { Paginator } from 'primeng/paginator';
+import { TableModule } from 'primeng/table';
+import { Button } from 'primeng/button';
+import { Menu } from 'primeng/menu';
+import { CreditApplicationResponse } from '@core/models/credit-application-model';
+import { PageableResponse } from '@core/types';
+
+@Component({
+  selector: 'app-credits-table',
+  imports: [TableModule, Paginator, Button],
+  templateUrl: './credits-table.html',
+  styleUrl: './credits-table.css',
+})
+export class CreditsTable {
+  readonly credits = input.required<PageableResponse<CreditApplicationResponse> | null>();
+  readonly menu = input.required<Menu>();
+}
