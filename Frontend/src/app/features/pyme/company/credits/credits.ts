@@ -31,9 +31,17 @@ export default class Credits {
 
   constructor() {
     effect(() => {
-      switch (this.store.errorStatus()) {
+      switch (this.store.errorStatusCode()) {
         case 403:
           this.store.setShow('kyc');
+          break;
+      }
+    });
+
+    effect(async () => {
+      switch (this.store.kycVerificationStatus()) {
+        case 'success':
+          await this.store.fetchAll(this.store.companyId());
           break;
       }
     });

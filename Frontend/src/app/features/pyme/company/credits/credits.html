@@ -1,10 +1,13 @@
 <div class="mb-8">
   <p-breadcrumb [model]="breadcrumItems" />
 </div>
-@if (store.status() === 'loading') {
+@if (store.fetchCreditsStatus() === 'loading') {
 <app-loading-spinner [message]="store.loadingMessage()!" />
 } @else { @switch (store.show()) { @case ('list') {
 <app-credits-section [credits]="store.credits()" />
 } @case ('kyc') {
-<app-kyc-section />
+<app-kyc-section
+  [loading]="store.kycVerificationStatus() === 'loading'"
+  (onSubmit)="store.startKycVerification($event)"
+/>
 } } }
