@@ -5,16 +5,20 @@ import { computed, inject } from '@angular/core';
 import { CreditApplicationApi } from '@core/services/credit-application-api';
 import { HttpErrorResponse } from '@angular/common/http';
 
+type Show = 'kyc' | 'list';
+
 type State = {
   credits: CreditApplicationResponse[];
   status: Status;
   errorStatus: number | null;
+  show: Show;
 };
 
 const initialState: State = {
   credits: [],
   status: 'pending',
   errorStatus: null,
+  show: 'list',
 };
 
 export const CreditStore = signalStore(
@@ -39,6 +43,9 @@ export const CreditStore = signalStore(
         const errorStatus = e instanceof HttpErrorResponse ? e.status : null;
         patchState(store, { status: 'failure', errorStatus });
       }
+    },
+    setShow: (show: Show) => {
+      patchState(store, { show });
     },
   }))
 );

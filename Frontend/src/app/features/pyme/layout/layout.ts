@@ -2,11 +2,11 @@ import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Navbar } from './components/navbar/navbar';
 import { LayoutStore } from './layout-store';
-import { ProgressSpinner } from 'primeng/progressspinner';
+import { LoadingSpinner } from '@components/loading-spinner/loading-spinner';
 
 @Component({
   selector: 'app-layout',
-  imports: [RouterOutlet, Navbar, ProgressSpinner],
+  imports: [RouterOutlet, Navbar, LoadingSpinner],
   templateUrl: './layout.html',
   styleUrl: './layout.css',
   providers: [LayoutStore],

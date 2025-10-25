@@ -1,38 +1,10 @@
-<section class="flex flex-col gap-y-7">
-  <header class="flex flex-col gap-y-2.5">
-    <app-title headline="Mis Solicitudes de Crédito" />
-    <p class="text-surface-500 text-sm sm:text-base text-pretty">
-      Aquí podrás ver el historial de tus solicitudes de créditos y los detalles de cada una.
-    </p>
-  </header>
-  @if (store.status() === 'loading') {
-  <div class="flex flex-col gap-y-1 my-12">
-    <p-progress-spinner />
-    <p class="text-center text-surface-500 font-medium">{{ store.loadingMessage() }}</p>
-  </div>
-  } @else { @if (store.credits().length === 0) {
-  <div class="flex flex-col items-center justify-center gap-y-5">
-    <p class="text-center text-xl text-surface-600 font-medium">¡Solicita tu primer crédito!</p>
-    <p-button severity="primary" label="Solicitar crédito" />
-  </div>
-  } @else {
-  <p-table [value]="store.credits()">
-    <ng-template #header>
-      <tr>
-        <th scope="col">Cantidad</th>
-        <th scope="col">Estado</th>
-        <th scope="col">Comentarios del Operador</th>
-        <th scope="col">Fecha de creación</th>
-      </tr>
-    </ng-template>
-    <ng-template #body let-credit>
-      <tr>
-        <td>{{ credit.amount | currency }}</td>
-        <td>{{ credit.status }}</td>
-        <td>{{ credit.operatorComments }}</td>
-        <td>{{ credit.createdAt | date : 'dd/MM/yyyy' }}</td>
-      </tr>
-    </ng-template>
-  </p-table>
-  } }
-</section>
+<div class="mb-8">
+  <p-breadcrumb [model]="breadcrumItems" />
+</div>
+@if (store.status() === 'loading') {
+<app-loading-spinner [message]="store.loadingMessage()!" />
+} @else { @switch (store.show()) { @case ('list') {
+<app-credits-section [credits]="store.credits()" />
+} @case ('kyc') {
+<app-kyc-section />
+} } }

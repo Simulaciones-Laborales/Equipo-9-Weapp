@@ -25,7 +25,9 @@ export class CompaniesTable {
       label: 'Gestionar créditos',
       command: (_) => {
         const { idCompany } = this._store.selectedCompany()!;
-        this._router.navigate([`${idCompany}`, 'credit-applications'], { relativeTo: this._route });
+        this._router.navigate([`${idCompany}`, 'solicitudes-de-credito'], {
+          relativeTo: this._route,
+        });
       },
     },
   ];

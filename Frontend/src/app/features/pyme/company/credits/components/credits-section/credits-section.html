@@ -1,0 +1,16 @@
+<section class="flex flex-col gap-y-7">
+  <header class="flex flex-col gap-y-2.5">
+    <app-title headline="Mis Solicitudes de Crédito" />
+    <p class="text-surface-500 text-sm sm:text-base text-pretty">
+      Aquí podrás ver el historial de tus solicitudes de créditos y los detalles de cada una.
+    </p>
+  </header>
+  @if (credits().length === 0) {
+  <div class="flex flex-col items-center justify-center gap-y-5">
+    <p class="text-center text-xl text-surface-600 font-medium">¡Solicita tu primer crédito!</p>
+    <p-button severity="primary" label="Solicitar crédito" />
+  </div>
+  } @else {
+  <app-credits-table [credits]="credits()" />
+  }
+</section>

@@ -3,20 +3,20 @@ import { CompanyStore } from './company-store';
 import { Title } from '@components/title/title';
 import { LayoutStore } from '../layout/layout-store';
 import { TableModule } from 'primeng/table';
-import { Loading } from './components/loading/loading';
 import { KycWarningMessage } from './components/kyc-warning-message/kyc-warning-message';
 import { NewCompanySection } from './components/new-company-section/new-company-section';
 import { CompaniesListSection } from './components/companies-list-section/companies-list-section';
+import { LoadingSpinner } from '@components/loading-spinner/loading-spinner';
 
 @Component({
   selector: 'app-company',
   imports: [
     Title,
-    Loading,
     TableModule,
     KycWarningMessage,
     NewCompanySection,
     CompaniesListSection,
+    LoadingSpinner,
   ],
   templateUrl: './company.html',
   styleUrl: './company.css',
