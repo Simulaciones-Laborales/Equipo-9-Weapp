@@ -1,71 +1,12 @@
-<article class="flex flex-col gap-y-7">
-  <header>
-    <app-title headline="Administración de Mis Empresas" />
-  </header>
+<section class="flex flex-col gap-y-7">
+  <app-title headline="Administración de Mis Empresas" />
   @if (store.loadingMessage() !== null) {
-  <div class="flex flex-col items-center justify-center gap-y-1 my-12" role="progressbar">
-    <p-progressSpinner />
-    <p class="text-surface-600 font-medium">{{ store.loadingMessage() }}</p>
-  </div>
+  <app-loading-spinner [message]="store.loadingMessage()!" />
   } @else { @if (store.showKycMessage()) {
-  <p
-    class="text-center text-surface-700 text-xl font-medium mt-12 py-24 border border-surface-200 rounded-3xl"
-  >
-    {{ layoutStore.userKycStatus().message }}
-  </p>
+  <app-kyc-warning-message />
   } @else if (store.showNewCompanyForm()) {
-  <section class="flex flex-col gap-y-5">
-    <header class="flex max-sm:flex-col items-start gap-y-2.5 gap-x-5">
-      @if (store.companies().length >= 1) {
-      <p-button
-        severity="secondary"
-        label="Volver"
-        icon="pi pi-angle-left"
-        (onClick)="store.setShowNewCompanyForm(false)"
-        [disabled]="store.createCompanyStatus() === 'loading'"
-      />
-      }
-      <div class="flex flex-col gap-y-2.5 border-l border-surface-200 pl-5">
-        <app-subtitle headline="Registro de Nueva Empresa" />
-        <p class="text-sm sm:text-base text-surface-600 text-pretty">
-          Por favor, completa los datos de tu empresa en el siguiente formulario para proceder con
-          su registro.
-        </p>
-      </div>
-    </header>
-    <p-card
-      ><article class="flex flex-col gap-y-7 w-full max-w-lg mx-auto">
-        <app-subtitle headline="Formulario de Registro" />
-        <app-new-company-form
-          [loading]="store.createCompanyStatus() === 'loading'"
-          (onSubmit)="createNewCompany($event)"
-        /></article
-    ></p-card>
-  </section>
+  <app-new-company-section />
   } @else if (store.showCompanies()) {
-  <section class="flex flex-col gap-y-5">
-    <header class="flex flex-col gap-y-2.5">
-      <app-subtitle headline="Listado de Empresas" />
-      <p class="text-sm sm:text-base text-surface-600 text-pretty">
-        A continuación listamos todas tus empresas registradas.
-      </p>
-    </header>
-    <div class="flex items-center justify-between -mb-2.5">
-      <p class="text-sm text-surface-600">Mostrando {{ store.companies().length }} resultados.</p>
-      <p-button
-        size="small"
-        label="Nueva Empresa"
-        icon="pi pi-plus"
-        (onClick)="store.setShowNewCompanyForm(true)"
-      />
-    </div>
-    <ul class="flex flex-col gap-y-3.5">
-      @for (company of store.companies(); track $index) {
-      <li>
-        <p-card> <app-company-info [company]="company" class="w-full" /></p-card>
-      </li>
-      }
-    </ul>
-  </section>
+  <app-companies-list-section />
   } }
-</article>
+</section>

@@ -6,6 +6,7 @@ import {
 } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { key } from '@core/utils/http-utils';
+import { environment } from 'environments/environment.development';
 import { MessageService } from 'primeng/api';
 import { catchError, tap, throwError } from 'rxjs';
 
@@ -27,18 +28,26 @@ export const httpInterceptor: HttpInterceptorFn = (req, next) => {
         }
       }
     }),
-    catchError((error: HttpErrorResponse) => {
-      console.error('BORRAR EN PRODUCCIÓN', error.error);
-      const { message } = error.error;
+    catchError((e: HttpErrorResponse) => {
+      const { production } = environment;
 
-      messageService.add({
-        key,
-        severity: 'error',
-        summary: 'Algo salió mal...',
-        detail: message,
-      });
+      if (!production) {
+        console.error('INTERCEPTED HTTP ERROR', e.error);
+      }
 
-      return throwError(() => error);
+      const { status, error } = e;
+      const { message } = error;
+
+      if (status !== 403) {
+        messageService.add({
+          key,
+          severity: 'error',
+          summary: 'Algo salió mal...',
+          detail: message,
+        });
+      }
+
+      return throwError(() => e);
     })
   );
 };
