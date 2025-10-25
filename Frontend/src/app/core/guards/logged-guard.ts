@@ -19,8 +19,7 @@ export const loggedGuard: CanActivateFn = () => {
       detail: 'Por favor, inicia sesión para poder acceder al sistema',
     });
 
-    router.createUrlTree(['pyme', 'auth', 'login']);
-    return false;
+    return router.createUrlTree(['pyme', 'auth', 'login']);
   }
 
   const user = tokenStorage.user();
