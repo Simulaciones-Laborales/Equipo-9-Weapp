@@ -16,12 +16,8 @@ export default [
         loadComponent: () => import('../dashboard/dashboard'),
       },
       {
-        path: 'creditos',
-        loadComponent: () => import('../credits/credits'),
-      },
-      {
-        path: 'empresa',
-        loadComponent: () => import('../company/company'),
+        path: 'empresas',
+        loadChildren: () => import('../company/company.routes'),
       },
       {
         path: 'perfil',

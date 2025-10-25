@@ -11,6 +11,7 @@ type State = {
   showNewCompanyForm: boolean;
   createCompanyStatus: Status;
   showCompanies: boolean;
+  selectedCompany: CompanyResponse | null;
 };
 
 const initialState: State = {
@@ -20,9 +21,11 @@ const initialState: State = {
   showNewCompanyForm: false,
   createCompanyStatus: 'pending',
   showCompanies: false,
+  selectedCompany: null,
 };
 
 export const CompanyStore = signalStore(
+  { providedIn: 'root' },
   withState(initialState),
   withComputed((store) => ({
     loadingMessage: computed(() => {
@@ -67,6 +70,9 @@ export const CompanyStore = signalStore(
     },
     setShowCompanies: (show: boolean) => {
       patchState(store, { showCompanies: show });
+    },
+    setSelectedCompany: (company: CompanyResponse) => {
+      patchState(store, { selectedCompany: company });
     },
   }))
 );

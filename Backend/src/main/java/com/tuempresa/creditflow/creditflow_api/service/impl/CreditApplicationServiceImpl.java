@@ -1,8 +1,11 @@
 package com.tuempresa.creditflow.creditflow_api.service.impl;
 
+import com.tuempresa.creditflow.creditflow_api.dto.BaseResponse;
+import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
 import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.*;
 import com.tuempresa.creditflow.creditflow_api.enums.*;
 import com.tuempresa.creditflow.creditflow_api.exception.*;
+import com.tuempresa.creditflow.creditflow_api.exception.cloudinaryExc.RiskDocumentNotFoundException;
 import com.tuempresa.creditflow.creditflow_api.exception.kycExc.CompanyNotVerifiedException;
 import com.tuempresa.creditflow.creditflow_api.mapper.CreditApplicationMapper;
 import com.tuempresa.creditflow.creditflow_api.model.*;
@@ -11,9 +14,13 @@ import com.tuempresa.creditflow.creditflow_api.service.CreditApplicationService;
 import com.tuempresa.creditflow.creditflow_api.service.MLModelService;
 import com.tuempresa.creditflow.creditflow_api.service.OCRService;
 import com.tuempresa.creditflow.creditflow_api.service.api.ImageService;
+import com.tuempresa.creditflow.creditflow_api.utils.AuthenticationUtils;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,10 +44,63 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
     private final EntityManager entityManager;
     private final MLModelService mlModelService;
     private final OCRService ocrService;
+    private final AuthenticationUtils authenticationUtils;
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<CreditApplicationResponseDTO> getAllCreditApplications(CreditStatus status, Pageable pageable) {
+        Page<CreditApplication> applications;
+
+        if (status != null) {
+            applications = creditApplicationRepository.findAllByStatus(status, pageable);
+        } else {
+            applications = creditApplicationRepository.findAll(pageable);
+        }
+
+        return applications.map(CreditApplicationMapper::toDTO);
+    }
+
+    @Override
+    @Transactional
+    public ExtendedBaseResponse<Void> purgeAllImageCloudinary() {
+        UUID loggedInUserId = authenticationUtils.getLoggedInUserId();
+        if (loggedInUserId == null) {
+            return ExtendedBaseResponse.of(BaseResponse.error(HttpStatus.UNAUTHORIZED, "Usuario no autenticado."), null);
+        }
+
+        try {
+            imageService.deleteFolder("");
+            riskDocumentRepository.deleteAll();
+            return ExtendedBaseResponse.of(
+                    BaseResponse.ok("Todos los contenidos eliminados exitosamente"),
+                    null
+            );
+        } catch (Exception e) {
+            log.error("💥 Error eliminando contenidos: {}", e.getMessage(), e);
+            return ExtendedBaseResponse.of(
+                    BaseResponse.error(HttpStatus.INTERNAL_SERVER_ERROR, "Error al eliminar los contenidos"),
+                    null
+            );
+        }
+    }
 
 
-    // -------------------------------------------------
-    // Crear solicitud con archivos
+    @Transactional
+    @Override
+    public ExtendedBaseResponse<Void> deleteRiskDocument(UUID id) {
+        RiskDocument riskDocument = riskDocumentRepository.findById(id)
+                .orElseThrow(() -> new RiskDocumentNotFoundException("Contenido no encontrado"));
+        UUID loggedInUserId = authenticationUtils.getLoggedInUserId();
+
+        if (loggedInUserId == null) {
+            return ExtendedBaseResponse.of(BaseResponse.error(HttpStatus.UNAUTHORIZED, "Usuario no autenticado."), null);
+        }
+        String filePath = riskDocument.getDocumentUrl();
+        imageService.deleteImage(filePath);
+        riskDocumentRepository.delete(riskDocument);
+        return ExtendedBaseResponse.of(BaseResponse.ok("Contenido eliminado exitosamente"), null);
+    }
+
     @Override
     @Transactional
     public CreditApplicationResponseDTO createApplicationWithFiles(
@@ -50,27 +110,20 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
 
         log.info("🚀 Iniciando creación de solicitud de crédito para empresa ID: {}", dto.getCompanyId());
 
-        // Validar empresa y KYC
         Company company = validateCompanyAndKyc(dto.getCompanyId(), owner);
         log.info("✅ Empresa validada: {} ({})", company.getCompany_name(), company.getId());
         validateAmount(dto.getAmount());
 
-        // Crear entidad base con los nuevos atributos
         CreditApplication creditApplication = createCreditApplicationEntity(dto, company);
 
-        // Guardar solicitud inicial
         creditApplication = saveCreditApplication(creditApplication);
 
-        // Subir y asociar documentos
         List<RiskDocument> uploadedDocs = uploadAndAssociateDocuments(creditApplication, documents);
 
-        // Persistir solicitud y calcular puntaje
         creditApplication = persistCreditApplicationWithDocuments(creditApplication);
 
-        //  Registrar historial
         saveCreationHistory(creditApplication, owner);
 
-        //  Mapear a DTO de respuesta
         return CreditApplicationMapper.toDTO(creditApplication);
     }
 
@@ -81,7 +134,6 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
         creditApplication.setOperatorComments(null);
         creditApplication.setRiskScore(0);
 
-        // Asignar nuevos atributos
         creditApplication.setCreditPurpose(dto.getCreditPurpose());
         creditApplication.setTermMonths(dto.getTermMonths());
 
@@ -109,22 +161,30 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
             }
 
             try {
-                // 1️⃣ Subir imagen/documento
-                String url = imageService.uploadImage(file);
+                log.info("➡️ Procesando archivo: {} ({} bytes)", file.getOriginalFilename(), file.getSize());
 
-                // 2️⃣ Extraer texto con OCR
+                log.info("📤 Subiendo archivo a ImageService...");
+                // ✅ Corrección: pasar carpeta y publicId
+                String folderPath = "credit-applications/" + creditApplication.getId();
+                String publicId = UUID.randomUUID() + "_" + file.getOriginalFilename();
+                String url = imageService.uploadFile(file, folderPath, publicId);
+                log.info("✅ Archivo subido correctamente: {}", url);
+
+                log.info("🔍 Ejecutando OCR...");
                 String text = ocrService.extractText(file);
+                log.info("✅ OCR completado. Longitud de texto extraído: {}",
+                        (text != null ? text.length() : 0));
 
-                // 3️⃣ Preparar features para el modelo ML
                 Map<String, Object> features = new HashMap<>();
-                features.put("wordCount", text.split("\\s+").length);
+                features.put("wordCount", (text != null) ? text.split("\\s+").length : 0);
                 features.put("documentSize", file.getSize());
-                features.put("financialTermsCount", countFinancialTerms(text)); // método helper que contaría términos financieros relevantes
+                features.put("financialTermsCount", countFinancialTerms(text));
 
-                // 4️⃣ Calcular score con ML
+                log.info("🧠 Ejecutando modelo ML con features: {}", features);
+
                 int scoreImpact = mlModelService.predictScore(features);
+                log.info("✅ ML Score calculado: {}", scoreImpact);
 
-                // 5️⃣ Crear entidad RiskDocument con score calculado
                 RiskDocument riskDoc = RiskDocument.builder()
                         .creditApplication(creditApplication)
                         .name(file.getOriginalFilename())
@@ -135,15 +195,22 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
                 creditApplication.addRiskDocument(riskDoc);
                 uploadedDocs.add(riskDoc);
 
-                log.info("📎 Documento '{}' asociado a la solicitud con score: {}", riskDoc.getName(), scoreImpact);
+                log.info("📎 Documento '{}' asociado con éxito.", riskDoc.getName());
+
             } catch (Exception e) {
-                log.error("💥 Error procesando archivo '{}': {}", file.getOriginalFilename(), e.getMessage(), e);
+                log.error("💥 ERROR procesando archivo '{}': {}",
+                        file.getOriginalFilename(), e.getMessage(), e);
                 throw new RuntimeException("Error al procesar archivo: " + file.getOriginalFilename(), e);
             }
         }
 
-        // 6️⃣ Recalcular puntaje total de la solicitud
-        creditApplication.calculateRiskScore();
+        try {
+            creditApplication.calculateRiskScore();
+            log.info("📊 Puntaje recalculado correctamente: {}", creditApplication.getRiskScore());
+        } catch (Exception e) {
+            log.error("💥 ERROR recalculando puntaje: {}", e.getMessage(), e);
+            throw e;
+        }
 
         return uploadedDocs;
     }
@@ -160,16 +227,17 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
         return count;
     }
 
-
     private CreditApplication persistCreditApplicationWithDocuments(CreditApplication creditApplication) {
         try {
+            log.info("💾 Guardando solicitud con {} documentos...",
+                    creditApplication.getRiskDocuments() != null ? creditApplication.getRiskDocuments().size() : 0);
             creditApplication.calculateRiskScore();
-            creditApplication = creditApplicationRepository.saveAndFlush(creditApplication);
-            entityManager.refresh(creditApplication);
-            log.info("💾 Solicitud guardada con {} documento(s).", creditApplication.getRiskDocuments().size());
-            return creditApplication;
+            CreditApplication saved = creditApplicationRepository.saveAndFlush(creditApplication);
+            entityManager.refresh(saved);
+            log.info("✅ Solicitud guardada correctamente ID: {}", saved.getId());
+            return saved;
         } catch (Exception e) {
-            log.error("💥 Error al persistir la solicitud o documentos: {}", e.getMessage(), e);
+            log.error("💥 ERROR al persistir la solicitud: {}", e.getMessage(), e);
             throw new RuntimeException("Error al guardar la solicitud de crédito.", e);
         }
     }
@@ -191,22 +259,24 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
             if (file == null || file.isEmpty()) continue;
 
             try {
-                // 1️⃣ Subir imagen/documento
-                String url = imageService.uploadImage(file);
+                // Subir archivo a Cloudinary usando ImageService
+                String folderPath = "credit-flow/credit-applications/" + creditApplication.getId();
+                String publicId = UUID.randomUUID() + "_" + file.getOriginalFilename();
+                String url = imageService.uploadFile(file, folderPath, publicId);
 
-                // 2️⃣ Extraer texto con OCR
+                // Extraer texto con OCR
                 String text = ocrService.extractText(file);
 
-                // 3️⃣ Preparar features para el modelo ML
+                // Generar features para ML
                 Map<String, Object> features = new HashMap<>();
-                features.put("wordCount", text.split("\\s+").length);
+                features.put("wordCount", text != null ? text.split("\\s+").length : 0);
                 features.put("documentSize", file.getSize());
                 features.put("financialTermsCount", countFinancialTerms(text));
 
-                // 4️⃣ Calcular score con ML
+                // Predecir impacto en score
                 int scoreImpact = mlModelService.predictScore(features);
 
-                // 5️⃣ Crear entidad RiskDocument con score calculado
+                // Crear entidad RiskDocument
                 RiskDocument doc = RiskDocument.builder()
                         .creditApplication(creditApplication)
                         .name(file.getOriginalFilename())
@@ -224,15 +294,13 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
             }
         }
 
-        // 6️⃣ Recalcular puntaje total de la solicitud
+        // Recalcular puntaje de riesgo
         creditApplication.calculateRiskScore();
 
         return uploadedDocs;
     }
 
 
-    // -------------------------------------------------
-    // Obtener solicitud por ID (usuario propietario)
     @Override
     @Transactional(readOnly = true)
     public CreditApplicationResponseDTO getApplicationByIdAndUser(UUID id, User user) {
@@ -247,8 +315,6 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
         return CreditApplicationMapper.toDTO(app);
     }
 
-    // -------------------------------------------------
-    // Listar solicitudes de la empresa del usuario
     @Override
     @Transactional(readOnly = true)
     public List<CreditApplicationResponseDTO> getApplicationsByCompany(UUID companyId, User user) {
@@ -265,8 +331,6 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
                 .collect(Collectors.toList());
     }
 
-    // -------------------------------------------------
-    // Actualizar solicitud (monto, comentarios, documentos)
     @Override
     @Transactional
     public CreditApplicationResponseDTO updateApplication(
@@ -277,7 +341,6 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
 
         log.info("✏️ Actualizando solicitud de crédito ID: {}", id);
 
-        // 1️⃣ Obtener solicitud y validar permisos
         CreditApplication app = creditApplicationRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No se encontró la solicitud: " + id));
 
@@ -293,28 +356,21 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
             throw new ConflictException("La solicitud ya está verificada y no puede ser modificada por el usuario PYME");
         }
 
-        // 2️⃣ Actualizar campos básicos
         if (dto.getAmount() != null && dto.getAmount().signum() > 0) {
             app.setAmount(dto.getAmount());
         }
         app.setCreditPurpose(dto.getCreditPurpose());
         app.setTermMonths(dto.getTermMonths());
 
-        if (isOperator && dto.getOperatorComments() != null) {
-            app.setOperatorComments(dto.getOperatorComments());
-        }
-
-        // 3️⃣ Subir y asociar documentos si hay
         List<RiskDocument> uploadedDocs = new ArrayList<>();
         if (isOwner && newDocuments != null && !newDocuments.isEmpty()) {
-            // Limpiar colección actual
+
             if (app.getRiskDocuments() == null) {
                 app.setRiskDocuments(new ArrayList<>());
             } else {
                 app.getRiskDocuments().clear();
             }
 
-            // Subir documentos y calcular score por cada uno
             uploadedDocs = uploadAndSaveDocuments(app, newDocuments);
             app.getRiskDocuments().addAll(uploadedDocs);
 
@@ -322,17 +378,12 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
                     "Documentos actualizados: " + uploadedDocs.size());
         }
 
-
-        // 4️⃣ Recalcular puntaje de riesgo
         app.calculateRiskScore();
 
-        // 5️⃣ Guardar cambios
         CreditApplication updated = creditApplicationRepository.saveAndFlush(app);
 
-        // 6️⃣ Guardar historial de actualización
         saveHistory(updated, owner, CreditApplicationActionType.UPDATE, "Solicitud actualizada");
 
-        // 7️⃣ Mapear a DTO usando el mapper
         CreditApplicationResponseDTO response = CreditApplicationMapper.toDTO(updated)
                 .toBuilder()
                 .documents(updated.getRiskDocuments().stream()
@@ -355,41 +406,49 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
     // Cambiar estado de la solicitud
     @Override
     @Transactional
-    public CreditApplicationResponseDTO changeStatus(UUID id, CreditApplicationStatusChangeDTO dto, User user) {
+    public CreditApplicationResponseDTO changeStatus(UUID id, CreditApplicationStatusChangeDTO dto, User currentUser) {
+
         CreditApplication app = creditApplicationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("No se encontró la solicitud: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("No se encontró la solicitud de crédito con ID: " + id));
 
-        boolean isOwner = app.getCompany() != null && app.getCompany().getUser() != null
-                && app.getCompany().getUser().getId().equals(user.getId());
-        boolean isOperatorOrAdmin = user.getRole() == User.Role.ADMIN || user.getRole() == User.Role.OPERADOR;
+        CreditStatus oldStatus = app.getStatus();
+        CreditStatus newStatus = CreditStatus.from(dto.getNewStatus());
 
-        if (!isOwner && !isOperatorOrAdmin) {
-            throw new ConflictException("No tiene permiso para cambiar el estado de esta solicitud");
+        boolean statusChanged = !oldStatus.equals(newStatus);
+
+        validateStatusTransition(oldStatus, newStatus);
+
+        if (statusChanged) {
+            app.setStatus(newStatus);
+            saveHistory(app, currentUser, CreditApplicationActionType.STATUS_CHANGE,
+                    "Estado cambiado de " + oldStatus.name() + " a " + newStatus.name());
         }
 
-        CreditStatus newStatus;
-        try {
-            newStatus = CreditStatus.from(dto.getNewStatus());
-            if (newStatus == null) throw new IllegalArgumentException("status nulo");
-        } catch (Exception e) {
-            throw new ConflictException("Status no válido: " + dto.getNewStatus());
+        String comments = dto.getComments();
+        if (comments != null && !comments.isBlank()) {
+            app.setOperatorComments(comments);
+            saveHistory(app, currentUser, CreditApplicationActionType.COMMENT, "Operador comentó: " + comments);
         }
 
-        app.setStatus(newStatus);
-        if (dto.getComments() != null && !dto.getComments().isBlank()) {
-            app.setOperatorComments(dto.getComments());
-        }
+        CreditApplication updatedApp = creditApplicationRepository.save(app);
 
-        CreditApplication updated = creditApplicationRepository.save(app);
-
-        saveHistory(updated, user, CreditApplicationActionType.STATUS_CHANGE,
-                "Estado cambiado a " + newStatus.name());
-
-        return CreditApplicationMapper.toDTO(updated);
+        return CreditApplicationMapper.toDTO(updatedApp);
     }
 
-    // -------------------------------------------------
-    // Eliminar solicitud
+
+    private void validateStatusTransition(CreditStatus oldStatus, CreditStatus newStatus) {
+
+        if ((oldStatus == CreditStatus.APPROVED || oldStatus == CreditStatus.REJECTED) &&
+                newStatus != oldStatus && newStatus != CreditStatus.UNDER_REVIEW) {
+            throw new ConflictException("No se puede cambiar el estado de una solicitud ya finalizada (" + oldStatus.name() + ").");
+        }
+
+        if (oldStatus == CreditStatus.PENDING &&
+                (newStatus == CreditStatus.APPROVED)) {
+            throw new ConflictException("La solicitud debe pasar por revisión antes de ser aprobada.");
+        }
+    }
+
     @Override
     @Transactional
     public void deleteApplication(UUID id, User user) {
@@ -404,7 +463,7 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
             throw new ConflictException("No tiene permiso para eliminar esta solicitud");
         }
 
-        saveHistory(app, user, CreditApplicationActionType.DELETION, "Solicitud eliminada");
+        saveHistory(app, user, CreditApplicationActionType.DELETION, "Solicitud "+id+" fue eliminada");
 
         creditApplicationRepository.delete(app);
     }
@@ -448,12 +507,11 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
         }
     }
 
-    private void saveHistory(CreditApplication app, User operator, CreditApplicationActionType actionType, String comments) {
+    private void saveHistory(CreditApplication app, User operator, CreditApplicationActionType actionType, String action) {
         CreditApplicationHistory history = CreditApplicationHistory.builder()
                 .creditApplication(app)
                 .actionType(actionType)
-                .action(actionType.name())
-                .comments(comments)
+                .action(action)
                 .operator(operator)
                 .createdAt(LocalDateTime.now())
                 .build();

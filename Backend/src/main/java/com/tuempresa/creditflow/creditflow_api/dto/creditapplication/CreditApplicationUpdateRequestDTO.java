@@ -22,9 +22,6 @@ public class CreditApplicationUpdateRequestDTO {
     @Schema(description = "Monto solicitado para el crédito.", example = "50000.00")
     private BigDecimal amount;
 
-    @Schema(description = "Comentario del operador para dar pautas de los detalles que puedan surgir.", example = "EL documento adjunto no es legible y falta un sello.")
-    private String operatorComments;
-
     @NotNull
     @Schema(description = "Destino o propósito del crédito.", example = "CAPITAL_TRABAJO")
     private CreditPurpose creditPurpose;
@@ -34,6 +31,6 @@ public class CreditApplicationUpdateRequestDTO {
     @Schema(description = "Plazo del crédito en meses.", example = "12")
     private Integer termMonths;
 
-    @Schema(description = "Lista de documentos utilizados para el cálculo de la fórmula de riesgo o validación.")
-    private List<DocumentFormulaDTO> documentsFormula;
+   /* @Schema(description = "Lista de documentos utilizados para el cálculo de la fórmula de riesgo o validación.")
+    private List<DocumentFormulaDTO> documentsFormula;*/
 }
