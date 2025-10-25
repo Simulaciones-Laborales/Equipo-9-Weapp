@@ -10,6 +10,6 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 })
 export class NavbarLink {
   readonly headline = input.required<string>();
-  readonly route = input.required<string>();
+  readonly route = input.required<string | null>();
   readonly icon = input.required<string>();
 }

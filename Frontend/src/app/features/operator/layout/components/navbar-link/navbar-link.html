@@ -1,16 +1,14 @@
-<li>
-  <a
-    [routerLink]="route()"
-    #rla="routerLinkActive"
-    routerLinkActive
-    class="max-md:h-20 flex items-center gap-x-3.5 px-5 sm:px-3.5 md:px-5 text-lg max-md:hover:text-primary-500 md:hover:bg-primary-100 md:w-full md:rounded-xl md:py-2 font-medium duration-200 outline-primary-500"
-    [ngClass]="{
-      'text-surface-600 border-none': !rla.isActive,
-      'text-primary-600 max-md:border-b-4 max-md:border-primary-500 md:bg-primary-200 md:text-primary-950':
-        rla.isActive
-    }"
-  >
-    <i [ngClass]="icon()" class="text-4xl sm:text-xl"></i>
-    <span class="max-sm:hidden">{{ headline() }}</span>
-  </a>
-</li>
+<a
+  [routerLink]="route()"
+  #rla="routerLinkActive"
+  routerLinkActive
+  class="max-md:h-20 flex max-md:flex-col items-center max-md:justify-center gap-y-1.5 gap-x-3 px-3.5 sm:px-5 max-md:hover:text-primary-500 md:hover:bg-primary-100 md:w-full md:rounded-xl md:py-2 font-medium duration-200 outline-primary-500 cursor-pointer"
+  [ngClass]="{
+    'text-surface-600 border-none': !rla.isActive,
+    'text-primary-600 max-md:border-b-4 max-md:border-primary-500 md:bg-primary-200 md:text-primary-950':
+      rla.isActive
+  }"
+>
+  <i [ngClass]="icon()" class="text-xl sm:text-lg md:text-xl"></i>
+  <span class="text-sm md:text-lg line-clamp-1">{{ headline() }}</span>
+</a>
