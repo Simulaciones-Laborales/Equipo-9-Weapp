@@ -6,6 +6,7 @@ import { CompanyResponse } from '../../models/company-model';
 import { MenuItem } from 'primeng/api';
 import { Button } from 'primeng/button';
 import { CompanyStore } from '../../company-store';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-companies-table',
@@ -15,13 +16,16 @@ import { CompanyStore } from '../../company-store';
 })
 export class CompaniesTable {
   private readonly _store = inject(CompanyStore);
+  private readonly _router = inject(Router);
+  private readonly _route = inject(ActivatedRoute);
   readonly companies = input.required<CompanyResponse[]>();
 
   readonly items: MenuItem[] = [
     {
       label: 'Gestionar créditos',
       command: (_) => {
-        this._store.setShowCompanyCredits(true);
+        const { idCompany } = this._store.selectedCompany()!;
+        this._router.navigate([`${idCompany}`, 'credit-applications'], { relativeTo: this._route });
       },
     },
   ];

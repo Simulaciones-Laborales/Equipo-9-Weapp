@@ -6,7 +6,7 @@ export default [
     loadComponent: () => import('./company'),
   },
   {
-    path: 'credits',
+    path: ':id/credit-applications',
     loadComponent: () => import('./credits/credits'),
   },
 ] as Routes;
