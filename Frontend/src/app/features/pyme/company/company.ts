@@ -1,18 +1,23 @@
 import { Component, effect, inject } from '@angular/core';
 import { CompanyStore } from './company-store';
 import { Title } from '@components/title/title';
-import { ProgressSpinner } from 'primeng/progressspinner';
-import { Subtitle } from '@components/subtitle/subtitle';
-import { NewCompanyForm } from './components/new-company-form/new-company-form';
-import { CompanyRequest } from './models/company-model';
 import { LayoutStore } from '../layout/layout-store';
-import { Button } from 'primeng/button';
 import { TableModule } from 'primeng/table';
-import { Table } from './components/table/table';
+import { Loading } from './components/loading/loading';
+import { KycWarningMessage } from './components/kyc-warning-message/kyc-warning-message';
+import { NewCompanySection } from './components/new-company-section/new-company-section';
+import { CompaniesListSection } from './components/companies-list-section/companies-list-section';
 
 @Component({
   selector: 'app-company',
-  imports: [Title, ProgressSpinner, Subtitle, NewCompanyForm, Button, TableModule, Table],
+  imports: [
+    Title,
+    Loading,
+    TableModule,
+    KycWarningMessage,
+    NewCompanySection,
+    CompaniesListSection,
+  ],
   templateUrl: './company.html',
   styleUrl: './company.css',
   providers: [CompanyStore],
@@ -50,9 +55,5 @@ export default class Company {
     } else {
       this.store.setShowCompanies(true);
     }
-  }
-
-  async createNewCompany(req: CompanyRequest) {
-    await this.store.createCompany(req);
   }
 }

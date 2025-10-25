@@ -8,12 +8,12 @@ import { Button } from 'primeng/button';
 import { CompanyStore } from '../../company-store';
 
 @Component({
-  selector: 'app-table',
+  selector: 'app-companies-table',
   imports: [TableModule, CurrencyPipe, DatePipe, Menu, Button],
-  templateUrl: './table.html',
-  styleUrl: './table.css',
+  templateUrl: './companies-table.html',
+  styleUrl: './companies-table.css',
 })
-export class Table {
+export class CompaniesTable {
   private readonly _store = inject(CompanyStore);
   readonly companies = input.required<CompanyResponse[]>();
 
