@@ -6,9 +6,19 @@
   >
     <app-logo class="max-sm:hidden" />
     <ul class="flex items-center md:flex-col gap-y-3.5 md:w-full">
-      <app-navbar-link headline="Inicio" route="./dashboard" class="md:w-full" />
-      <app-navbar-link headline="Solicitudes" route="./solicitudes" class="md:w-full" />
-      <app-navbar-link headline="Clientes" route="./clientes" class="md:w-full" />
+      <app-navbar-link icon="pi pi-home" headline="Inicio" route="./dashboard" class="md:w-full" />
+      <app-navbar-link
+        icon="pi pi-file"
+        headline="Solicitudes"
+        route="./solicitudes"
+        class="md:w-full"
+      />
+      <app-navbar-link
+        icon="pi pi-users"
+        headline="Clientes"
+        route="./clientes"
+        class="md:w-full"
+      />
     </ul>
   </div>
 </nav>

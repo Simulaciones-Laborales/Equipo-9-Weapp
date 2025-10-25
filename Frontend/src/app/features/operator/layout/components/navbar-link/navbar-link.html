@@ -3,12 +3,14 @@
     [routerLink]="route()"
     #rla="routerLinkActive"
     routerLinkActive
-    class="max-md:h-20 flex items-center px-3.5 text-lg max-md:hover:text-primary-500 md:hover:bg-primary-200 md:w-full md:rounded-lg md:py-1.5 font-medium duration-200"
+    class="max-md:h-20 flex items-center gap-x-3.5 px-5 sm:px-3.5 md:px-5 text-lg max-md:hover:text-primary-500 md:hover:bg-primary-100 md:w-full md:rounded-xl md:py-2 font-medium duration-200 outline-primary-500"
     [ngClass]="{
-      'text-surface-600': !rla.isActive,
-      'text-primary-600 md:bg-primary-100 md:text-primary-900': rla.isActive
+      'text-surface-600 border-none': !rla.isActive,
+      'text-primary-600 max-md:border-b-4 max-md:border-primary-500 md:bg-primary-200 md:text-primary-950':
+        rla.isActive
     }"
   >
-    {{ headline() }}
+    <i [ngClass]="icon()" class="text-4xl sm:text-xl"></i>
+    <span class="max-sm:hidden">{{ headline() }}</span>
   </a>
 </li>
