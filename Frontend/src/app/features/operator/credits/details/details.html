@@ -7,10 +7,9 @@
   @defer (when store.fetchStatus() !== 'loading') {
   <app-information [detail]="store.credit()" />
   <article class="flex flex-col gap-y-5">
-    <app-subtitle headline="Detalles" />
     <div class="flex flex-col gap-y-8 md:flex-row-reverse md:justify-between gap-x-3.5">
-      <app-risk-score-card [riskScore]="store.credit()?.riskScore" />
-      <div>
+      <app-risk-score-card [riskScore]="store.credit()?.riskScore" class="md:flex-1/3" />
+      <div class="md:flex-2/3">
         <app-status-section
           [creditId]="store.id()"
           [creditStatus]="store.credit()?.status"

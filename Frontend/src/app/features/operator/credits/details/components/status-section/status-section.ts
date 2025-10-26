@@ -27,18 +27,18 @@ import { Divider } from 'primeng/divider';
 })
 export class StatusSection {
   private readonly _fb = inject(FormBuilder);
-  private readonly _max = 400;
 
+  readonly max = 400;
   readonly onUpdateStatus = output<UpdateCreditApplicationStatusDto>();
   readonly creditId = input.required<string | null>();
   readonly creditStatus = input.required<CreditApplicationStatus | undefined>();
   readonly loading = input.required<boolean>();
 
   readonly form = this._fb.group({
-    comments: ['', Validators.max(this._max)],
+    comments: ['', Validators.max(this.max)],
   });
 
   get remainingCharacters() {
-    return this._max - (this.form.get('comments')?.value?.length ?? 0);
+    return this.max - (this.form.get('comments')?.value?.length ?? 0);
   }
 }
