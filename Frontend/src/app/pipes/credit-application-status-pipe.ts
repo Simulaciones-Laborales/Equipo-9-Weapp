@@ -5,7 +5,7 @@ import { CreditApplicationStatus } from '@core/models/credit-application-model';
   name: 'creditApplicationStatus',
 })
 export class CreditApplicationStatusPipe implements PipeTransform {
-  transform(value: CreditApplicationStatus): string {
+  transform(value: CreditApplicationStatus | undefined): string {
     if (value === CreditApplicationStatus.APPROVED) {
       return 'Aprobado';
     }
@@ -22,6 +22,10 @@ export class CreditApplicationStatusPipe implements PipeTransform {
       return 'Rechazado';
     }
 
-    return 'En revisión';
+    if (value === CreditApplicationStatus.UNDER_REVIEW) {
+      return 'En revisión';
+    }
+
+    return '--';
   }
 }

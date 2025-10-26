@@ -1,0 +1,28 @@
+<section class="p-3.5 border-y-2 border-surface-200 flex flex-col gap-y-3.5">
+  <h4 class="text-center text-surface-600 font-semibold text-lg sm:text-xl">
+    Solicitud {{ creditStatus() | creditApplicationStatus }}
+  </h4>
+  <form [formGroup]="form">
+    <p-fieldset legend="Comentarios" class="text-lg">
+      <p-float-label variant="on">
+        <textarea
+          pTextarea
+          [autoResize]="true"
+          [rows]="3"
+          fluid
+          placeholder="Escribe aquí tus comentarios acerca de la solicitud..."
+          formControlName="comments"
+        ></textarea>
+      </p-float-label>
+    </p-fieldset>
+    <p-fieldset class="mt-5 text-lg" legend="Acción a realizar">
+      <div class="flex items-center justify-center">
+        <p-button type="button" size="small" outlined="true" label="Aprobar" severity="success" />
+        <p-divider layout="vertical" class="mx-2.5" />
+        <p-button type="button" size="small" outlined="true" label="En revisión" severity="info" />
+        <p-divider layout="vertical" class="mx-2.5" />
+        <p-button type="button" size="small" outlined="true" label="Rechazar" severity="danger" />
+      </div>
+    </p-fieldset>
+  </form>
+</section>

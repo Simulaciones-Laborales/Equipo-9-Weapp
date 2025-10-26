@@ -8,8 +8,15 @@
   <app-information [detail]="store.credit()" />
   <article class="flex flex-col gap-y-5">
     <app-subtitle headline="Detalles" />
-    <div class="flex max-md:flex-col gap-y-3.5 md:justify-between gap-x-3.5">
+    <div class="flex flex-col gap-y-8 md:flex-row-reverse md:justify-between gap-x-3.5">
       <app-risk-score-card [riskScore]="store.credit()?.riskScore" />
+      <div>
+        <app-status-section
+          [creditId]="store.id()"
+          [creditStatus]="store.credit()?.status"
+          [loading]="store.updateStatusStatus() === 'loading'"
+        />
+      </div>
     </div>
   </article>
   } @placeholder {
