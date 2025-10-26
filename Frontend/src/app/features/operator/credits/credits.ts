@@ -7,10 +7,11 @@ import { CreditsTable } from './components/credits-table/credits-table';
 import { CreditsStore } from './credits-store';
 import { CreditApplicationStatus } from '@core/models/credit-application-model';
 import { Pageable } from '@core/types';
+import { LoadingSpinner } from '@components/loading-spinner/loading-spinner';
 
 @Component({
   selector: 'app-credits',
-  imports: [Header, Menu, Subtitle, CreditsTable],
+  imports: [Header, Menu, Subtitle, CreditsTable, LoadingSpinner],
   templateUrl: './credits.html',
   styleUrl: './credits.css',
   providers: [CreditsStore],

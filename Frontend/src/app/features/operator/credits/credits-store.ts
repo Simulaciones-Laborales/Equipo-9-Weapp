@@ -25,7 +25,6 @@ export const CreditsStore = signalStore(
 
       try {
         const credits = await creditApplicationsApi.getAll(status, pageable);
-        console.log(credits);
         patchState(store, { fetchCreditsStatus: 'success', credits });
       } catch (e) {
         patchState(store, { fetchCreditsStatus: 'failure' });

@@ -1,4 +1,4 @@
-<div class="w-full flex items-center justify-between gap-x-2.5">
+<div class="w-full flex items-center justify-between gap-x-2.5 mb-2.5">
   <p class="text-surface-500 text-xs sm:text-sm">
     Mostrando {{ credits()?.content?.length ?? 0 }} resultados.
   </p>
@@ -15,10 +15,10 @@
     <tr>
       <th scope="col">Empresa</th>
       <th scope="col">Cantidad</th>
-      <th scope="col">Estado</th>
       <th scope="col">Duración</th>
       <th scope="col">Razón</th>
       <th scope="col">Puntaje</th>
+      <th scope="col">Estado</th>
       <th scope="col">Fecha</th>
       <th scope="col">Actualizado</th>
     </tr>
@@ -26,13 +26,13 @@
   <ng-template #body let-credit>
     <tr>
       <td>{{ credit.companyName }}</td>
-      <td>{{ credit.amount }}</td>
-      <td>{{ credit.status }}</td>
-      <td>{{ credit.termMonths }}</td>
-      <td>{{ credit.creditPurpose }}</td>
+      <td>{{ credit.amount | currency }}</td>
+      <td>{{ credit.termMonths }} meses</td>
+      <td>{{ credit.creditPurpose | creditApplicationPurpose }}</td>
       <td>{{ credit.riskScore }}</td>
-      <td>{{ credit.createdAt }}</td>
-      <td>{{ credit.updatedAt }}</td>
+      <td>{{ credit.status | creditApplicationStatus }}</td>
+      <td>{{ credit.createdAt | date : 'dd/MM/yyyy hh:mm aa' }}</td>
+      <td>{{ credit.updatedAt | date : 'dd/MM/yyyy hh:mm aa' }}</td>
     </tr>
   </ng-template>
 </p-table>
