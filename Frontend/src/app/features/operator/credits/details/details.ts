@@ -3,10 +3,12 @@ import { Header } from '@features/operator/components/header/header';
 import { MenuItem } from 'primeng/api';
 import { DetailsStore } from './details-store';
 import { ActivatedRoute } from '@angular/router';
+import { TableModule } from 'primeng/table';
+import { Information } from './components/information/information';
 
 @Component({
   selector: 'app-details',
-  imports: [Header],
+  imports: [Header, TableModule, Information],
   templateUrl: './details.html',
   styleUrl: './details.css',
   providers: [DetailsStore],
