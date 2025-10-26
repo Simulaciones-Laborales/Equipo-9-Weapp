@@ -1,8 +1,12 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from 'environments/environment.development';
-import { CreditApplicationResponse } from '../models/credit-application-model';
+import {
+  CreditApplicationResponse,
+  CreditApplicationStatus,
+} from '../models/credit-application-model';
 import { lastValueFrom } from 'rxjs';
+import { Pageable, PageableResponse } from '@core/types';
 
 @Injectable({
   providedIn: 'root',
@@ -10,6 +14,18 @@ import { lastValueFrom } from 'rxjs';
 export class CreditApplicationApi {
   private readonly _url = `${environment.apiUrl}/api/credit-applications`;
   private readonly _http = inject(HttpClient);
+
+  async getAll(status: CreditApplicationStatus | null, pageable: Pageable) {
+    let params = new HttpParams().append('pageable', JSON.stringify(pageable));
+
+    if (status) {
+      params = params.append('status', status);
+    }
+
+    const call = this._http.get<PageableResponse<CreditApplicationResponse>>(this._url, { params });
+
+    return await lastValueFrom(call);
+  }
 
   /**
    * Obtienes todas las aplicaciones de crédito realizadas por el usuario autenticado.
