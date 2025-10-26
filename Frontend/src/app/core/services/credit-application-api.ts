@@ -27,6 +27,12 @@ export class CreditApplicationApi {
     return await lastValueFrom(call);
   }
 
+  async getById(id: string) {
+    const call = this._http.get<CreditApplicationResponse>(`${this._url}/${id}`);
+
+    return await lastValueFrom(call);
+  }
+
   /**
    * Obtienes todas las aplicaciones de crédito realizadas por el usuario autenticado.
    *

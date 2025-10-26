@@ -34,7 +34,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class CreditApplicationServiceImpl implements CreditApplicationService {
-
     private final CreditApplicationRepository creditApplicationRepository;
     private final CompanyRepository companyRepository;
     private final CreditApplicationHistoryRepository historyRepository;
@@ -313,6 +312,22 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
         }
 
         return CreditApplicationMapper.toDTO(app);
+    }
+
+    @Override
+    public CreditApplicationResponseDTO getById(UUID id) {
+        final var response = creditApplicationRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No se encontró la solicitud: " + id));
+
+        final var loggedUser = authenticationUtils.getAuthenticatedUser();
+
+        if (loggedUser.getRole() == User.Role.PYME) {
+            if (!response.getCompany().getUser().getId().equals(loggedUser.getId())) {
+                throw new UnauthorizedException("No tienes permisos para acceder a esta solicitud.");
+            }
+        }
+
+        return CreditApplicationMapper.toDTO(response);
     }
 
     @Override

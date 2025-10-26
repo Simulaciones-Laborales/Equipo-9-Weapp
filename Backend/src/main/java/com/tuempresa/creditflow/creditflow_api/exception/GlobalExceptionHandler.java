@@ -62,7 +62,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({
             UserDisabledException.class,
             UserNotVerifiedException.class,
-            CompanyNotVerifiedException.class
+            CompanyNotVerifiedException.class,
+            UnauthorizedException.class
     })
     public ResponseEntity<BaseResponse> handleForbidden(RuntimeException ex, HttpServletRequest req) {
         log.warn("ForbiddenException at {}: {}", req.getRequestURI(), ex.getMessage());
