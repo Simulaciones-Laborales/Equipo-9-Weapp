@@ -1,6 +1,7 @@
 <app-header
   headline="Solicitudes de Créditos"
   description="Gestiona las solicitudes de créditos realizadas por cuentas PYME verificadas."
+  [menuItems]="breadcrumbItems"
 />
 <p-menu #menu [popup]="true" [model]="filterItems" />
 <section class="mt-8 w-full flex flex-col gap-y-2">

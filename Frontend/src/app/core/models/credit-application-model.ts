@@ -1,3 +1,5 @@
+import { RiskDocument } from './risk-document-model';
+
 /**
  * Estado de una solicitud de crédito.
  */
@@ -38,4 +40,5 @@ export interface CreditApplicationResponse {
   riskScore: number;
   createdAt: Date;
   updatedAt: Date;
+  documents: RiskDocument[];
 }

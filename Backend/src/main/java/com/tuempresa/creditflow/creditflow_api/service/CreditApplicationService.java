@@ -39,6 +39,16 @@ public interface CreditApplicationService {
     CreditApplicationResponseDTO getApplicationByIdAndUser(UUID id, User user);
 
     /**
+     * Obtiene una solicitud de crédito según un ID.
+     * <p>Podrá ser consultada si el usuario es el dueño de la solicitud o un operador/administrador.</p>
+     *
+     * @param id ID de la solicitud de crédito.
+     * @return DTO con la información de la solicitud.
+     * @author Alben Bustamante.
+     */
+    CreditApplicationResponseDTO getById(UUID id);
+
+    /**
      * Lista todas las solicitudes de crédito de una empresa del usuario autenticado.
      *
      * @param companyId ID de la empresa.

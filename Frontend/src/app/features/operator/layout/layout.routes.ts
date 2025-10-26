@@ -21,7 +21,7 @@ export default [
       },
       {
         path: 'solicitudes',
-        loadComponent: () => import('../credits/credits'),
+        loadChildren: () => import('../credits/credits.routes'),
       },
     ],
   },
