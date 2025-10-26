@@ -5,4 +5,5 @@
     [menuItems]="breadcrumbItems"
   />
   <app-information [detail]="store.credit()" />
+  <app-risk-score-card [riskScore]="store.credit()?.riskScore" />
 </div>
