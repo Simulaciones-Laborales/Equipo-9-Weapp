@@ -2,6 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { KYCVerificationResponse, KYCVerificationStatus } from '@core/models/kyc-model';
 import { Response } from '@core/models/response-model';
+import { User } from '@core/models/user-model';
 import { environment } from 'environments/environment.development';
 import { lastValueFrom } from 'rxjs';
 
@@ -26,6 +27,12 @@ export class UserApi {
     const call = this._http.get<Response<KYCVerificationResponse[]>>(
       `${this._url}/${userId}/kyc/all`
     );
+
+    return await lastValueFrom(call);
+  }
+
+  async getById(userId: string) {
+    const call = this._http.get<User>(`${this._url}/${userId}`);
 
     return await lastValueFrom(call);
   }

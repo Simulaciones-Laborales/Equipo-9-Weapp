@@ -5,10 +5,33 @@
     class="max-md:container max-md:mx-auto flex items-center max-sm:justify-center sm:max-md:justify-between md:flex-col gap-y-12 h-full"
   >
     <app-logo class="max-sm:hidden" />
-    <ul class="flex items-center md:flex-col gap-y-3.5 md:w-full">
-      <app-navbar-link headline="Inicio" route="./dashboard" class="md:w-full" />
-      <app-navbar-link headline="Solicitudes" route="./solicitudes" class="md:w-full" />
-      <app-navbar-link headline="Clientes" route="./clientes" class="md:w-full" />
-    </ul>
+    <div class="md:size-full flex md:flex-col items-center md:justify-between">
+      <ul class="flex items-center md:flex-col gap-y-3.5 md:w-full">
+        <app-navbar-link
+          icon="pi pi-home"
+          headline="Inicio"
+          route="./dashboard"
+          class="md:w-full"
+        />
+        <app-navbar-link
+          icon="pi pi-money-bill"
+          headline="Solicitudes"
+          route="./solicitudes"
+          class="md:w-full"
+        />
+        <app-navbar-link
+          icon="pi pi-users"
+          headline="Clientes"
+          route="./clientes"
+          class="md:w-full"
+        />
+      </ul>
+      <app-navbar-link
+        icon="pi pi-sign-out"
+        headline="Cerrar Sesión"
+        [route]="null"
+        class="md:w-full"
+      />
+    </div>
   </div>
 </nav>
