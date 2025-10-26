@@ -5,5 +5,10 @@
     [menuItems]="breadcrumbItems"
   />
   <app-information [detail]="store.credit()" />
-  <app-risk-score-card [riskScore]="store.credit()?.riskScore" />
+  <article class="flex flex-col gap-y-5">
+    <app-subtitle headline="Detalles" />
+    <div class="flex max-md:flex-col gap-y-3.5 md:justify-between gap-x-3.5">
+      <app-risk-score-card [riskScore]="store.credit()?.riskScore" />
+    </div>
+  </article>
 </div>

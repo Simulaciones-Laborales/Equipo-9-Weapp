@@ -6,10 +6,11 @@ import { ActivatedRoute } from '@angular/router';
 import { TableModule } from 'primeng/table';
 import { Information } from './components/information/information';
 import { RiskScoreCard } from './components/risk-score-card/risk-score-card';
+import { Subtitle } from '@components/subtitle/subtitle';
 
 @Component({
   selector: 'app-details',
-  imports: [Header, TableModule, Information, RiskScoreCard],
+  imports: [Header, TableModule, Information, RiskScoreCard, Subtitle],
   templateUrl: './details.html',
   styleUrl: './details.css',
   providers: [DetailsStore],
