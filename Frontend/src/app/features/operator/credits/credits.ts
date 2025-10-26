@@ -8,6 +8,7 @@ import { CreditsStore } from './credits-store';
 import { CreditApplicationStatus } from '@core/models/credit-application-model';
 import { Pageable } from '@core/types';
 import { LoadingSpinner } from '@components/loading-spinner/loading-spinner';
+import { PaginatorState } from 'primeng/paginator';
 
 @Component({
   selector: 'app-credits',
@@ -23,37 +24,37 @@ export default class Credits {
     {
       label: 'Todas',
       command: (_) => {
-        this.fetchByFilter(null);
+        this._fetchByFilter(null);
       },
     },
     {
       label: 'Pendientes',
       command: (_) => {
-        this.fetchByFilter(CreditApplicationStatus.PENDING);
+        this._fetchByFilter(CreditApplicationStatus.PENDING);
       },
     },
     {
       label: 'En Revisión',
       command: (_) => {
-        this.fetchByFilter(CreditApplicationStatus.UNDER_REVIEW);
+        this._fetchByFilter(CreditApplicationStatus.UNDER_REVIEW);
       },
     },
     {
       label: 'Aprobadas',
       command: (_) => {
-        this.fetchByFilter(CreditApplicationStatus.APPROVED);
+        this._fetchByFilter(CreditApplicationStatus.APPROVED);
       },
     },
     {
       label: 'Rechazadas',
       command: (_) => {
-        this.fetchByFilter(CreditApplicationStatus.REJECTED);
+        this._fetchByFilter(CreditApplicationStatus.REJECTED);
       },
     },
     {
       label: 'Canceladas',
       command: (_) => {
-        this.fetchByFilter(CreditApplicationStatus.CANCELLED);
+        this._fetchByFilter(CreditApplicationStatus.CANCELLED);
       },
     },
   ];
@@ -66,7 +67,19 @@ export default class Credits {
     });
   }
 
-  async fetchByFilter(status: CreditApplicationStatus | null) {
+  async fetchByPageable(paginator: PaginatorState) {
+    const { status, credits } = this.store;
+
+    const pageable: Pageable = {
+      page: paginator.page!,
+      size: credits()!.size,
+      sort: ['createdAt'],
+    };
+
+    await this.store.fetchAll(status(), pageable);
+  }
+
+  private async _fetchByFilter(status: CreditApplicationStatus | null) {
     const currentPageable = this.store.credits()!;
 
     const pageable: Pageable = {

@@ -1,5 +1,5 @@
-import { Component, input, signal } from '@angular/core';
-import { Paginator } from 'primeng/paginator';
+import { Component, input, output } from '@angular/core';
+import { Paginator, PaginatorState } from 'primeng/paginator';
 import { TableModule } from 'primeng/table';
 import { Button } from 'primeng/button';
 import { Menu } from 'primeng/menu';
@@ -24,6 +24,7 @@ import { CreditApplicationStatusPipe } from 'app/pipes/credit-application-status
   styleUrl: './credits-table.css',
 })
 export class CreditsTable {
+  readonly onPageChange = output<PaginatorState>();
   readonly credits = input.required<PageableResponse<CreditApplicationResponse> | null>();
   readonly menu = input.required<Menu>();
 }

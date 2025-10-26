@@ -36,4 +36,8 @@
     </tr>
   </ng-template>
 </p-table>
-<p-paginator [rows]="credits()?.size" [totalRecords]="credits()?.content?.length" />
+<p-paginator
+  [rows]="credits()?.size"
+  [totalRecords]="credits()?.content?.length"
+  (onPageChange)="onPageChange.emit($event)"
+/>

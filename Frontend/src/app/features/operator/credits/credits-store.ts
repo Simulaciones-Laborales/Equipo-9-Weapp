@@ -9,11 +9,13 @@ import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
 
 type State = {
   credits: PageableResponse<CreditApplicationResponse> | null;
+  status: CreditApplicationStatus | null;
   fetchCreditsStatus: Status;
 };
 
 const initialState: State = {
   credits: null,
+  status: null,
   fetchCreditsStatus: 'pending',
 };
 
@@ -21,7 +23,7 @@ export const CreditsStore = signalStore(
   withState(initialState),
   withMethods((store, creditApplicationsApi = inject(CreditApplicationApi)) => ({
     fetchAll: async (status: CreditApplicationStatus | null, pageable: Pageable) => {
-      patchState(store, { fetchCreditsStatus: 'loading' });
+      patchState(store, { fetchCreditsStatus: 'loading', status });
 
       try {
         const credits = await creditApplicationsApi.getAll(status, pageable);

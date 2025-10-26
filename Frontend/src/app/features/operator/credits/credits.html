@@ -6,7 +6,11 @@
 <section class="mt-8 w-full flex flex-col gap-y-2">
   @if (store.fetchCreditsStatus() !== 'loading') {
   <app-subtitle headline="Listado de registros realizados" />
-  <app-credits-table [credits]="store.credits()" [menu]="menu" />
+  <app-credits-table
+    [credits]="store.credits()"
+    [menu]="menu"
+    (onPageChange)="fetchByPageable($event)"
+  />
   } @else {
   <app-loading-spinner message="Cargando solicitudes de crédito..." />
   }
