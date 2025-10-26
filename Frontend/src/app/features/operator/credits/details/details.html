@@ -4,6 +4,7 @@
     description="Gestiona el estado de la solicitud realizada por la empresa en base a tus observaciones."
     [menuItems]="breadcrumbItems"
   />
+  @defer (when store.fetchStatus() !== 'loading') {
   <app-information [detail]="store.credit()" />
   <article class="flex flex-col gap-y-5">
     <app-subtitle headline="Detalles" />
@@ -11,4 +12,7 @@
       <app-risk-score-card [riskScore]="store.credit()?.riskScore" />
     </div>
   </article>
+  } @placeholder {
+  <app-loading-spinner message="Cargando información de la solicitud..." />
+  }
 </div>

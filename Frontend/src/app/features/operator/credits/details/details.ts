@@ -7,10 +7,11 @@ import { TableModule } from 'primeng/table';
 import { Information } from './components/information/information';
 import { RiskScoreCard } from './components/risk-score-card/risk-score-card';
 import { Subtitle } from '@components/subtitle/subtitle';
+import { LoadingSpinner } from '@components/loading-spinner/loading-spinner';
 
 @Component({
   selector: 'app-details',
-  imports: [Header, TableModule, Information, RiskScoreCard, Subtitle],
+  imports: [Header, TableModule, Information, RiskScoreCard, Subtitle, LoadingSpinner],
   templateUrl: './details.html',
   styleUrl: './details.css',
   providers: [DetailsStore],
@@ -24,9 +25,12 @@ export default class Details {
     { label: 'Detalles', routerLink: './' },
   ];
 
-  async ngOnInit() {
+  constructor() {
     const id = this._route.snapshot.paramMap.get('id');
+    this.store.setId(id!);
+  }
 
-    await this.store.fetch(id!);
+  async ngOnInit() {
+    await this.store.fetch();
   }
 }

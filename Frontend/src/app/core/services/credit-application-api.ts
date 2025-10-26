@@ -4,6 +4,7 @@ import { environment } from 'environments/environment.development';
 import {
   CreditApplicationResponse,
   CreditApplicationStatus,
+  UpdateCreditApplicationStatusDto,
 } from '../models/credit-application-model';
 import { lastValueFrom } from 'rxjs';
 import { Pageable, PageableResponse } from '@core/types';
@@ -52,6 +53,17 @@ export class CreditApplicationApi {
    */
   async getAllByCompanyId(companyId: string) {
     const call = this._http.get<CreditApplicationResponse[]>(`${this._url}/company/${companyId}`);
+
+    return await lastValueFrom(call);
+  }
+
+  /**
+   * Permite cambiar el estado de una solicitud de crédito existente. Solo el propietario de la empresa asociada a la solicitud o un usuario con rol ADMIN/OPERADOR puede realizar esta acción. Se pueden agregar comentarios opcionales del operador.
+   *
+   * @param id ID de la solicitud de crédito.
+   */
+  async updateStatus(id: string, dto: UpdateCreditApplicationStatusDto) {
+    const call = this._http.put<CreditApplicationResponse>(`${this._url}/${id}/status`, dto);
 
     return await lastValueFrom(call);
   }
