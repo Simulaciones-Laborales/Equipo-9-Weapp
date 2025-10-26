@@ -2,7 +2,9 @@
   <h4 class="text-center text-surface-600 font-semibold text-lg sm:text-xl">
     Solicitud {{ creditStatus() | creditApplicationStatus }}
   </h4>
-  <form [formGroup]="form">
+  <!--@if (creditStatus() === 'UNDER_REVIEW' || creditStatus() === 'PENDING') {-->
+  <app-subtitle headline="Formulario para actualizar el estado de la solicitud" />
+  <form [formGroup]="form" class="flex flex-col gap-y-5">
     <p-fieldset legend="Comentarios" class="text-lg">
       <div class="flex flex-col gap-y-1">
         <p-float-label variant="on">
@@ -21,14 +23,48 @@
         >
       </div>
     </p-fieldset>
-    <p-fieldset class="mt-5 text-lg" legend="Acción a realizar">
+    <p-fieldset class="text-lg" legend="Acción a realizar">
       <div class="flex items-center justify-center">
-        <p-button type="button" size="small" outlined="true" label="Aprobar" severity="success" />
+        <p-button
+          type="button"
+          size="small"
+          [outlined]="newStatus() !== 'APPROVED'"
+          label="Aprobar"
+          severity="success"
+          [disabled]="loading()"
+          (onClick)="setNewStatus('APPROVED')"
+        />
         <p-divider layout="vertical" class="mx-2.5" />
-        <p-button type="button" size="small" outlined="true" label="En revisión" severity="info" />
+        <p-button
+          type="button"
+          size="small"
+          [outlined]="newStatus() !== 'UNDER_REVIEW'"
+          label="En revisión"
+          severity="info"
+          [disabled]="loading()"
+          (onClick)="setNewStatus('UNDER_REVIEW')"
+        />
         <p-divider layout="vertical" class="mx-2.5" />
-        <p-button type="button" size="small" outlined="true" label="Rechazar" severity="danger" />
+        <p-button
+          type="button"
+          size="small"
+          [outlined]="newStatus() !== 'REJECTED'"
+          label="Rechazar"
+          severity="danger"
+          [disabled]="loading()"
+          (onClick)="setNewStatus('REJECTED')"
+        />
       </div>
     </p-fieldset>
+    <p-button
+      type="submit"
+      [loading]="loading()"
+      [label]="
+        loading() ? 'Actualizando estado de la solicitud...' : 'Actualizar estado de la solicitud'
+      "
+      fluid
+      class="mt-5"
+    />
   </form>
+  <!--}-->
 </section>

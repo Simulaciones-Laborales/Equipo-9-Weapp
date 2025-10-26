@@ -1,4 +1,4 @@
-import { Component, inject, input, output } from '@angular/core';
+import { Component, inject, input, output, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   CreditApplicationStatus,
@@ -10,6 +10,7 @@ import { Textarea } from 'primeng/textarea';
 import { FloatLabel } from 'primeng/floatlabel';
 import { Button } from 'primeng/button';
 import { Divider } from 'primeng/divider';
+import { Subtitle } from '@components/subtitle/subtitle';
 
 @Component({
   selector: 'app-status-section',
@@ -21,12 +22,14 @@ import { Divider } from 'primeng/divider';
     FloatLabel,
     Button,
     Divider,
+    Subtitle,
   ],
   templateUrl: './status-section.html',
   styleUrl: './status-section.css',
 })
 export class StatusSection {
   private readonly _fb = inject(FormBuilder);
+  private readonly _newStatus = signal<CreditApplicationStatus | null>(null);
 
   readonly max = 400;
   readonly onUpdateStatus = output<UpdateCreditApplicationStatusDto>();
@@ -38,7 +41,15 @@ export class StatusSection {
     comments: ['', Validators.max(this.max)],
   });
 
+  setNewStatus(status: string) {
+    this._newStatus.set(status as CreditApplicationStatus);
+  }
+
   get remainingCharacters() {
     return this.max - (this.form.get('comments')?.value?.length ?? 0);
+  }
+
+  get newStatus() {
+    return this._newStatus.asReadonly();
   }
 }
