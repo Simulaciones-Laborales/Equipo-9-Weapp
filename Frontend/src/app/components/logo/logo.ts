@@ -1,9 +1,14 @@
-import { Component } from '@angular/core';
+import { NgClass } from '@angular/common';
+import { Component, input } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-logo',
-  imports: [],
+  imports: [RouterLink, NgClass],
   templateUrl: './logo.html',
   styleUrl: './logo.css',
 })
-export class Logo {}
+export class Logo {
+  readonly size = input<'md' | 'lg'>('md');
+  readonly align = input<'left' | 'center'>('left');
+}

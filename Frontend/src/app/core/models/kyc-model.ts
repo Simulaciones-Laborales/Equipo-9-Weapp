@@ -35,3 +35,8 @@ export interface KYCVerificationResponse {
   document2: string;
   document3: string;
 }
+
+export interface UpdateKycStatusDto {
+  status: KYCVerificationStatus;
+  notes: string;
+}

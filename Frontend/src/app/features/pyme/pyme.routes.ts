@@ -1,16 +1,28 @@
 import { Routes } from '@angular/router';
-import { authGuard } from '@core/guards/auth-guard';
-import { loggedGuard } from '@core/guards/logged-guard';
+import Layout from './layout/layout';
 
 export default [
   {
     path: '',
-    loadChildren: () => import('./layout/layout.routes'),
-    canActivate: [loggedGuard],
-  },
-  {
-    path: 'auth',
-    loadChildren: () => import('./auth/auth.routes'),
-    canActivate: [authGuard],
+    component: Layout,
+    children: [
+      {
+        path: '',
+        redirectTo: 'dashboard',
+        pathMatch: 'full',
+      },
+      {
+        path: 'dashboard',
+        loadComponent: () => import('./dashboard/dashboard'),
+      },
+      {
+        path: 'empresas',
+        loadChildren: () => import('./company/company.routes'),
+      },
+      {
+        path: 'perfil',
+        loadComponent: () => import('./profile/profile'),
+      },
+    ],
   },
 ] as Routes;

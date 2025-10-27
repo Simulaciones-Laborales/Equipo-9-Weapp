@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { UserRole } from '@core/models/user-model';
+import { RouteByRoleService } from '@core/services/route-by-role-service';
 import { TokenStorage } from '@core/services/token-storage';
 
 export const authGuard: CanActivateFn = () => {
@@ -10,10 +10,8 @@ export const authGuard: CanActivateFn = () => {
     return true;
   }
 
-  const { role } = tokenStorage.user()!;
   const router = inject(Router);
+  const routeByRoleService = inject(RouteByRoleService);
 
-  const route = role === UserRole.OPERADOR ? 'operador' : 'pyme';
-
-  return router.createUrlTree([`${route}`]);
+  return router.createUrlTree([routeByRoleService.getRoute()]);
 };

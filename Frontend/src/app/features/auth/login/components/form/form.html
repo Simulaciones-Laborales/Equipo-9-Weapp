@@ -40,6 +40,11 @@
       >}
     </div>
   </app-fieldset>
-  <p-button label="Iniciar Sesión" fluid type="submit" [loading]="store.status() === 'loading'" />
+  <p-button
+    [label]="store.buttonText()"
+    fluid
+    type="submit"
+    [loading]="store.status() === 'loading'"
+  />
   <app-linker route="../register" text="Crear cuenta" />
 </form>

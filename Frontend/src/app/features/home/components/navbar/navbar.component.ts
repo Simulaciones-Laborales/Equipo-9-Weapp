@@ -20,7 +20,7 @@ export class NavbarComponent {
   }
 
   get actionCallRoute() {
-    return this._isLogged ? `/${this._loggedRoute}` : '/pyme/auth';
+    return this._isLogged ? `/${this._loggedRoute}` : '/auth';
   }
 
   private get _loggedRoute() {

@@ -27,10 +27,21 @@ export class UserApi {
     return await lastValueFrom(call);
   }
 
-  async getAllKYC(userId: string) {
+  /* async getAllKYC(userId: string) {
     const call = this._http.get<Response<KYCVerificationResponse[]>>(
       `${this._url}/${userId}/kyc/all`
     );
+
+    return await lastValueFrom(call);
+  } */
+
+  /**
+   * Permite recuperar una lista de todos los usuarios.
+   *
+   * @returns Devuelve el listado de usuarios.
+   */
+  async getAll() {
+    const call = this._http.get<Response<User[]>>(`${this._url}/list`);
 
     return await lastValueFrom(call);
   }

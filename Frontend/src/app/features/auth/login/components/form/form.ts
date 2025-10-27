@@ -5,13 +5,14 @@ import { InputTextModule } from 'primeng/inputtext';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { PasswordModule } from 'primeng/password';
 import { ButtonModule } from 'primeng/button';
-import { Linker } from '@features/pyme/auth/components/linker/linker';
+import { Linker } from '@features/auth/components/linker/linker';
 import { LoginStore } from './form-store';
-import { LoginReq } from '@features/pyme/auth/models/auth-model';
+import { LoginReq } from '@features/auth/models/auth-model';
 import { Message } from 'primeng/message';
 import { TokenStorage } from '@core/services/token-storage';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Fieldset } from '@features/pyme/auth/components/fieldset/fieldset';
+import { Fieldset } from '@features/auth/components/fieldset/fieldset';
+import { RouteByRoleService } from '@core/services/route-by-role-service';
 
 @Component({
   selector: 'app-form',
@@ -34,6 +35,7 @@ export class Form {
   private readonly _tokenStorage = inject(TokenStorage);
   private readonly _router = inject(Router);
   private readonly _route = inject(ActivatedRoute);
+  private readonly _routeByRoleService = inject(RouteByRoleService);
 
   readonly store = inject(LoginStore);
 
@@ -77,6 +79,8 @@ export class Form {
   private _successful() {
     this.form.reset();
     this._tokenStorage.save(this.store.userLogged()!.data);
-    this._router.navigate(['../..', 'dashboard'], { relativeTo: this._route });
+
+    const navigateTo = this._routeByRoleService.getRoute();
+    this._router.navigate([navigateTo], { relativeTo: this._route });
   }
 }

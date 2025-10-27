@@ -1,0 +1,107 @@
+<p-dialog
+  [modal]="true"
+  [closable]="false"
+  [visible]="visible()"
+  header="Gestión del KYC"
+  [style]="{ width: '100%', 'max-width': '36rem' }"
+>
+  @if (fetchLoading()) {
+  <app-loading-spinner message="Cargando verificación del KYC..." />
+  } @else { @if (!kyc()) {
+  <p>Sin KYC...</p>
+  } @else {
+  <div class="flex flex-col gap-y-7">
+    <section class="flex flex-col gap-y-3.5">
+      <app-dialog-subtitle headline="Documentación" />
+      <ul class="flex flex-col gap-y-2.5">
+        <li>
+          <p-button
+            link
+            label="Descargar Selfie"
+            icon="pi pi-download"
+            size="small"
+            (onClick)="download(kyc()?.document1)"
+          />
+        </li>
+        <li>
+          <p-button
+            link
+            label="Descargar Selfie"
+            icon="pi pi-download"
+            size="small"
+            (onClick)="download(kyc()?.document2)"
+          />
+        </li>
+        <li>
+          <p-button
+            link
+            label="Descargar Selfie"
+            icon="pi pi-download"
+            size="small"
+            (onClick)="download(kyc()?.document3)"
+          />
+        </li>
+      </ul>
+    </section>
+    <section class="flex flex-col gap-y-3.5">
+      <app-dialog-subtitle headline="Formulario para gestionar el estado" />
+      <form [formGroup]="form" class="flex flex-col gap-y-6" (ngSubmit)="submit()">
+        <div class="flex flex-col gap-y-1">
+          <p-float-label variant="on">
+            <p-select
+              [options]="statuses"
+              optionLabel="name"
+              inputId="status"
+              fluid
+              formControlName="status"
+              [invalid]="isInvalid('status')"
+            />
+            <label for="status">Estado a actualizar</label>
+          </p-float-label>
+          @if (isInvalid('status')) {
+          <p-message variant="simple" severity="error" size="small"
+            >El nuevo estado es requerido</p-message
+          >
+          }
+        </div>
+        <div class="flex flex-col gap-y-1">
+          <p-float-label variant="on">
+            <textarea
+              id="notes"
+              placeholder="Escribe aquí tus observaciones..."
+              fluid
+              pTextarea
+              rows="3"
+              [autoResize]="true"
+              [maxLength]="max"
+              formControlName="notes"
+              [invalid]="isInvalid('notes')"
+            ></textarea>
+            <label for="notes">Notas de la operación</label>
+          </p-float-label>
+          <small class="text-xs sm:text-sm text-surface-600 text-right"
+            >Caracteres restantes: {{ remainingCharacters }}</small
+          >
+        </div>
+        <p-button
+          type="submit"
+          fluid
+          [label]="
+            updateLoading() ? 'Actualizando estado...' : 'Actualizar estado de la verificación'
+          "
+          [loading]="updateLoading()"
+        />
+      </form>
+    </section>
+  </div>
+  }
+  <footer class="flex items-center justify-end gap-x-5 mt-5 pt-3.5 border-t border-surface-200">
+    <p-button
+      label="Cerrar"
+      severity="secondary"
+      (onClick)="updateLoading() ? null : onClose.emit()"
+      [disabled]="updateLoading()"
+    />
+  </footer>
+  }
+</p-dialog>
