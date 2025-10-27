@@ -3,18 +3,30 @@
 >
   <nav class="container mx-auto flex items-center justify-between gap-x-2.5 px-5">
     <app-logo />
-    <ul
-      class="flex items-center sm:justify-between max-sm:flex-col max-sm:justify-center max-sm:translate-x-full duration-500 max-sm:bg-surface-50 max-sm:fixed max-sm:inset-0 max-sm:z-30 gap-y-12"
+    <div
+      class="relative font-semibold text-xs sm:text-sm"
       [ngClass]="{
-        'max-sm:translate-none': show()
+        'text-surface-500': kycStatus() === 'Sin KYC',
+        'text-primary-600': kycStatus() === 'KYC Verificado',
+        'text-red-600': kycStatus() === 'KYC Rechazado',
+        'text-blue-600': kycStatus() === 'KYC Pendiente',
+        'text-yellow-600': kycStatus() === 'KYC Por Revisar'
+      }"
+    >
+      <div class="absolute -top-4.5 -left-3.5 text-3xl">.</div>
+      <span>{{ kycStatus() }}</span>
+    </div>
+    <ul
+      class="flex items-center md:justify-between max-md:flex-col max-md:justify-center max-md:translate-x-full duration-500 max-md:bg-surface-50 max-md:fixed max-md:inset-0 max-md:z-30 gap-y-12"
+      [ngClass]="{
+        'max-md:translate-none': show()
       }"
     >
       <app-navbar-link headline="Inicio" route="./dashboard" (click)="show.set(false)" />
-      <app-navbar-link headline="Créditos" route="./creditos" (click)="show.set(false)" />
-      <app-navbar-link headline="Empresa" route="./empresa" (click)="show.set(false)" />
+      <app-navbar-link headline="Empresas" route="./empresas" (click)="show.set(false)" />
       <app-navbar-link headline="Perfil" route="./perfil" (click)="show.set(false)" />
     </ul>
-    <button class="sm:hidden relative z-30 cursor-pointer" (click)="show.set(!show())">
+    <button class="md:hidden relative z-30 cursor-pointer" (click)="show.set(!show())">
       <i
         class="pi text-3xl text-surface-600"
         [ngClass]="{ 'pi-bars': !show(), 'pi-times': show() }"

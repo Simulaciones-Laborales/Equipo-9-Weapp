@@ -1,1 +1,10 @@
-<h3 class="text-lg sm:text-xl text-surface-700 font-semibold">{{ headline() }}</h3>
+<h3
+  class="text-lg sm:text-xl text-surface-700 font-semibold"
+  [ngClass]="{
+    'text-left': align() === 'left',
+    'text-center': align() === 'center',
+    'text-right': align() === 'right'
+  }"
+>
+  {{ headline() }}
+</h3>

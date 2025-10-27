@@ -7,3 +7,15 @@
 body {
   @apply bg-surface-50;
 }
+
+.p-fieldset {
+  background-color: transparent;
+}
+
+.p-fieldset-legend {
+  background-color: transparent;
+}
+
+.p-fieldset-content {
+  background-color: transparent;
+}

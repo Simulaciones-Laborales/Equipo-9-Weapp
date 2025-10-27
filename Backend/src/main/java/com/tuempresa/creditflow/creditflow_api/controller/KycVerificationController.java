@@ -4,6 +4,7 @@ import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
 import com.tuempresa.creditflow.creditflow_api.dto.kyc.KycFileUploadRequestDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.kyc.KycStatusUpdateDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.kyc.KycVerificationResponseDTO;
+import com.tuempresa.creditflow.creditflow_api.dto.kyc.KycVerifiedCompanyResponseDTO;
 import com.tuempresa.creditflow.creditflow_api.enums.KycEntityType;
 import com.tuempresa.creditflow.creditflow_api.service.IKycVerificationService;
 import com.tuempresa.creditflow.creditflow_api.service.impl.KycVerificationServiceImpl;
@@ -171,6 +172,26 @@ public class KycVerificationController {
     public ResponseEntity<ExtendedBaseResponse<KycVerificationResponseDTO>> getById(@PathVariable UUID id) {
         return ResponseEntity.ok(kycService.getById(id));
     }
+
+  
+  /**
+     * Obtiene todas las empresas con verificaciones KYC registradas.
+     *
+     * @return Lista de todas las empresas con verificación registrada
+     */
+    @Operation(summary = "Obtener todas las empresas con verificación KYC")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista de empresas con verificación KYC",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ExtendedBaseResponse.class))), 
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content)
+    })
+    @GetMapping("/companies")
+    public ResponseEntity<ExtendedBaseResponse<List<KycVerifiedCompanyResponseDTO>>> getVerifiedCompaniesDetails() {
+        
+        return ResponseEntity.ok(kycService.getVerifiedCompaniesDetails());
+    }
+
 
     /**
      * Actualiza el estado de una verificación KYC.

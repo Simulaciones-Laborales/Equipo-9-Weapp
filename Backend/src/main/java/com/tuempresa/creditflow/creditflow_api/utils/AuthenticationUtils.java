@@ -3,6 +3,7 @@ package com.tuempresa.creditflow.creditflow_api.utils;
 import com.tuempresa.creditflow.creditflow_api.dto.BaseResponse;
 import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
 import com.tuempresa.creditflow.creditflow_api.dto.user.UserDto;
+import com.tuempresa.creditflow.creditflow_api.model.User;
 import com.tuempresa.creditflow.creditflow_api.service.IUserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -50,5 +51,17 @@ public class AuthenticationUtils {
 
     public ExtendedBaseResponse<UserDto> findUserById(UUID id){
         return this.userService.findUserById(id);
+    }
+
+    /**
+     * Obtiene toda la data del usuario autenticado.
+     *
+     * @return devuelve al usuario autenticado como un {@link User}.
+     * @author David Lugo - Refactorizado por Alben Bustamante.
+     */
+    public User getAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        return userService.findEntityByEmail(email);
     }
 }

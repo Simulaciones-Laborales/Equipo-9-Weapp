@@ -1,0 +1,11 @@
+<p-menubar>
+  <ng-template #start>
+    <app-logo />
+    <!--a routerLink="/">
+      <img src="creditflowlogo.png" alt="CreditFlowLogo" class="w-45" />
+    </a-->
+  </ng-template>
+  <ng-template #end>
+    <p-button class="mx-0.5" [routerLink]="actionCallRoute">{{ actionCallText }}</p-button>
+  </ng-template>
+</p-menubar>

@@ -1,0 +1,58 @@
+<form class="flex flex-col gap-y-6">
+  <p-fieldset legend="Documentación" class="text-lg">
+    <div class="flex max-lg:flex-col gap-y-2.5 lg:justify-between lg:gap-x-5 py-2.5">
+      <div class="flex flex-col gap-y-3.5">
+        <h4 class="text-base sm:text-lg text-surface-600 font-medium">{{ title1() }}</h4>
+        <p-fileUpload
+          mode="basic"
+          maxFileSize="10000000"
+          [auto]="false"
+          accept="image/*"
+          (onSelect)="linkImage($event, document1)"
+          [chooseLabel]="linkImageText(document1)"
+        />
+      </div>
+      <p-divider layout="vertical" class="hidden lg:block" />
+      <p-divider layout="horizontal" class="block lg:hidden" />
+      <div class="flex flex-col gap-y-3.5">
+        <h4 class="text-base sm:text-lg text-surface-600 font-medium">{{ title2() }}</h4>
+        <p-fileUpload
+          mode="basic"
+          maxFileSize="10000000"
+          [auto]="false"
+          accept="image/*"
+          (onSelect)="linkImage($event, document2)"
+          [chooseLabel]="linkImageText(document2)"
+        />
+      </div>
+      <p-divider layout="vertical" class="hidden lg:block" />
+      <p-divider layout="horizontal" class="block lg:hidden" />
+      <div class="flex flex-col gap-y-3.5">
+        <h4 class="text-base sm:text-lg text-surface-600 font-medium">{{ title3() }}</h4>
+        <p-fileUpload
+          mode="basic"
+          maxFileSize="10000000"
+          [auto]="false"
+          accept="image/*"
+          (onSelect)="linkImage($event, document3)"
+          [chooseLabel]="linkImageText(document3)"
+        />
+      </div>
+    </div>
+  </p-fieldset>
+  <div class="flex flex-col gap-y-3.5 w-full max-w-xl mx-auto">
+    <p-message severity="secondary" size="small" variant="simple">
+      Al subir la documentación, estás de acuerdo con nuestros
+      <a href="#" class="text-blue-500">términos y condiciones</a>.
+    </p-message>
+    <p-button
+      severity="contrast"
+      [label]="loading() ? 'Subiendo documentación...' : 'Subir Documentación'"
+      fluid
+      icon="pi pi-upload"
+      [disabled]="isInvalid()"
+      (onClick)="submit()"
+      [loading]="loading()"
+    />
+  </div>
+</form>

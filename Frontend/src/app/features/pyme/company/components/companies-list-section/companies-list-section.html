@@ -1,0 +1,18 @@
+<section class="flex flex-col gap-y-5">
+  <header class="flex flex-col gap-y-2.5">
+    <app-subtitle headline="Listado de Empresas" />
+    <p class="text-sm sm:text-base text-surface-600 text-pretty">
+      A continuación listamos todas tus empresas registradas.
+    </p>
+  </header>
+  <div class="flex items-center justify-between -mb-2.5">
+    <p class="text-sm text-surface-600">Mostrando {{ store.companies().length }} resultados.</p>
+    <p-button
+      size="small"
+      label="Nueva Empresa"
+      icon="pi pi-plus"
+      (onClick)="store.setShowNewCompanyForm(true)"
+    />
+  </div>
+  <app-companies-table [companies]="store.companies()" />
+</section>

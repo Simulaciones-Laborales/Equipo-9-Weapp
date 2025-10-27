@@ -1,0 +1,27 @@
+<section class="flex flex-col gap-y-5">
+  <header class="flex max-sm:flex-col items-start gap-y-2.5 gap-x-5">
+    @if (store.companies().length >= 1) {
+    <p-button
+      severity="secondary"
+      label="Volver"
+      icon="pi pi-angle-left"
+      (onClick)="store.setShowNewCompanyForm(false)"
+      [disabled]="store.createCompanyStatus() === 'loading'"
+    />
+    }
+    <div class="flex flex-col gap-y-2.5 border-l border-surface-200 pl-5">
+      <app-subtitle headline="Registro de Nueva Empresa" />
+      <p class="text-sm sm:text-base text-surface-600 text-pretty">
+        Por favor, completa los datos de tu empresa en el siguiente formulario para proceder con su
+        registro.
+      </p>
+    </div>
+  </header>
+  <article class="flex flex-col gap-y-5 w-full max-w-lg mx-auto mt-3">
+    <app-subtitle headline="Formulario de Registro" />
+    <app-new-company-form
+      [loading]="store.createCompanyStatus() === 'loading'"
+      (onSubmit)="store.createCompany($event)"
+    />
+  </article>
+</section>

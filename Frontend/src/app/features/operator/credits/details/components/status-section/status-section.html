@@ -1,0 +1,69 @@
+<!--@if (creditStatus() === 'UNDER_REVIEW' || creditStatus() === 'PENDING') {-->
+
+<article class="flex flex-col gap-y-3.5">
+  <app-subtitle headline="Formulario para actualizar el estado de la solicitud" />
+  <form [formGroup]="form" class="flex flex-col gap-y-5" (ngSubmit)="confirm()">
+    <p-fieldset legend="Comentarios" class="text-lg">
+      <div class="flex flex-col gap-y-1">
+        <p-float-label variant="on">
+          <textarea
+            pTextarea
+            [autoResize]="true"
+            [rows]="3"
+            fluid
+            placeholder="Escribe aquí tus comentarios acerca de la solicitud..."
+            formControlName="comments"
+            [maxlength]="max"
+          ></textarea>
+        </p-float-label>
+        <small class="text-xs sm:text-sm text-surface-600 text-right"
+          >Caracteres restantes: {{ remainingCharacters }}</small
+        >
+      </div>
+    </p-fieldset>
+    <p-fieldset class="text-lg" legend="Acción a realizar">
+      <div class="flex items-center justify-center">
+        <p-button
+          type="button"
+          size="small"
+          [outlined]="newStatus() !== 'APPROVED'"
+          label="Aprobar"
+          severity="success"
+          [disabled]="loading()"
+          (onClick)="setNewStatus('APPROVED')"
+        />
+        <p-divider layout="vertical" class="mx-2 sm:mx-3.5 md:mx-5" />
+        <p-button
+          type="button"
+          size="small"
+          [outlined]="newStatus() !== 'UNDER_REVIEW'"
+          label="En revisión"
+          severity="warn"
+          [disabled]="loading()"
+          (onClick)="setNewStatus('UNDER_REVIEW')"
+        />
+        <p-divider layout="vertical" class="mx-2 sm:mx-3.5 md:mx-5" />
+        <p-button
+          type="button"
+          size="small"
+          [outlined]="newStatus() !== 'REJECTED'"
+          label="Rechazar"
+          severity="danger"
+          [disabled]="loading()"
+          (onClick)="setNewStatus('REJECTED')"
+        />
+      </div>
+    </p-fieldset>
+    <p-button
+      type="submit"
+      [loading]="loading()"
+      [label]="loading() ? 'Actualizando estado de la solicitud...' : submitText"
+      fluid
+      class="mt-5"
+      [severity]="severity"
+      [disabled]="newStatus() === null"
+    />
+  </form>
+</article>
+<p-confirm-dialog />
+<!--}-->

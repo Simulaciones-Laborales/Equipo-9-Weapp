@@ -1,6 +1,6 @@
-<form [formGroup]="form" class="flex flex-col gap-y-7" (ngSubmit)="submit()">
+<form [formGroup]="form" class="flex flex-col gap-y-5" (ngSubmit)="submit()">
   <div class="flex flex-col gap-y-1">
-    <p-float-label>
+    <p-float-label variant="on">
       <input
         type="text"
         id="name"
@@ -18,7 +18,7 @@
     }
   </div>
   <div class="flex flex-col gap-y-1">
-    <p-float-label>
+    <p-float-label variant="on">
       <input
         type="text"
         id="taxId"
@@ -55,5 +55,11 @@
     </p-message>
     } }
   </div>
-  <p-button label="Completar Registro" type="submit" fluid [loading]="loading()" />
+  <p-button
+    [label]="loading() ? 'Registrando tu Empresa...' : 'Completar Registro'"
+    type="submit"
+    fluid
+    [loading]="loading()"
+    class="mt-2"
+  />
 </form>

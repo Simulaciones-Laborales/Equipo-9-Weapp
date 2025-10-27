@@ -7,7 +7,6 @@ import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.CreditAppli
 import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.CreditApplicationUpdateRequestDTO;
 import com.tuempresa.creditflow.creditflow_api.enums.CreditStatus;
 import com.tuempresa.creditflow.creditflow_api.model.User;
-import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
@@ -38,6 +37,16 @@ public interface CreditApplicationService {
      * @return DTO con la información de la solicitud.
      */
     CreditApplicationResponseDTO getApplicationByIdAndUser(UUID id, User user);
+
+    /**
+     * Obtiene una solicitud de crédito según un ID.
+     * <p>Podrá ser consultada si el usuario es el dueño de la solicitud o un operador/administrador.</p>
+     *
+     * @param id ID de la solicitud de crédito.
+     * @return DTO con la información de la solicitud.
+     * @author Alben Bustamante.
+     */
+    CreditApplicationResponseDTO getById(UUID id);
 
     /**
      * Lista todas las solicitudes de crédito de una empresa del usuario autenticado.

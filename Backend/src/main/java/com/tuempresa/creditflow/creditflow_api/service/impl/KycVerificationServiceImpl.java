@@ -497,7 +497,17 @@ public class KycVerificationServiceImpl implements IKycVerificationService {
 
         return uploadedUrls;
     }
+    public ExtendedBaseResponse<List<KycVerifiedCompanyResponseDTO>> getVerifiedCompaniesDetails() {
 
+        List<KycVerifiedCompanyResponseDTO> verifiedCompanies =
+                kycRepo.findVerifiedCompanyDetails();
+
+        return ExtendedBaseResponse.of(
+                BaseResponse.ok("Empresas con verificación"+
+                        "KYC obtenidas exitosamente."),
+                verifiedCompanies
+        );
+    }
     /**
      * Mapea la situación numérica a una descripción amigable.
      */

@@ -1,4 +1,11 @@
-<app-navbar />
+<app-navbar [kycStatus]="store.userKycStatus().name" />
 <main class="mt-18 container mx-auto px-5 py-8">
+  @if (store.status() === 'loading') {
+  <div
+    class="fixed top-0 left-0 bottom-0 right-0 z-50 w-screen h-screen bg-white grid place-items-center"
+  >
+    <app-loading-spinner message="Cargando documentación..." />
+  </div>
+  }
   <router-outlet />
 </main>
