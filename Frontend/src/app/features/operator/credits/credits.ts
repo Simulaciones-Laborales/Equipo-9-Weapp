@@ -19,7 +19,8 @@ import { PaginatorState } from 'primeng/paginator';
 })
 export default class Credits {
   readonly breadcrumbItems: MenuItem[] = [
-    { label: 'Solicitudes de crédito', icon: 'pi pi-home', routerLink: './' },
+    { icon: 'pi pi-home', routerLink: '/operador' },
+    { label: 'Solicitudes de crédito', routerLink: './' },
   ];
 
   readonly store = inject(CreditsStore);

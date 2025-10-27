@@ -13,8 +13,12 @@ export class UserApi {
   private readonly _url = `${environment.apiUrl}/user`;
   private readonly _http = inject(HttpClient);
 
-  async getAllKycByStatus(userId: string, status: KYCVerificationStatus) {
-    const params = new HttpParams().append('status', status);
+  async getAllKycByStatus(userId: string, status: KYCVerificationStatus | null) {
+    let params = new HttpParams();
+
+    if (status) {
+      params = new HttpParams().append('status', status);
+    }
 
     const call = this._http.get<Response<KYCVerificationResponse[]>>(`${this._url}/${userId}/kyc`, {
       params,
@@ -23,10 +27,21 @@ export class UserApi {
     return await lastValueFrom(call);
   }
 
-  async getAllKYC(userId: string) {
+  /* async getAllKYC(userId: string) {
     const call = this._http.get<Response<KYCVerificationResponse[]>>(
       `${this._url}/${userId}/kyc/all`
     );
+
+    return await lastValueFrom(call);
+  } */
+
+  /**
+   * Permite recuperar una lista de todos los usuarios.
+   *
+   * @returns Devuelve el listado de usuarios.
+   */
+  async getAll() {
+    const call = this._http.get<Response<User[]>>(`${this._url}/list`);
 
     return await lastValueFrom(call);
   }
