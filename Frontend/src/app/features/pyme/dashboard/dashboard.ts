@@ -4,10 +4,10 @@ import { TokenStorage } from '@core/services/token-storage';
 import { Subtitle } from '@components/subtitle/subtitle';
 import { Button } from 'primeng/button';
 import { Divider } from 'primeng/divider';
-import { Router } from '@angular/router';
 import { DashboardStore } from './dashboard-store';
 import { NewKycForm } from '@features/components/new-kyc-form/new-kyc-form';
 import { LayoutStore } from '../layout/layout-store';
+import { LogoutService } from '@core/services/logout-service';
 
 @Component({
   selector: 'app-dashboard',
@@ -18,7 +18,7 @@ import { LayoutStore } from '../layout/layout-store';
 })
 export default class Dashboard {
   private readonly _tokenStorage = inject(TokenStorage);
-  private readonly _router = inject(Router);
+  private readonly _logoutService = inject(LogoutService);
 
   readonly layoutStorage = inject(LayoutStore);
   readonly store = inject(DashboardStore);
@@ -44,7 +44,6 @@ export default class Dashboard {
   }
 
   logout() {
-    this._tokenStorage.clear();
-    this._router.navigateByUrl('pyme/auth');
+    this._logoutService.logout();
   }
 }

@@ -1,9 +1,10 @@
 import { Routes } from '@angular/router';
+import Company from './company';
 
 export default [
   {
     path: '',
-    loadComponent: () => import('./company'),
+    component: Company,
   },
   {
     path: ':id/solicitudes-de-credito',

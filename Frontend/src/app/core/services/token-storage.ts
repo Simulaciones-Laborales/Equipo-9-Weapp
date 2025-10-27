@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { JwtPayload } from '@core/models/token-model';
-import { LoginRes } from '@features/pyme/auth/models/auth-model';
+import { LoginRes } from '@features/auth/models/auth-model';
 import { jwtDecode } from 'jwt-decode';
 
 @Injectable({

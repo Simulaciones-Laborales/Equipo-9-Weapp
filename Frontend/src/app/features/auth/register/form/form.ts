@@ -22,6 +22,7 @@ import { Select } from 'primeng/select';
 import { CountryUtils } from '@core/services/country-utils';
 import { Fieldset } from '../../components/fieldset/fieldset';
 import { formatDate } from '@angular/common';
+import { RouteByRoleService } from '@core/services/route-by-role-service';
 
 @Component({
   selector: 'app-user-form',
@@ -48,6 +49,7 @@ export class Form {
   private readonly _route = inject(ActivatedRoute);
   private readonly _countryUtils = inject(CountryUtils);
   private readonly _locale = inject(LOCALE_ID);
+  private readonly _routeByRoleService = inject(RouteByRoleService);
 
   readonly today = new Date();
   readonly store = inject(FormStore);
@@ -106,6 +108,8 @@ export class Form {
   private _successful() {
     this.form.reset();
     this._tokenStorage.save(this.store.response()!.data);
-    this._router.navigate(['../..', 'dashboard'], { relativeTo: this._route });
+
+    const navigateTo = this._routeByRoleService.getRoute();
+    this._router.navigate([navigateTo], { relativeTo: this._route });
   }
 }

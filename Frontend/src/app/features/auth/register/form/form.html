@@ -179,6 +179,11 @@
     Al crear tu cuenta aceptas nuestros
     <a href="#" class="text-blue-500">términos y condiciones</a>
   </p-message>
-  <p-button label="Crear cuenta" type="submit" fluid [loading]="store.status() === 'loading'" />
+  <p-button
+    [label]="store.buttonText()"
+    type="submit"
+    fluid
+    [loading]="store.status() === 'loading'"
+  />
   <app-linker route="../login" text="¿Ya tienes cuenta?" />
 </form>

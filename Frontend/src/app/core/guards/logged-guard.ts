@@ -1,11 +1,11 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { UserRole } from '@core/models/user-model';
+import { RouteByRoleService } from '@core/services/route-by-role-service';
 import { TokenStorage } from '@core/services/token-storage';
 import { key } from '@core/utils/http-utils';
 import { MessageService } from 'primeng/api';
 
-export const loggedGuard: CanActivateFn = () => {
+export const loggedGuard: CanActivateFn = (route, state) => {
   const tokenStorage = inject(TokenStorage);
   const router = inject(Router);
 
@@ -19,17 +19,15 @@ export const loggedGuard: CanActivateFn = () => {
       detail: 'Por favor, inicia sesión para poder acceder al sistema',
     });
 
-    return router.createUrlTree(['pyme', 'auth', 'login']);
+    return router.createUrlTree(['auth', 'login']);
   }
 
-  const user = tokenStorage.user();
+  const path = route.routeConfig?.path;
+  const navigateTo = inject(RouteByRoleService).getRoute();
 
-  if (!user) {
-    return false;
+  if (path !== navigateTo) {
+    return router.createUrlTree([navigateTo]);
   }
-
-  const route = user.role === UserRole.OPERADOR ? 'operador' : 'pyme';
-  router.createUrlTree([`${route}`]);
 
   return true;
 };
