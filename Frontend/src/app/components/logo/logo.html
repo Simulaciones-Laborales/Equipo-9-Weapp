@@ -1,5 +1,13 @@
-<h1
-  class="text-2xl sm:text-3xl md:text-4xl text-primary-500 text-shadow-sm text-shadow-primary-200 font-bold relative z-40"
->
-  CreditFlow
-</h1>
+<a routerLink="/">
+  <h1
+    class="text-primary-500 text-shadow-sm text-shadow-primary-200 relative z-40 hover:text-primary-600 hover:text-shadow-md transition-[box-shadow,_text-shadow,_color] duration-200"
+    [ngClass]="{
+      'text-2xl sm:text-3xl md:text-4xl font-bold': size() === 'md',
+      'text-4xl sm:text-5xl font-extrabold': size() === 'lg',
+      'text-left': align() === 'left',
+      'text-center': align() === 'center'
+    }"
+  >
+    CreditFlow
+  </h1>
+</a>
