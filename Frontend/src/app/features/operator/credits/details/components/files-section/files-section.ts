@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { Subtitle } from '@components/subtitle/subtitle';
 import { RiskDocument } from '@core/models/risk-document-model';
 import { FileDownloaderService } from '@core/services/file-downloader-service';
@@ -13,22 +13,7 @@ import { Button } from 'primeng/button';
 export class FilesSection {
   private readonly _fileDownloaderService = inject(FileDownloaderService);
 
-  readonly files: RiskDocument[] = [
-    {
-      id: 'sdfw',
-      name: 'archivo_1.doc',
-      scoreImpact: 24,
-      documentUrl:
-        'https://drive.google.com/file/d/1DydtlOzI-j5_S0FlYU3SsDI1DP8lH_cb/view?usp=sharing',
-    },
-    {
-      id: 'jlsfjks',
-      name: 'archivo_2_con_nombre_muy_largo extremadamente_largo.doc',
-      scoreImpact: 17,
-      documentUrl:
-        'https://drive.google.com/file/d/1DydtlOzI-j5_S0FlYU3SsDI1DP8lH_cb/view?usp=sharing',
-    },
-  ];
+  readonly files = input.required<RiskDocument[] | undefined>();
 
   downloadFile(url: string, name: string) {
     this._fileDownloaderService.download(url).subscribe((blob) => {
