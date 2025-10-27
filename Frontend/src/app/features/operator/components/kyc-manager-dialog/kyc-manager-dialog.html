@@ -1,0 +1,16 @@
+<p-dialog
+  [modal]="true"
+  [closable]="false"
+  [visible]="visible()"
+  header="Gestión del KYC"
+  [style]="{ width: '100%', 'max-width': '36rem' }"
+>
+  @if (loading()) {
+  <app-loading-spinner message="Cargando verificación del KYC..." />
+  } @else {
+  <p>jkdlfs</p>
+  <footer class="flex items-center justify-end gap-x-5">
+    <p-button label="Cerrar" severity="secondary" (onClick)="onClose.emit()" />
+  </footer>
+  }
+</p-dialog>

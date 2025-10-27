@@ -6,8 +6,18 @@
 <section class="mt-8 w-full flex flex-col gap-y-2">
   @defer (when store.fetchStatus() !== 'loading') {
   <app-subtitle headline="Listado de clientes registrados" />
-  <app-clients-table [clients]="store.clients()" />
+  <app-clients-table
+    [clients]="store.clients()"
+    (onSelectVerification)="onSelectVerification($event)"
+  />
   } @placeholder {
   <app-loading-spinner message="Cargando solicitudes de crédito..." class="mt-36" />
   }
 </section>
+@if (store.showDialog()) {
+<app-kyc-manager-dialog
+  [visible]="store.showDialog()"
+  [loading]="store.fetchKycStatus() === 'loading'"
+  (onClose)="store.closeDialog()"
+/>
+}
