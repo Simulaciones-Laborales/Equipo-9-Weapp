@@ -86,7 +86,7 @@ export const LayoutStore = signalStore(
 
       try {
         const user = tokenStorage.user();
-        const kyc = await userApi.getAllKYC(user!.id);
+        const kyc = await userApi.getAllKycByStatus(user!.id, null);
 
         patchState(store, { kyc: kyc.data, status: 'success' });
       } catch (e) {
