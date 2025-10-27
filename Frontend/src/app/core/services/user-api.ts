@@ -13,8 +13,12 @@ export class UserApi {
   private readonly _url = `${environment.apiUrl}/user`;
   private readonly _http = inject(HttpClient);
 
-  async getAllKycByStatus(userId: string, status: KYCVerificationStatus) {
-    const params = new HttpParams().append('status', status);
+  async getAllKycByStatus(userId: string, status: KYCVerificationStatus | null) {
+    let params = new HttpParams();
+
+    if (status) {
+      params = new HttpParams().append('status', status);
+    }
 
     const call = this._http.get<Response<KYCVerificationResponse[]>>(`${this._url}/${userId}/kyc`, {
       params,
