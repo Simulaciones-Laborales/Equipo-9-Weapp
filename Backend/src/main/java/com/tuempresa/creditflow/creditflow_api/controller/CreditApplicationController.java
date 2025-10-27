@@ -22,6 +22,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -52,11 +53,8 @@ public class CreditApplicationController {
     private final AuthenticationUtils authenticationUtils;
 
     @Operation(
-            summary = "Listar todas las solicitudes de crédito (Admin/Operador)",
-            description = """
-        Permite a los usuarios con rol ADMIN u OPERADOR obtener una lista paginada de todas las solicitudes de crédito en el sistema.
-        Se puede filtrar por estado (status).
-        """
+            summary = "Listar todas las solicitudes de crédito (Operador)",
+            description = "Permite a los usuarios con rol OPERADOR obtener una lista paginada de todas las solicitudes de crédito en el sistema. Se puede filtrar por estado (status)."
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -65,14 +63,15 @@ public class CreditApplicationController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Page.class, subTypes = CreditApplicationResponseDTO.class))
             ),
-            @ApiResponse(responseCode = "403", description = "Acceso denegado (usuario sin rol ADMIN/OPERADOR).",
+            @ApiResponse(responseCode = "403", description = "Acceso denegado (usuario sin rol OPERADOR).",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping
     public ResponseEntity<Page<CreditApplicationResponseDTO>> getAllApplications(
             @Parameter(description = "Estado de la solicitud para filtrar los resultados (opcional).")
             @RequestParam(value = "status", required = false) CreditStatus status,
-            @Parameter(description = "Parámetros de paginación (ej. page=0&size=20&sort=createdAt,desc).") Pageable pageable) {
+            @ParameterObject Pageable pageable
+    ) {
         Page<CreditApplicationResponseDTO> applicationsPage = creditApplicationService.getAllCreditApplications(status, pageable);
         return ResponseEntity.ok(applicationsPage);
     }
