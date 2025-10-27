@@ -2,7 +2,7 @@
 
 <article class="flex flex-col gap-y-3.5">
   <app-subtitle headline="Formulario para actualizar el estado de la solicitud" />
-  <form [formGroup]="form" class="flex flex-col gap-y-5">
+  <form [formGroup]="form" class="flex flex-col gap-y-5" (ngSubmit)="confirm()">
     <p-fieldset legend="Comentarios" class="text-lg">
       <div class="flex flex-col gap-y-1">
         <p-float-label variant="on">
@@ -65,4 +65,5 @@
     />
   </form>
 </article>
+<p-confirm-dialog />
 <!--}-->
