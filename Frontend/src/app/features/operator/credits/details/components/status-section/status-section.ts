@@ -4,26 +4,17 @@ import {
   CreditApplicationStatus,
   UpdateCreditApplicationStatusDto,
 } from '@core/models/credit-application-model';
-import { CreditApplicationStatusPipe } from '@pipes/credit-application-status-pipe';
 import { Fieldset } from 'primeng/fieldset';
 import { Textarea } from 'primeng/textarea';
 import { FloatLabel } from 'primeng/floatlabel';
 import { Button } from 'primeng/button';
 import { Divider } from 'primeng/divider';
+import { Card } from 'primeng/card';
 import { Subtitle } from '@components/subtitle/subtitle';
 
 @Component({
   selector: 'app-status-section',
-  imports: [
-    CreditApplicationStatusPipe,
-    Fieldset,
-    ReactiveFormsModule,
-    Textarea,
-    FloatLabel,
-    Button,
-    Divider,
-    Subtitle,
-  ],
+  imports: [Fieldset, ReactiveFormsModule, Textarea, FloatLabel, Button, Divider, Card, Subtitle],
   templateUrl: './status-section.html',
   styleUrl: './status-section.css',
 })
@@ -51,5 +42,31 @@ export class StatusSection {
 
   get newStatus() {
     return this._newStatus.asReadonly();
+  }
+
+  get severity() {
+    switch (this.newStatus()) {
+      case 'APPROVED':
+        return 'success';
+      case 'UNDER_REVIEW':
+        return 'warn';
+      case 'REJECTED':
+        return 'danger';
+      default:
+        return 'primary';
+    }
+  }
+
+  get submitText() {
+    switch (this.newStatus()) {
+      case 'APPROVED':
+        return 'Aprobar solicitud de crédito';
+      case 'UNDER_REVIEW':
+        return 'Dejar en revisión';
+      case 'REJECTED':
+        return 'Rechazar solicitud de crédito';
+      default:
+        return 'Selecciona una acción';
+    }
   }
 }

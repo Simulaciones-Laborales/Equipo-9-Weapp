@@ -1,7 +1,11 @@
 import { formatCurrency, formatDate } from '@angular/common';
 import { Component, inject, input, LOCALE_ID } from '@angular/core';
-import { CreditApplicationPurpose } from '@core/models/credit-application-model';
-import { CreditApplicationPurposePipe } from 'app/pipes/credit-application-purpose-pipe';
+import {
+  CreditApplicationPurpose,
+  CreditApplicationStatus,
+} from '@core/models/credit-application-model';
+import { CreditApplicationStatusPipe } from '@pipes/credit-application-status-pipe';
+import { CreditApplicationPurposePipe } from '@pipes/credit-application-purpose-pipe';
 
 @Component({
   selector: 'app-information-item',
@@ -13,8 +17,10 @@ export class InformationItem {
   private readonly _locale = inject(LOCALE_ID);
 
   readonly name = input.required<string>();
-  readonly value = input.required<string | number | Date | CreditApplicationPurpose | undefined>();
-  readonly pipe = input<'datetime' | 'currency' | 'purpose' | null>(null);
+  readonly value = input.required<
+    string | number | Date | CreditApplicationPurpose | CreditApplicationStatus | undefined
+  >();
+  readonly pipe = input<'datetime' | 'currency' | 'purpose' | 'status' | null>(null);
 
   get formattedValue() {
     if (!this.value()) {
@@ -31,6 +37,10 @@ export class InformationItem {
 
     if (this.pipe() === 'purpose') {
       return new CreditApplicationPurposePipe().transform(this.value() as CreditApplicationPurpose);
+    }
+
+    if (this.pipe() === 'status') {
+      return new CreditApplicationStatusPipe().transform(this.value() as CreditApplicationStatus);
     }
 
     return this.value();

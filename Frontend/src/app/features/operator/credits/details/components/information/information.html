@@ -5,6 +5,7 @@
     <app-information-item name="Valor" [value]="detail()?.amount" pipe="currency" />
     <app-information-item name="Plazo a Meses" [value]="detail()?.termMonths" />
     <app-information-item name="Propósito" [value]="detail()?.creditPurpose" pipe="purpose" />
+    <app-information-item name="Estado" [value]="detail()?.status" pipe="status" />
     <app-information-item name="Fecha de solicitud" [value]="detail()?.createdAt" pipe="datetime" />
   </ul>
 </section>
