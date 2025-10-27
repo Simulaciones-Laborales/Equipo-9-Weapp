@@ -9,12 +9,11 @@ import { Textarea } from 'primeng/textarea';
 import { FloatLabel } from 'primeng/floatlabel';
 import { Button } from 'primeng/button';
 import { Divider } from 'primeng/divider';
-import { Card } from 'primeng/card';
 import { Subtitle } from '@components/subtitle/subtitle';
 
 @Component({
   selector: 'app-status-section',
-  imports: [Fieldset, ReactiveFormsModule, Textarea, FloatLabel, Button, Divider, Card, Subtitle],
+  imports: [Fieldset, ReactiveFormsModule, Textarea, FloatLabel, Button, Divider, Subtitle],
   templateUrl: './status-section.html',
   styleUrl: './status-section.css',
 })
