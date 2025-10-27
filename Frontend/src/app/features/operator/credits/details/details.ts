@@ -9,6 +9,7 @@ import { RiskScoreCard } from './components/risk-score-card/risk-score-card';
 import { LoadingSpinner } from '@components/loading-spinner/loading-spinner';
 import { StatusSection } from './components/status-section/status-section';
 import { Divider } from 'primeng/divider';
+import { FilesSection } from './components/files-section/files-section';
 
 @Component({
   selector: 'app-details',
@@ -20,6 +21,7 @@ import { Divider } from 'primeng/divider';
     LoadingSpinner,
     StatusSection,
     Divider,
+    FilesSection,
   ],
   templateUrl: './details.html',
   styleUrl: './details.css',
