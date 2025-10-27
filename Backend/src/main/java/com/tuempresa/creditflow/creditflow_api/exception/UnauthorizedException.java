@@ -1,0 +1,7 @@
+package com.tuempresa.creditflow.creditflow_api.exception;
+
+public class UnauthorizedException extends RuntimeException {
+    public UnauthorizedException(String message) {
+        super(message);
+    }
+}

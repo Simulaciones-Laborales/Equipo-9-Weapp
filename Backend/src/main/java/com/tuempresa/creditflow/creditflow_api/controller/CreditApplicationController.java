@@ -13,6 +13,7 @@ import com.tuempresa.creditflow.creditflow_api.model.User;
 import com.tuempresa.creditflow.creditflow_api.service.CreditApplicationHistoryService;
 import com.tuempresa.creditflow.creditflow_api.service.CreditApplicationService;
 import com.tuempresa.creditflow.creditflow_api.service.IUserService;
+import com.tuempresa.creditflow.creditflow_api.utils.AuthenticationUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -48,13 +49,7 @@ public class CreditApplicationController {
     private final CreditApplicationService creditApplicationService;
     private final CreditApplicationHistoryService creditApplicationHistoryService;
     private final IUserService userService;
-
-    // Obtener el usuario autenticado (se excluye de la documentación de Swagger)
-    private User getAuthenticatedUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
-        return userService.findEntityByEmail(email);
-    }
+    private final AuthenticationUtils authenticationUtils;
 
     // Dentro de CreditApplicationController class
 
@@ -114,7 +109,7 @@ public class CreditApplicationController {
             @RequestPart("data") String data,
             @RequestPart(value = "files", required = false) List<MultipartFile> files
     ) throws JsonProcessingException {
-        User currentUser = getAuthenticatedUser();
+        User currentUser = authenticationUtils.getAuthenticatedUser();
 
         // Convierte manualmente el JSON recibido a tu DTO
         ObjectMapper mapper = new ObjectMapper();
@@ -129,9 +124,9 @@ public class CreditApplicationController {
     @Operation(
             summary = "Actualizar una solicitud de crédito existente con nuevos datos o documentos",
             description = """
-        Permite modificar una solicitud de crédito existente. 
-        El cuerpo de la solicitud debe enviarse como multipart/form-data, 
-        incluyendo un campo `data` (JSON con los datos a actualizar) 
+        Permite modificar una solicitud de crédito existente.
+        El cuerpo de la solicitud debe enviarse como multipart/form-data,
+        incluyendo un campo `data` (JSON con los datos a actualizar)
         y opcionalmente archivos en el campo `documents`.
         Ejemplo de campo `data`:
         {
@@ -166,7 +161,7 @@ public class CreditApplicationController {
             @RequestPart(value = "documents", required = false) List<MultipartFile> documents
     ) throws JsonProcessingException {
 
-        User currentUser = getAuthenticatedUser();
+        User currentUser = authenticationUtils.getAuthenticatedUser();
 
         List<MultipartFile> safeDocuments = (documents != null) ? documents : List.of();
 
@@ -178,6 +173,32 @@ public class CreditApplicationController {
                 .updateApplication(id, dto, safeDocuments, currentUser);
 
         return ResponseEntity.ok(updated);
+    }
+
+    @Operation(
+            summary = "Obtener una solicitud de crédito por ID",
+            description = """
+        Permite obtener los detalles de una solicitud de crédito específica por su ID.
+        Solo el propietario de la solicitud puede acceder a esta información.
+        """,
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Solicitud de crédito obtenida correctamente",
+                    content = @Content(schema = @Schema(implementation = CreditApplicationResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Solicitud de crédito no encontrada",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado (usuario no autorizado)",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GetMapping("/{id}/owner")
+    public ResponseEntity<CreditApplicationResponseDTO> getByIdAndOwner(
+            @Parameter(description = "ID (UUID) de la solicitud a consultar.")
+            @PathVariable UUID id) {
+
+        User currentUser = authenticationUtils.getAuthenticatedUser();
+        CreditApplicationResponseDTO dto = creditApplicationService.getApplicationByIdAndUser(id, currentUser);
+        return ResponseEntity.ok(dto);
     }
 
     @Operation(
@@ -196,14 +217,9 @@ public class CreditApplicationController {
             @ApiResponse(responseCode = "403", description = "Acceso denegado (usuario no autorizado)",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @GetMapping("/{id}")
-    public ResponseEntity<CreditApplicationResponseDTO> getById(
-            @Parameter(description = "ID (UUID) de la solicitud a consultar.")
-            @PathVariable UUID id) {
-
-        User currentUser = getAuthenticatedUser();
-        CreditApplicationResponseDTO dto = creditApplicationService.getApplicationByIdAndUser(id, currentUser);
-        return ResponseEntity.ok(dto);
+    @GetMapping(path = "/{id}")
+    public ResponseEntity<CreditApplicationResponseDTO> getById(@PathVariable("id") UUID id) {
+        return ResponseEntity.ok(creditApplicationService.getById(id));
     }
 
     @Operation(
@@ -233,7 +249,7 @@ public class CreditApplicationController {
             @Parameter(description = "Estado de la solicitud para filtrar los resultados (opcional).")
             @RequestParam(value = "status", required = false) CreditStatus status) {
 
-        User currentUser = getAuthenticatedUser();
+        User currentUser = authenticationUtils.getAuthenticatedUser();
         List<CreditApplicationResponseDTO> applications = creditApplicationService.getCreditApplicationsByUser(currentUser, status);
         return ResponseEntity.ok(applications);
     }
@@ -259,7 +275,7 @@ public class CreditApplicationController {
             @Parameter(description = "ID (UUID) de la empresa cuyas solicitudes se desean consultar.")
             @PathVariable UUID companyId) {
 
-        User currentUser = getAuthenticatedUser();
+        User currentUser = authenticationUtils.getAuthenticatedUser();
         List<CreditApplicationResponseDTO> list = creditApplicationService.getApplicationsByCompany(companyId, currentUser);
         return ResponseEntity.ok(list);
     }
@@ -294,7 +310,7 @@ public class CreditApplicationController {
             )
             @RequestBody @Valid CreditApplicationStatusChangeDTO dto) {
 
-        User currentUser = getAuthenticatedUser();
+        User currentUser = authenticationUtils.getAuthenticatedUser();
         CreditApplicationResponseDTO updated = creditApplicationService.changeStatus(id, dto, currentUser);
         return ResponseEntity.ok(updated);
     }
@@ -316,7 +332,7 @@ public class CreditApplicationController {
         @Parameter(description = "ID (UUID) de la solicitud a eliminar.")
         @PathVariable UUID id) {
         
-        User currentUser = getAuthenticatedUser();
+        User currentUser = authenticationUtils.getAuthenticatedUser();
         creditApplicationService.deleteApplication(id, currentUser);
         return ResponseEntity.noContent().build();
     }
@@ -351,7 +367,7 @@ public class CreditApplicationController {
             @Parameter(description = "Parámetros de paginación (ej. page=0&size=10&sort=createdAt,desc).")
             Pageable pageable) {
 
-        User currentUser = getAuthenticatedUser();
+        User currentUser = authenticationUtils.getAuthenticatedUser();
         Page<CreditApplicationHistoryDTO> page = creditApplicationHistoryService.getHistoryByApplication(id, currentUser, pageable);
         return ResponseEntity.ok(page);
     }
