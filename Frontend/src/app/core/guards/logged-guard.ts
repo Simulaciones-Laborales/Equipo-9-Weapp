@@ -22,10 +22,10 @@ export const loggedGuard: CanActivateFn = (route, state) => {
     return router.createUrlTree(['auth', 'login']);
   }
 
-  const path = route.routeConfig?.path;
+  const path = `/${route.routeConfig?.path}`;
   const navigateTo = inject(RouteByRoleService).getRoute();
 
-  if (path !== navigateTo) {
+  if (!path?.includes(navigateTo)) {
     return router.createUrlTree([navigateTo]);
   }
 
