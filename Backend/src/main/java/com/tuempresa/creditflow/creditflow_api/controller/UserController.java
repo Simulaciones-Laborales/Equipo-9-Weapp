@@ -59,6 +59,33 @@ public class UserController {
     }
 
     @Operation(
+            summary = "Obtener usuario logueado",
+            description = "Devuelve los datos del usuario que ha iniciado sesión actualmente."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Usuario logueado encontrado exitosamente.",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserDto.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "No se encontró un usuario logueado.",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno al obtener el usuario logueado.",
+                    content = @Content
+            )
+    })
+    @GetMapping("/me")
+    public ResponseEntity<ExtendedBaseResponse<UserDto>> getLoggedUser() {
+        ExtendedBaseResponse<UserDto> response = userService.findOnlineUser();
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(
             summary = "Consulta todos los KYC registrados por el usuario",
             description = "Obtiene todos los procesos de verificación KYC de un usuario por su ID. Devuelve un listado vacío si no hay registros."
     )

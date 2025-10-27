@@ -20,17 +20,8 @@ public interface IUserService {
     ExtendedBaseResponse<String> deleteUserById(UUID id);
 
     ExtendedBaseResponse<UserDto> changeUserStatus(UserStatusRequestDto data);
-    
-    UUID getUserIdByEmail(String email);
-    
-    // NUEVO: devuelve la entidad User por email (o lanza excepción si no existe)
-    User findEntityByEmail(String email);
 
-    // (opcional) devolver entidad por id
-    User findEntityById(UUID id);
-    
-    // Método para encontrar usuario por email, username o id
     User findEntityByPrincipal(String principal);
 
-
+    ExtendedBaseResponse<UserDto> findOnlineUser();
 }

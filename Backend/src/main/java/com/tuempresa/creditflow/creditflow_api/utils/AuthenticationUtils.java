@@ -15,7 +15,7 @@ import java.util.UUID;
 
 @Component
 public class AuthenticationUtils {
-    private final IUserService userService;
+  /*  private final IUserService userService;
 
     public AuthenticationUtils(IUserService userService) {
         this.userService = userService;
@@ -53,15 +53,36 @@ public class AuthenticationUtils {
         return this.userService.findUserById(id);
     }
 
-    /**
+    *//**
      * Obtiene toda la data del usuario autenticado.
      *
      * @return devuelve al usuario autenticado como un {@link User}.
      * @author David Lugo - Refactorizado por Alben Bustamante.
-     */
+     *//*
     public User getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
         return userService.findEntityByEmail(email);
+    }*/
+
+    /**
+     * Devuelve el principal del usuario logueado (email, username o token).
+     * Retorna null si no hay usuario autenticado.
+     */
+    public String getLoggedInPrincipal() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
+            return null;
+        }
+
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof UserDetails) {
+            return ((UserDetails) principal).getUsername();
+        }
+        if (principal instanceof String) {
+            return (String) principal;
+        }
+
+        return null;
     }
 }
