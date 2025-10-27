@@ -10,6 +10,7 @@ import { LoadingSpinner } from '@components/loading-spinner/loading-spinner';
 import { StatusSection } from './components/status-section/status-section';
 import { Divider } from 'primeng/divider';
 import { FilesSection } from './components/files-section/files-section';
+import { UpdateCreditApplicationStatusDto } from '@core/models/credit-application-model';
 
 @Component({
   selector: 'app-details',
@@ -43,5 +44,9 @@ export default class Details {
 
   async ngOnInit() {
     await this.store.fetch();
+  }
+
+  async onUpdateStatus(dto: UpdateCreditApplicationStatusDto) {
+    await this.store.updateStatus(dto);
   }
 }

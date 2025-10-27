@@ -17,6 +17,8 @@
         [creditId]="store.id()"
         [creditStatus]="store.credit()?.status"
         [loading]="store.updateStatusStatus() === 'loading'"
+        [success]="store.updateStatusStatus() === 'success'"
+        (onUpdateStatus)="onUpdateStatus($event)"
       />
     </div>
   </article>

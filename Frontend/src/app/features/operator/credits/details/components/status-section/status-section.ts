@@ -1,4 +1,4 @@
-import { Component, inject, input, output, signal } from '@angular/core';
+import { Component, effect, inject, input, output, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   CreditApplicationStatus,
@@ -39,10 +39,30 @@ export class StatusSection {
   readonly creditId = input.required<string | null>();
   readonly creditStatus = input.required<CreditApplicationStatus | undefined>();
   readonly loading = input.required<boolean>();
+  readonly success = input.required<boolean>();
 
   readonly form = this._fb.group({
     comments: ['', Validators.max(this.max)],
   });
+
+  constructor() {
+    effect(() => {
+      if (this.success()) {
+        this._newStatus.set(null);
+        this.form.reset();
+      }
+    });
+  }
+
+  submit() {
+    const dto: UpdateCreditApplicationStatusDto = {
+      comments: this.form.get('comments')?.value ?? '',
+      newStatus: this._newStatus()!,
+    };
+
+    this.onUpdateStatus.emit(dto);
+    this._confirmationService.close();
+  }
 
   setNewStatus(status: string) {
     this._newStatus.set(status as CreditApplicationStatus);
@@ -62,6 +82,7 @@ export class StatusSection {
         size: 'small',
         severity: this.severity,
       },
+      accept: () => this.submit(),
       rejectLabel: 'Cancelar',
       rejectButtonProps: {
         size: 'small',
