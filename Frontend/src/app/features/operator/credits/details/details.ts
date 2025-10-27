@@ -8,10 +8,19 @@ import { Information } from './components/information/information';
 import { RiskScoreCard } from './components/risk-score-card/risk-score-card';
 import { LoadingSpinner } from '@components/loading-spinner/loading-spinner';
 import { StatusSection } from './components/status-section/status-section';
+import { Divider } from 'primeng/divider';
 
 @Component({
   selector: 'app-details',
-  imports: [Header, TableModule, Information, RiskScoreCard, LoadingSpinner, StatusSection],
+  imports: [
+    Header,
+    TableModule,
+    Information,
+    RiskScoreCard,
+    LoadingSpinner,
+    StatusSection,
+    Divider,
+  ],
   templateUrl: './details.html',
   styleUrl: './details.css',
   providers: [DetailsStore],
