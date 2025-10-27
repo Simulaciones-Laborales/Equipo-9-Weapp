@@ -23,7 +23,7 @@ public class SwaggerConfig {
                                 Documentación de la API de CreditFlow.
 
                                 🔗 Repositorio en GitHub: [CreditFlow Backend](https://github.com/Simulaciones-Laborales/Equipo-9-Weapp)  
-                                🌐 Frontend Deploy: [CreditFlow Frontend](https://tu-frontend.vercel.app)
+                                🌐 Frontend Deploy: [CreditFlow Frontend](https://team-nine-creditflow.vercel.app/)
                                 """)
                         .contact(new Contact()
                                 .name("Equipo 9 / CreditFlow")

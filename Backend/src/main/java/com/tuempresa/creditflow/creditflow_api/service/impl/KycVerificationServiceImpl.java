@@ -1,21 +1,25 @@
 package com.tuempresa.creditflow.creditflow_api.service.impl;
 
-import com.cloudinary.utils.ObjectUtils;
 import com.tuempresa.creditflow.creditflow_api.dto.BaseResponse;
 import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
+import com.tuempresa.creditflow.creditflow_api.dto.bcra.BcraChequesResults;
+import com.tuempresa.creditflow.creditflow_api.dto.bcra.BcraDeudasResults;
+import com.tuempresa.creditflow.creditflow_api.dto.bcra.BcraEntityDebtDTO;
+import com.tuempresa.creditflow.creditflow_api.dto.bcra.BcraSummaryDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.kyc.*;
 import com.tuempresa.creditflow.creditflow_api.enums.KycEntityType;
 import com.tuempresa.creditflow.creditflow_api.enums.KycStatus;
-import com.tuempresa.creditflow.creditflow_api.exception.cloudinaryExc.ImageUploadException;
 import com.tuempresa.creditflow.creditflow_api.exception.kycExc.KycBadRequestException;
 import com.tuempresa.creditflow.creditflow_api.exception.kycExc.KycNotFoundException;
 import com.tuempresa.creditflow.creditflow_api.exception.userExc.UserNotFoundException;
 import com.tuempresa.creditflow.creditflow_api.mapper.KycMapper;
 import com.tuempresa.creditflow.creditflow_api.model.*;
 import com.tuempresa.creditflow.creditflow_api.repository.*;
+import com.tuempresa.creditflow.creditflow_api.service.IIdentificationService;
 import com.tuempresa.creditflow.creditflow_api.service.IKycVerificationService;
 import com.tuempresa.creditflow.creditflow_api.service.api.ImageService;
 import com.tuempresa.creditflow.creditflow_api.service.api.SumsubService;
+import com.tuempresa.creditflow.creditflow_api.service.api.bcra.BcraClientService;
 import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +27,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.*;
@@ -40,6 +43,8 @@ public class KycVerificationServiceImpl implements IKycVerificationService {
     private final SumsubService sumsubService;
     private final ImageService imageService;
     private final KycMapper kycMapper;
+    private final BcraClientService bcraClientService;
+    private final IIdentificationService identificationService;
 
     // ====================================================
     //  MÉTODOS PÚBLICOS
@@ -50,26 +55,256 @@ public class KycVerificationServiceImpl implements IKycVerificationService {
         validateRequest(dto);
         validateAllDocumentsPresent(dto);
 
+        // 1. Crear la entidad KYC con estado inicial PENDING (sin Sumsub aún)
         KycVerification kyc = createKycEntity(dto.entityType(), dto.entityId());
+
+        // 2. Obtener la lista de identificadores posibles y validar
+        List<String> identificaciones = getFiscalIdsToConsult(kyc);
+        validateBcraIdentificationList(identificaciones);
+
+        // 3. Consultar BCRA iterando sobre la lista
+        BcraSummaryDTO bcraSummary = searchBcraData(kyc, identificaciones);
+
+        // **********************************************
+        // 🎯 LÓGICA DE CONTROL DE RIESGO CREDITICIO 🎯
+        // **********************************************
+
+        // 3a. Control de Rechazo (Riesgo Grave: Situación 3, 4, 5 o cheques impagos)
+        if (bcraSummary.hasSeriousDebt() || bcraSummary.hasUnpaidCheques()) {
+            String riskNotes = "Rechazado por riesgo crediticio: "
+                    + bcraSummary.worstSituation()
+                    + (bcraSummary.hasUnpaidCheques() ? " y Cheques Impagos." : ".");
+
+            kyc.setStatus(KycStatus.REJECTED);
+            kyc.setVerificationNotes(riskNotes);
+            kyc.setVerificationDate(LocalDateTime.now());
+            kycRepo.save(kyc);
+
+            log.error("[KYC RECHAZADO] {} Rechazado por BCRA. Riesgo: {}", kyc.getEntityType(), riskNotes);
+
+            KycVerificationResponseDTO rejectedDto = kycMapper.toResponseDto(kyc, bcraSummary);
+            return ExtendedBaseResponse.of(
+                    BaseResponse.badRequest("Verificación KYC rechazada por riesgo crediticio."),
+                    rejectedDto
+            );
+        }
+
+        // 3b. Control de Deuda Activa (Cualquier deuda Situación 1/2 con monto > 0)
+        boolean hasAnyActiveDebt = bcraSummary.currentDebts().stream()
+                .anyMatch(d -> d.situationCode() >= 1 && d.debtAmount() > 0);
+
+
+        // **********************************************
+        // 4. CONTINUAR CON VERIFICACIÓN DE IDENTIDAD (SUMSUB)
+        // **********************************************
+
+        // Obtener el ID que fue exitoso en BCRA o el principal para Sumsub
+        String fiscalId = identificaciones.stream().findFirst().orElseThrow(() ->
+                new IllegalStateException("No se pudo obtener el identificador para Sumsub."));
+
+        // Lógica de Sumsub
+        String externalId = createAndLogSumsubApplicant(kyc, fiscalId);
+        Map<String, Object> statusInfo = sumsubService.getApplicantStatus(externalId, kyc.getEntityType());
+
+        KycStatus sumsubStatus = parseKycStatus((String) statusInfo.get("status"));
+
+        // 5. DETERMINAR ESTADO FINAL:
+        if (hasAnyActiveDebt || sumsubStatus != KycStatus.VERIFIED) {
+            // Regla: Si hay deuda activa O Sumsub NO está VERIFIED, pasa a PENDING.
+            kyc.setStatus(KycStatus.PENDING);
+            String pendingNotes = (hasAnyActiveDebt)
+                    ? "Revisión manual requerida: Obligaciones crediticias activas (Situación 1)."
+                    : (String) statusInfo.getOrDefault("verificationNotes", "Identidad pendiente de revisión externa.");
+            kyc.setVerificationNotes(pendingNotes);
+
+            log.warn("[KYC PENDING] KYC puesto en PENDING por deuda activa o verificación externa.");
+        }
+        else {
+            // Regla: Sin riesgo BCRA (crédito limpio) Y Sumsub VERIFIED.
+            kyc.setStatus(KycStatus.VERIFIED);
+            kyc.setVerificationNotes("Verificación KYC completada. Crédito limpio e identidad verificada.");
+        }
+
+        // Actualizar KYC con datos finales
+        kyc.setExternalReferenceId(externalId);
+
         kycRepo.save(kyc);
 
+        // 6. Carga de Archivos
         Map<String, String> uploadedDocs = uploadKycFiles(kyc.getIdKyc(), dto);
         updateKycWithUploadedDocs(kyc, uploadedDocs);
         kycRepo.save(kyc);
 
-        log.info("[KYC] Verificación iniciada: idKyc={} externalId={} tipo={} estado={}",
-                kyc.getIdKyc(), kyc.getExternalReferenceId(), dto.entityType(), kyc.getStatus());
+        log.info("[KYC] Verificación final: idKyc={} externalId={} tipo={} estado={}",
+                kyc.getIdKyc(), kyc.getExternalReferenceId(), kyc.getEntityType(), kyc.getStatus());
+
+        // 7. Mapear y devolver el DTO
+        KycVerificationResponseDTO responseDto = kycMapper.toResponseDto(kyc, bcraSummary);
 
         return ExtendedBaseResponse.of(
                 BaseResponse.created("Verificación KYC iniciada correctamente"),
-                kycMapper.toResponseDto(kyc)
+                responseDto
         );
     }
+
+    // ====================================================
+    //  LÓGICA DE BÚSQUEDA Y MAPEO BCRA
+    // ====================================================
+
+    /**
+     * Itera sobre una lista de IDs hasta encontrar la que devuelve datos del BCRA.
+     * @param kyc Entidad KYC
+     * @param identificaciones Lista de IDs (ej: [27..., 20...])
+     * @return El BcraSummaryDTO del primer resultado exitoso o un resumen vacío/fallido.
+     */
+    private BcraSummaryDTO searchBcraData(KycVerification kyc, List<String> identificaciones) {
+
+        for (String id : identificaciones) {
+            Optional<BcraDeudasResults> deudas = bcraClientService.consultarDeudas(id);
+            Optional<BcraChequesResults> cheques = bcraClientService.consultarChequesRechazados(id);
+
+            if (deudas.isPresent() || cheques.isPresent()) {
+                log.info("[BCRA ENCONTRADO] Datos obtenidos con ID: {}", id);
+                return mapBcraResultsToSummary(kyc, deudas, cheques);
+            } else {
+                log.warn("[BCRA NO ENCONTRADO] ID: {} no devolvió datos. Probando siguiente...", id);
+            }
+        }
+
+        log.error("[BCRA FALLA] No se pudo obtener información del BCRA después de probar {} ID(s).", identificaciones.size());
+
+        return new BcraSummaryDTO(
+                false,
+                false,
+                false,
+                "Consulta BCRA Fallida o Sin Datos",
+                Collections.emptyList()
+        );
+    }
+
+    /**
+     * Procesa los Optionals de resultados del BCRA y construye el resumen final.
+     */
+    private BcraSummaryDTO mapBcraResultsToSummary(KycVerification kyc, Optional<BcraDeudasResults> deudas, Optional<BcraChequesResults> cheques) {
+
+        boolean isConsulted = deudas.isPresent() || cheques.isPresent();
+        int maxDebtSituation = 0;
+        List<BcraEntityDebtDTO> debtList = new ArrayList<>();
+        boolean hasUnpaidCheques = false;
+
+        // Lógica de Deudas
+        if (deudas.isPresent()) {
+            List<BcraEntityDebtDTO> mappedDebts = deudas.get().periodos().stream()
+                    .flatMap(p -> p.entidades().stream())
+                    .map(e -> {
+                        return new BcraEntityDebtDTO(
+                                e.entidad(),
+                                e.situacion(),
+                                getSituationDescription(e.situacion()),
+                                e.monto(),
+                                e.diasAtrasoPago(),
+                                e.procesoJud()
+                        );
+                    })
+                    .collect(Collectors.toList());
+
+            debtList.addAll(mappedDebts);
+
+            maxDebtSituation = mappedDebts.stream()
+                    .mapToInt(BcraEntityDebtDTO::situationCode)
+                    .max()
+                    .orElse(0);
+        }
+
+        // Lógica de Cheques
+        if (cheques.isPresent()) {
+            hasUnpaidCheques = cheques.get().causales().stream()
+                    .flatMap(c -> c.entidades().stream())
+                    .flatMap(e -> e.detalle().stream())
+                    .anyMatch(d -> "IMPAGA".equalsIgnoreCase(d.estadoMulta()));
+        }
+
+        boolean hasSeriousDebt = maxDebtSituation >= 3;
+
+        if (hasSeriousDebt || hasUnpaidCheques) {
+            log.warn("[BCRA] ALERTA: ID={} RIESGO={} CHEQUES={}", kyc.getExternalReferenceId(), maxDebtSituation, hasUnpaidCheques);
+        }
+
+        return new BcraSummaryDTO(
+                isConsulted,
+                hasSeriousDebt,
+                hasUnpaidCheques,
+                getSituationDescription(maxDebtSituation),
+                debtList
+        );
+    }
+
+    // ====================================================
+    //  MÉTODOS DE BÚSQUEDA DE ID y VALIDACIÓN
+    // ====================================================
+
+    private String createAndLogSumsubApplicant(KycVerification kyc, String fiscalId) {
+        String email;
+        KycEntityType type = kyc.getEntityType();
+        String entityReference;
+
+        if (type == KycEntityType.USER) {
+            email = kyc.getUser().getEmail();
+            entityReference = kyc.getUser().getFirstName() + " " + kyc.getUser().getLastName();
+        } else if (type == KycEntityType.COMPANY) {
+            email = kyc.getCompany().getUser().getEmail();
+            entityReference = kyc.getCompany().getCompany_name();
+        } else {
+            throw new IllegalArgumentException("Tipo de entidad KYC no válido: " + type);
+        }
+
+        String externalId = sumsubService.createApplicant(fiscalId, email, type);
+
+        log.info("[Sumsub] Applicant creado para {}: externalId={} fiscalId={}",
+                entityReference, externalId, fiscalId);
+
+        return externalId;
+    }
+
+    /**
+     * Obtiene la lista de identificadores fiscales (CUIT/CUIL) a consultar.
+     * @return Lista de identificadores de 11 dígitos.
+     */
+    private List<String> getFiscalIdsToConsult(KycVerification kyc) {
+        String originalId;
+
+        if (kyc.getEntityType() == KycEntityType.USER && kyc.getUser() != null) {
+            originalId = kyc.getUser().getDni();
+        } else if (kyc.getEntityType() == KycEntityType.COMPANY && kyc.getCompany() != null) {
+            originalId = kyc.getCompany().getTaxId();
+        } else {
+            throw new KycBadRequestException("No se pudo obtener la identificación base para la entidad.");
+        }
+
+        return identificationService.getFiscalIds(originalId, kyc.getEntityType());
+    }
+
+    /**
+     * Valida que la lista de identificadores no sea nula y que cada elemento tenga 11 dígitos.
+     */
+    private void validateBcraIdentificationList(List<String> identificaciones) {
+        if (identificaciones == null || identificaciones.isEmpty()) {
+            throw new KycBadRequestException("No se pudo generar identificadores fiscales válidos (CUIT/CUIL).");
+        }
+        if (identificaciones.stream().anyMatch(id -> !id.matches("^\\d{11}$"))) {
+            throw new KycBadRequestException("Error: La identificación fiscal procesada no cumple el formato de 11 dígitos (CUIT/CUIL).");
+        }
+    }
+
+
+    // ====================================================
+    //  MÉTODOS PÚBLICOS DE CONSULTA (con corrección de mapper)
+    // ====================================================
 
     @Transactional(readOnly = true)
     public ExtendedBaseResponse<List<KycVerificationResponseDTO>> getAll() {
         List<KycVerificationResponseDTO> kycs = kycRepo.findAll().stream()
-                .map(kycMapper::toResponseDto)
+                .map(kyc -> kycMapper.toResponseDto(kyc, null))
                 .collect(Collectors.toList());
 
         return ExtendedBaseResponse.of(
@@ -79,15 +314,17 @@ public class KycVerificationServiceImpl implements IKycVerificationService {
     }
 
     @Transactional(readOnly = true)
-    public ExtendedBaseResponse<List<KycVerifiedCompanyResponseDTO>> getVerifiedCompaniesDetails() {
-        
-        List<KycVerifiedCompanyResponseDTO> verifiedCompanies = 
-            kycRepo.findVerifiedCompanyDetails();
+    public ExtendedBaseResponse<List<KycVerificationResponseDTO>> getAllKcyByUserId(UUID userId) {
+        if (!userRepo.existsById(userId))
+            throw new UserNotFoundException("Usuario no encontrado con ID: " + userId);
+
+        List<KycVerificationResponseDTO> kycs = kycRepo.findByUserId(userId).stream()
+                .map(kyc -> kycMapper.toResponseDto(kyc, null))
+                .toList();
 
         return ExtendedBaseResponse.of(
-                BaseResponse.ok("Empresas con verificación"+
-                "KYC obtenidas exitosamente."),
-                verifiedCompanies
+                BaseResponse.ok("Listado de KYC para el usuario"),
+                kycs
         );
     }
 
@@ -100,7 +337,7 @@ public class KycVerificationServiceImpl implements IKycVerificationService {
                 ? kycRepo.findByUserIdAndStatus(userId, status)
                 : kycRepo.findByUserId(userId))
                 .stream()
-                .map(kycMapper::toResponseDto)
+                .map(kyc -> kycMapper.toResponseDto(kyc, null))
                 .toList();
 
         return ExtendedBaseResponse.of(
@@ -115,7 +352,7 @@ public class KycVerificationServiceImpl implements IKycVerificationService {
 
         return ExtendedBaseResponse.of(
                 BaseResponse.ok("KYC encontrado"),
-                kycMapper.toResponseDto(kyc)
+                kycMapper.toResponseDto(kyc, null)
         );
     }
 
@@ -131,7 +368,7 @@ public class KycVerificationServiceImpl implements IKycVerificationService {
 
         return ExtendedBaseResponse.of(
                 BaseResponse.ok("Estado de KYC actualizado correctamente"),
-                kycMapper.toResponseDto(kyc)
+                kycMapper.toResponseDto(kyc, null)
         );
     }
 
@@ -153,7 +390,7 @@ public class KycVerificationServiceImpl implements IKycVerificationService {
 
 
     // ====================================================
-    //  MÉTODOS PRIVADOS
+    //  MÉTODOS PRIVADOS AUXILIARES
     // ====================================================
 
     private void validateRequest(KycFileUploadRequestDTO dto) {
@@ -185,10 +422,12 @@ public class KycVerificationServiceImpl implements IKycVerificationService {
         if (kycRepo.existsByUserId(userId))
             throw new ValidationException("El usuario ya tiene un proceso KYC.");
 
-        String externalId = sumsubService.createApplicant(userId.toString(), user.getEmail(), KycEntityType.USER);
-        Map<String, Object> statusInfo = sumsubService.getApplicantStatus(externalId, KycEntityType.USER);
-
-        return buildKycVerification(KycEntityType.USER, externalId, statusInfo)
+        // CÓDIGO REFRACTORIZADO: No crea Sumsub applicant aquí
+        return KycVerification.builder()
+                .entityType(KycEntityType.USER)
+                .status(KycStatus.PENDING)
+                .submissionDate(LocalDateTime.now())
+                .verificationNotes("KYC iniciado, pendiente de verificación crediticia y de identidad.")
                 .user(user)
                 .build();
     }
@@ -201,11 +440,12 @@ public class KycVerificationServiceImpl implements IKycVerificationService {
         if (kycRepo.existsByCompanyId(companyId))
             throw new KycBadRequestException("La empresa ya tiene un proceso KYC.");
 
-        String ownerEmail = company.getUser().getEmail();
-        String externalId = sumsubService.createApplicant(companyId.toString(), ownerEmail, KycEntityType.COMPANY);
-        Map<String, Object> statusInfo = sumsubService.getApplicantStatus(externalId, KycEntityType.COMPANY);
-
-        return buildKycVerification(KycEntityType.COMPANY, externalId, statusInfo)
+        // CÓDIGO REFRACTORIZADO: No crea Sumsub applicant aquí
+        return KycVerification.builder()
+                .entityType(KycEntityType.COMPANY)
+                .status(KycStatus.PENDING)
+                .submissionDate(LocalDateTime.now())
+                .verificationNotes("KYC iniciado, pendiente de verificación crediticia y de identidad.")
                 .company(company)
                 .build();
     }
@@ -257,9 +497,28 @@ public class KycVerificationServiceImpl implements IKycVerificationService {
 
         return uploadedUrls;
     }
+    public ExtendedBaseResponse<List<KycVerifiedCompanyResponseDTO>> getVerifiedCompaniesDetails() {
 
-    @Override
-    public ExtendedBaseResponse<List<KycVerificationResponseDTO>> getAllKcyByUserId(UUID userId) {
-        throw new UnsupportedOperationException("Unimplemented method 'getAllKcyByUserId'");
+        List<KycVerifiedCompanyResponseDTO> verifiedCompanies =
+                kycRepo.findVerifiedCompanyDetails();
+
+        return ExtendedBaseResponse.of(
+                BaseResponse.ok("Empresas con verificación"+
+                        "KYC obtenidas exitosamente."),
+                verifiedCompanies
+        );
+    }
+    /**
+     * Mapea la situación numérica a una descripción amigable.
+     */
+    private String getSituationDescription(int situacion) {
+        return switch (situacion) {
+            case 1 -> "SITUACION 1: Normal (Riesgo Bajo)";
+            case 2 -> "SITUACION 2: Con Seguimiento Especial (Riesgo Moderado)";
+            case 3 -> "SITUACION 3: Con Problemas (Riesgo Medio)";
+            case 4 -> "SITUACION 4: Con Alto Riesgo de Insolvencia";
+            case 5 -> "SITUACION 5: Irrecuperable";
+            default -> "Desconocido";
+        };
     }
 }
