@@ -8,7 +8,9 @@ import com.tuempresa.creditflow.creditflow_api.mapper.UserMapper;
 import com.tuempresa.creditflow.creditflow_api.model.User;
 import com.tuempresa.creditflow.creditflow_api.repository.UserRepository;
 import com.tuempresa.creditflow.creditflow_api.service.IUserService;
+import com.tuempresa.creditflow.creditflow_api.utils.AuthenticationUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +24,8 @@ public class UserServiceImpl implements IUserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationUtils authenticationUtils;
+
 
     @Override
     @Transactional(readOnly = true)
@@ -81,13 +84,6 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public UUID getUserIdByEmail(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Email no encontrado con username: " + email));
-        return user.getId();
-    }
-
-    @Override
     @Transactional
     public ExtendedBaseResponse<String> deleteUserById(UUID id) {
         User user = userRepository.findById(id).orElseThrow(() ->
@@ -108,24 +104,44 @@ public class UserServiceImpl implements IUserService {
         return userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con id: " + id));
     }
-    
-    @Transactional(readOnly = true)
+
+    @Override
     public User findEntityByPrincipal(String principal) {
-        // --1-- Intentar buscar por email
         return userRepository.findByEmail(principal)
-                //--2-- Si no encuentra, intentar por username
-                .or(() -> userRepository.findByUsername(principal))
-                //--3-- Si no encuentra, intentar por UUID (por si el token tuviera id)
-                .or(() -> {
-                    try {
-                        UUID id = UUID.fromString(principal);
-                        return userRepository.findById(id);
-                    } catch (IllegalArgumentException ex) {
-                        return java.util.Optional.empty();
-                    }
-                })
-                //--4--Si no encuentra, lanzar excepción
-                .orElseThrow(() -> new UserNotFoundException("User not found with principal: " + principal));
+                .or(() -> userRepository.findByUsername(principal)) // Si también buscas por username
+                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con principal: " + principal));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ExtendedBaseResponse<UserDto> findOnlineUser() {
+        try {
+            String principal = authenticationUtils.getLoggedInPrincipal();
+            if (principal == null) {
+                return ExtendedBaseResponse.of(
+                        BaseResponse.error(HttpStatus.UNAUTHORIZED, "Usuario no autenticado"),
+                        null
+                );
+            }
+
+            User user = userRepository.findByEmail(principal)
+                    .or(() -> userRepository.findByUsername(principal))
+                    .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con principal: " + principal));
+
+            UserDto userDto = userMapper.toDto(user);
+            return ExtendedBaseResponse.of(BaseResponse.ok("Usuario logueado encontrado"), userDto);
+
+        } catch (UserNotFoundException e) {
+            return ExtendedBaseResponse.of(
+                    BaseResponse.error(HttpStatus.NOT_FOUND, e.getMessage()),
+                    null
+            );
+        } catch (Exception e) {
+            return ExtendedBaseResponse.of(
+                    BaseResponse.error(HttpStatus.INTERNAL_SERVER_ERROR, "Error al obtener el usuario logueado"),
+                    null
+            );
+        }
     }
 
 }

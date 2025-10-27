@@ -38,6 +38,7 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.GET, "/auth/oauth-success").permitAll()
                         // USER ENDPOINTS ---------------------------------------------------
                         .requestMatchers(HttpMethod.GET, "/user/{id}").hasAnyAuthority("OPERADOR", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/user/me").hasAnyAuthority("OPERADOR", "ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/user/update").hasAnyAuthority("ADMIN", "OPERADOR", "PYME")
                         .requestMatchers(HttpMethod.GET, "/user/list").hasAnyAuthority("OPERADOR", "ADMIN")
                         .requestMatchers(HttpMethod.GET, "/user/list-active").hasAnyAuthority("OPERADOR", "ADMIN")
