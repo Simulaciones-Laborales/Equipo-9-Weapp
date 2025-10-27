@@ -8,6 +8,6 @@ export default [
   },
   {
     path: ':id',
-    loadComponent: () => import('./details/details'),
+    loadChildren: () => import('./details/details.routes'),
   },
 ] as Routes;

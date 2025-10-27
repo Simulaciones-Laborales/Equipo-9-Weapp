@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { Header } from '@features/operator/components/header/header';
 import { MenuItem } from 'primeng/api';
 import { DetailsStore } from './details-store';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TableModule } from 'primeng/table';
 import { Information } from './components/information/information';
 import { RiskScoreCard } from './components/risk-score-card/risk-score-card';
@@ -23,6 +23,7 @@ import { UpdateCreditApplicationStatusDto } from '@core/models/credit-applicatio
     StatusSection,
     Divider,
     FilesSection,
+    RouterLink,
   ],
   templateUrl: './details.html',
   styleUrl: './details.css',
@@ -33,7 +34,8 @@ export default class Details {
   readonly store = inject(DetailsStore);
 
   readonly breadcrumbItems: MenuItem[] = [
-    { label: 'Solicitudes de crédito', icon: 'pi pi-home', routerLink: '../' },
+    { icon: 'pi pi-home', routerLink: '/operador' },
+    { label: 'Solicitudes de crédito', routerLink: '../' },
     { label: 'Detalles', routerLink: './' },
   ];
 
