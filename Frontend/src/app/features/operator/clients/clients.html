@@ -1,1 +1,13 @@
-<p>clients works!</p>
+<app-header
+  headline="Clientes"
+  description="Consulta y gestiona todos los usuarios PYME registrados"
+  [menuItems]="menu"
+/>
+<section class="mt-8 w-full flex flex-col gap-y-2">
+  @defer (when store.fetchStatus() !== 'loading') {
+  <app-subtitle headline="Listado de clientes registrados" />
+  <app-clients-table [clients]="store.clients()" />
+  } @placeholder {
+  <app-loading-spinner message="Cargando solicitudes de crédito..." class="mt-36" />
+  }
+</section>
