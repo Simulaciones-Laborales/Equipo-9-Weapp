@@ -17,7 +17,11 @@
 @if (store.showDialog()) {
 <app-kyc-manager-dialog
   [visible]="store.showDialog()"
-  [loading]="store.fetchKycStatus() === 'loading'"
+  [fetchLoading]="store.fetchKycStatus() === 'loading'"
+  [updateLoading]="store.updateKycStatus() === 'loading'"
+  [updateSuccess]="store.updateKycStatus() === 'success'"
+  (onSubmit)="store.updateKyc($event)"
   (onClose)="store.closeDialog()"
+  [kyc]="store.kyc()"
 />
 }

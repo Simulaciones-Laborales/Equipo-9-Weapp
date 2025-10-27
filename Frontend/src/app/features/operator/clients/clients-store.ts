@@ -1,8 +1,9 @@
 import { inject } from '@angular/core';
-import { KYCVerificationResponse } from '@core/models/kyc-model';
+import { KYCVerificationResponse, UpdateKycStatusDto } from '@core/models/kyc-model';
 import { User } from '@core/models/user-model';
 import { UserApi } from '@core/services/user-api';
 import { Status } from '@core/types';
+import { KycApi } from '@features/pyme/company/services/kyc-api';
 import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
 
 type State = {
@@ -11,6 +12,7 @@ type State = {
   showDialog: boolean;
   kyc: KYCVerificationResponse | null;
   fetchKycStatus: Status;
+  updateKycStatus: Status;
 };
 
 const initialState: State = {
@@ -19,11 +21,12 @@ const initialState: State = {
   showDialog: false,
   kyc: null,
   fetchKycStatus: 'pending',
+  updateKycStatus: 'pending',
 };
 
 export const ClientsStore = signalStore(
   withState(initialState),
-  withMethods((store, userApi = inject(UserApi)) => ({
+  withMethods((store, userApi = inject(UserApi), kycApi = inject(KycApi)) => ({
     fetchAll: async () => {
       patchState(store, { fetchStatus: 'loading' });
 
@@ -45,7 +48,17 @@ export const ClientsStore = signalStore(
       }
     },
     closeDialog: () => {
-      patchState(store, { showDialog: false, kyc: null });
+      patchState(store, { showDialog: false, kyc: null, updateKycStatus: 'pending' });
+    },
+    updateKyc: async (dto: UpdateKycStatusDto) => {
+      patchState(store, { updateKycStatus: 'loading' });
+
+      try {
+        await kycApi.updateStatus(store.kyc()!.idKyc, dto);
+        patchState(store, { updateKycStatus: 'success' });
+      } catch (e) {
+        patchState(store, { updateKycStatus: 'failure' });
+      }
     },
   }))
 );

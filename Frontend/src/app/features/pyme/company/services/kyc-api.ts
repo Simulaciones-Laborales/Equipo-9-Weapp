@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { KYCEntityType, KYCVerificationResponse } from '@core/models/kyc-model';
+import { KYCEntityType, KYCVerificationResponse, UpdateKycStatusDto } from '@core/models/kyc-model';
 import { environment } from 'environments/environment.development';
 import { lastValueFrom } from 'rxjs';
 
@@ -29,6 +29,12 @@ export class KycApi {
     const call = this._http.post<KYCVerificationResponse>(`${this._url}/start`, formData, {
       params,
     });
+
+    return await lastValueFrom(call);
+  }
+
+  async updateStatus(id: string, dto: UpdateKycStatusDto) {
+    const call = this._http.put<KYCVerificationResponse>(`${this._url}/${id}/status`, dto);
 
     return await lastValueFrom(call);
   }
