@@ -22,7 +22,7 @@ export class NewCompanyForm {
 
   readonly form = this._fb.group({
     name: ['', Validators.required],
-    taxId: ['', Validators.required],
+    taxId: ['', [Validators.required, Validators.maxLength(11), Validators.minLength(11)]],
     annualIncome: [0, [Validators.required, Validators.min(0)]],
   });
 

@@ -142,11 +142,15 @@
         />
         <label for="dni">Número de Identificación (DNI)</label>
       </p-floatLabel>
-      @if (isInvalid('dni')) {
+      @if (isInvalid('dni')) { @if (getError('dni', 'required')) {
       <p-message size="small" severity="error" variant="simple">
         Por favor, ingresa tu número de identificación (DNI)
       </p-message>
-      }
+      } @if (getError('dni', 'minlength') || getError('dni', 'maxlength')) {
+      <p-message size="small" severity="error" variant="simple">
+        Tu DNI debe tener entre 7 y 8 caracteres
+      </p-message>
+      } }
     </div>
   </app-fieldset>
   <app-fieldset legend="Seguridad">
