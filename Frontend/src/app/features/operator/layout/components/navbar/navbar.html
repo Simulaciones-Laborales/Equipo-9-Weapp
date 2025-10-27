@@ -5,8 +5,8 @@
     class="max-md:container max-md:mx-auto flex items-center max-sm:justify-center sm:max-md:justify-between md:flex-col gap-y-12 h-full"
   >
     <app-logo class="max-sm:hidden" />
-    <div class="md:size-full flex md:flex-col items-center md:justify-between">
-      <ul class="flex items-center md:flex-col gap-y-3.5 md:w-full">
+    <div class="md:size-full flex md:flex-col items-center md:justify-between md:overflow-x-auto">
+      <ul class="flex items-center md:flex-col gap-y-3.5 md:w-full md:overflow-x-auto">
         <app-navbar-link
           icon="pi pi-home"
           headline="Inicio"
@@ -23,6 +23,12 @@
           icon="pi pi-users"
           headline="Clientes"
           route="./clientes"
+          class="md:w-full"
+        />
+        <app-navbar-link
+          icon="pi pi-briefcase"
+          headline="Empresas"
+          route="./empresas"
           class="md:w-full"
         />
       </ul>
