@@ -42,3 +42,11 @@ export interface CreditApplicationResponse {
   updatedAt: Date;
   documents: RiskDocument[];
 }
+
+/**
+ * Modelo para actualizar el estado de una solicitud de crédito.
+ */
+export interface UpdateCreditApplicationStatusDto {
+  newStatus: CreditApplicationStatus;
+  comments: string;
+}
