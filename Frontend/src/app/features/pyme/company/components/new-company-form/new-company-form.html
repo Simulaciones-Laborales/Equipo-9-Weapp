@@ -27,13 +27,17 @@
         fluid
         [invalid]="isInvalid('taxId')"
       />
-      <label for="taxId">ID del TAX</label>
+      <label for="taxId">CUIT</label>
     </p-float-label>
-    @if (isInvalid('taxId')) {
+    @if (isInvalid('taxId')) { @if (getError('taxId', 'required')) {
     <p-message severity="error" size="small" variant="simple">
       El ID del TAX es requerido
     </p-message>
-    }
+    }@if (getError('taxId', 'minlength') || getError('taxId', 'maxlength')) {
+    <p-message severity="error" size="small" variant="simple">
+      El CUIT debe tener 11 caracteres
+    </p-message>
+    } }
   </div>
   <div class="flex flex-col gap-y-1">
     <p-float-label variant="on">

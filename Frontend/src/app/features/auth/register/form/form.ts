@@ -61,7 +61,7 @@ export class Form {
     email: ['', [Validators.required, Validators.pattern(emailRegex)]],
     contact: ['', [Validators.required, Validators.pattern(contactRegex)]],
     birthDate: ['', Validators.required],
-    dni: ['', Validators.required],
+    dni: ['', [Validators.required, Validators.minLength(7), Validators.maxLength(8)]],
     country: ['', Validators.required],
     password: ['', [Validators.required, Validators.pattern(passwordRegex)]],
   });
