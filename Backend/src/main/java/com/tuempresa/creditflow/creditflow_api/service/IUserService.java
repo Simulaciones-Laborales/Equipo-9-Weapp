@@ -1,6 +1,8 @@
 package com.tuempresa.creditflow.creditflow_api.service;
 
 import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
+import com.tuempresa.creditflow.creditflow_api.dto.company.CompanyResponseDTO;
+import com.tuempresa.creditflow.creditflow_api.dto.kyc.KycVerificationResponseDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.user.*;
 import com.tuempresa.creditflow.creditflow_api.model.User;
 
@@ -24,4 +26,6 @@ public interface IUserService {
     User findEntityByPrincipal(String principal);
 
     ExtendedBaseResponse<UserDto> findOnlineUser();
+
+    ExtendedBaseResponse<List<CompanyResponseDTO>> getCompaniesByUserId(UUID userId);
 }

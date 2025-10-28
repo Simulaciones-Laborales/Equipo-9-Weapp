@@ -2,10 +2,17 @@ package com.tuempresa.creditflow.creditflow_api.service.impl;
 
 import com.tuempresa.creditflow.creditflow_api.dto.BaseResponse;
 import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
+import com.tuempresa.creditflow.creditflow_api.dto.company.CompanyResponseDTO;
+import com.tuempresa.creditflow.creditflow_api.dto.kyc.KycVerificationResponseDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.user.*;
+import com.tuempresa.creditflow.creditflow_api.enums.KycEntityType;
 import com.tuempresa.creditflow.creditflow_api.exception.userExc.UserNotFoundException;
+import com.tuempresa.creditflow.creditflow_api.mapper.CompanyMapper;
 import com.tuempresa.creditflow.creditflow_api.mapper.UserMapper;
+import com.tuempresa.creditflow.creditflow_api.model.Company;
+import com.tuempresa.creditflow.creditflow_api.model.KycVerification;
 import com.tuempresa.creditflow.creditflow_api.model.User;
+import com.tuempresa.creditflow.creditflow_api.repository.CompanyRepository;
 import com.tuempresa.creditflow.creditflow_api.repository.UserRepository;
 import com.tuempresa.creditflow.creditflow_api.service.IUserService;
 import com.tuempresa.creditflow.creditflow_api.utils.AuthenticationUtils;
@@ -15,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,6 +33,8 @@ public class UserServiceImpl implements IUserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final AuthenticationUtils authenticationUtils;
+    private final CompanyRepository companyRepository;
+    private final CompanyMapper companyMapper;
 
 
     @Override
@@ -131,5 +141,22 @@ public class UserServiceImpl implements IUserService {
         }
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public ExtendedBaseResponse<List<CompanyResponseDTO>> getCompaniesByUserId(UUID userId) {
+
+        // 1. Obtener las entidades Company filtradas por el Repositorio
+        List<Company> companies = companyRepository.findByUserId(userId);
+
+        // 2. Mapeo a DTOs (CORREGIDO)
+        // 💡 CAMBIO: Llamamos a través de la INSTANCIA 'companyMapper'
+        List<CompanyResponseDTO> companyDtos = companyMapper.toDTOList(companies);
+
+        // 3. Devolver la respuesta en el formato ExtendedBaseResponse
+        return ExtendedBaseResponse.of(
+                BaseResponse.ok("Empresas asociadas al usuario encontradas"),
+                companyDtos
+        );
+    }
 }
 

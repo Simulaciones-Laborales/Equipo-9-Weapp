@@ -49,10 +49,14 @@ public class SecurityConfiguration {
 
                         // KYC VERIFICATIONS -----------------------------------------------------
                         .requestMatchers(HttpMethod.POST, "/api/kyc/start").hasAnyAuthority("PYME")
+                        .requestMatchers(HttpMethod.GET, "/api/kyc/all").hasAnyAuthority("OPERADOR")
+                        .requestMatchers(HttpMethod.GET, "/api/kyc").hasAnyAuthority("OPERADOR")
+                        .requestMatchers(HttpMethod.GET, "/api/kyc/companies/{id}").hasAnyAuthority("OPERADOR")
 
                         // COMPANY  -----------------------------------------------------
                         .requestMatchers(HttpMethod.POST, "/api/companies").hasAnyAuthority("PYME")
                         .requestMatchers(HttpMethod.GET, "/api/companies").hasAnyAuthority("PYME")
+                        .requestMatchers(HttpMethod.GET, "/api/{id}/companies").hasAnyAuthority("OPERADOR")
 
                         // CREDIT  -----------------------------------------------------
                         .requestMatchers(HttpMethod.POST, "/api/credit-applications").hasAnyAuthority("PYME")

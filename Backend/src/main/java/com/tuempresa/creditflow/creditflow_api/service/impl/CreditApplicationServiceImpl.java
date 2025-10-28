@@ -386,10 +386,6 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
         Company company = companyRepository.findById(companyId)
                 .orElseThrow(() -> new ResourceNotFoundException("No se encontró la empresa: " + companyId));
 
-        if (company.getUser() == null || !company.getUser().getId().equals(user.getId())) {
-            throw new ResourceNotFoundException("La empresa no es accesible para el usuario");
-        }
-
         return creditApplicationRepository.findByCompany(company)
                 .stream()
                 .map(CreditApplicationMapper::toDTO)

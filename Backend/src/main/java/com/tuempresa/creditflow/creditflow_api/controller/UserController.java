@@ -1,6 +1,7 @@
 package com.tuempresa.creditflow.creditflow_api.controller;
 
 import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
+import com.tuempresa.creditflow.creditflow_api.dto.company.CompanyResponseDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.kyc.KycVerificationResponseDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.user.*;
 import com.tuempresa.creditflow.creditflow_api.enums.KycStatus;
@@ -215,6 +216,36 @@ public class UserController {
     @DeleteMapping("/{id}")
     public ExtendedBaseResponse<String> deleteUser(@PathVariable UUID id) {
         return userService.deleteUserById(id);
+    }
+
+
+    @Operation(
+            summary = "Obtener empresas asociadas a un usuario",
+            description = "Obtiene un listado de todas las empresas (entidades asociadas) de un usuario por su ID."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Listado de empresas cargado correctamente",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = KycVerificationResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Usuario no encontrado o no tiene empresas asociadas",
+                    content = @Content(mediaType = "application/json")
+            )
+    })
+    @GetMapping("/{id}/companies")
+// 💡 CAMBIO PRINCIPAL: El ResponseEntity ahora usa List<CompanyResponseDTO>
+    public ResponseEntity<ExtendedBaseResponse<List<CompanyResponseDTO>>> getCompaniesByUserId(
+            @PathVariable("id") UUID userId) {
+
+        // El userService devuelve el tipo de dato correcto: List<CompanyResponseDTO>
+        ExtendedBaseResponse<List<CompanyResponseDTO>> response =
+                userService.getCompaniesByUserId(userId);
+
+        return ResponseEntity.ok(response);
     }
 
 }

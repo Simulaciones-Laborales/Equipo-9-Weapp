@@ -260,8 +260,7 @@ public class CreditApplicationController {
             description = """
         Permite obtener todas las solicitudes de crédito asociadas a una empresa específica.
         Solo el propietario de la empresa o un usuario con rol ADMIN/OPERADOR puede acceder a esta información.
-        """,
-            security = @SecurityRequirement(name = "bearerAuth")
+        """
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lista de solicitudes obtenida correctamente",

@@ -388,6 +388,77 @@ public class KycVerificationServiceImpl implements IKycVerificationService {
         );
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public ExtendedBaseResponse<List<KycVerificationResponseDTO>> getFiltered(String kycEntityTypeStr, String statusStr) {
+
+        KycEntityType entityTypeEnum = null;
+        if (kycEntityTypeStr != null && !kycEntityTypeStr.trim().isEmpty()) {
+            try {
+                entityTypeEnum = KycEntityType.valueOf(kycEntityTypeStr.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Valor de kycEntityType inválido: " + kycEntityTypeStr);
+            }
+        }
+
+        KycStatus statusEnum = null;
+        if (statusStr != null && !statusStr.trim().isEmpty()) {
+            try {
+                statusEnum = KycStatus.valueOf(statusStr.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Valor de status inválido: " + statusStr);
+            }
+        }
+
+        List<KycVerification> filteredKycs = kycRepo.findFiltered(entityTypeEnum, statusEnum);
+
+        List<KycVerificationResponseDTO> kycs = filteredKycs.stream()
+                .map(kyc -> kycMapper.toResponseDto(kyc, null))
+                .collect(Collectors.toList());
+
+        return ExtendedBaseResponse.of(
+                BaseResponse.ok("Listado de verificaciones KYC filtrado correctamente."),
+                kycs
+        );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+// 💡 CAMBIO DE RETORNO: Ahora devuelve KycVerificationResponseDTO, no KycVerifiedCompanyResponseDTO
+    public ExtendedBaseResponse<KycVerificationResponseDTO> getCompanyStatusById(UUID companyId) {
+
+        // 1. Buscar la verificación KYC por el ID de la empresa
+        KycVerification kyc = kycRepo.findByCompanyId(companyId)
+                .orElseThrow(() -> new KycNotFoundException("KYC o empresa no encontrado con ID: " + companyId));
+
+        // 2. Validar que la entidad sea COMPANY (precaución)
+        if (kyc.getEntityType() != KycEntityType.COMPANY) {
+            throw new KycBadRequestException("La verificación encontrada con ID " + companyId + " no corresponde a una empresa.");
+        }
+
+        // 3. Obtener el CUIT/CUIL de la empresa para consultar BCRA
+        // Reutilizamos el método getFiscalIdsToConsult (que obtiene CUIT/CUIL de Company)
+        List<String> identificaciones = getFiscalIdsToConsult(kyc);
+        validateBcraIdentificationList(identificaciones);
+
+        // 4. Consultar BCRA (reutilizando la lógica que itera sobre los IDs)
+        BcraSummaryDTO bcraSummary = searchBcraData(kyc, identificaciones);
+
+        // 5. Mapear la entidad actual con el resumen BCRA
+        // Nota: El estado del KYC NO se actualiza aquí, solo se lee y se adjunta el nuevo resumen BCRA
+        KycVerificationResponseDTO responseDto = kycMapper.toResponseDto(kyc, bcraSummary);
+
+        log.info("[KYC CONSULTA] Estado de KYC para empresa {} consultado. BCRA consultado: {}",
+                companyId, bcraSummary.isConsulted());
+
+        // 6. Devolver el DTO en el formato esperado
+        return ExtendedBaseResponse.of(
+                BaseResponse.ok("Estado KYC de empresa y resumen BCRA obtenidos."),
+                responseDto
+        );
+    }
+
+
 
     // ====================================================
     //  MÉTODOS PRIVADOS AUXILIARES

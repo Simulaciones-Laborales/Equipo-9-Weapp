@@ -612,7 +612,7 @@ public class DefaultUserCreator implements CommandLineRunner {
                 // Compañía 1 (Dueño: Juan Martínez) - Alto Ingreso, KYC Verified
                 Company.builder()
                         .company_name("Soluciones Digitales SRL")
-                        .taxId("30712345674") // CUIT/Tax ID válido
+                        .taxId("20123456789") // CUIT/Tax ID válido
                         .annualIncome(new BigDecimal("2500000.00")) // Ingreso Alto
                         .user(pymeUsers.get(0))
                         .build(),
@@ -620,7 +620,7 @@ public class DefaultUserCreator implements CommandLineRunner {
                 // Compañía 2 (Dueño: Ana Rodríguez) - Ingreso Medio, KYC Verified
                 Company.builder()
                         .company_name("Distribuidora El Faro")
-                        .taxId("33698765432")
+                        .taxId("27876543217")
                         .annualIncome(new BigDecimal("1200000.00"))
                         .user(pymeUsers.get(1))
                         .build(),
@@ -628,7 +628,7 @@ public class DefaultUserCreator implements CommandLineRunner {
                 // Compañía 3 (Dueño: Luis Cruz) - Ingreso Medio, KYC Verified
                 Company.builder()
                         .company_name("Consultora Global SpA")
-                        .taxId("770543219")
+                        .taxId("30654321098")
                         .annualIncome(new BigDecimal("950000.00"))
                         .user(pymeUsers.get(2))
                         .build(),
@@ -636,7 +636,7 @@ public class DefaultUserCreator implements CommandLineRunner {
                 // Compañía 4 (Dueño: Gabriela Pérez) - Ingreso Bajo, KYC Verified
                 Company.builder()
                         .company_name("Alimentos Frescos E.I.R.L.")
-                        .taxId("21887766551")
+                        .taxId("33998877665")
                         .annualIncome(new BigDecimal("450000.00"))
                         .user(pymeUsers.get(3))
                         .build(),
@@ -644,7 +644,7 @@ public class DefaultUserCreator implements CommandLineRunner {
                 // Compañía 5 (Dueño: Carlos Fuentes) - Ingreso Alto, KYC Pending
                 Company.builder()
                         .company_name("Constructora Alfa")
-                        .taxId("30654321098")
+                        .taxId("20456789013")
                         .annualIncome(new BigDecimal("3500000.00"))
                         .user(pymeUsers.get(4))
                         .build(),
@@ -652,7 +652,7 @@ public class DefaultUserCreator implements CommandLineRunner {
                 // Compañía 6 (Dueño: Valeria García) - Ingreso Medio, KYC Pending
                 Company.builder()
                         .company_name("Agencia Marketing Pro")
-                        .taxId("33701234567")
+                        .taxId("34500000004")
                         .annualIncome(new BigDecimal("800000.00"))
                         .user(pymeUsers.get(5))
                         .build(),
@@ -660,7 +660,7 @@ public class DefaultUserCreator implements CommandLineRunner {
                 // Compañía 7 (Dueño: Héctor López) - Ingreso Alto, KYC Pending
                 Company.builder()
                         .company_name("Transportes Rápidos S.R.L.")
-                        .taxId("30509876541")
+                        .taxId("23112233440")
                         .annualIncome(new BigDecimal("1800000.00"))
                         .user(pymeUsers.get(6))
                         .build(),
@@ -668,7 +668,7 @@ public class DefaultUserCreator implements CommandLineRunner {
                 // Compañía 8 (Dueño: María Morales) - Ingreso Bajo, KYC Pending
                 Company.builder()
                         .company_name("Tienda de Regalos")
-                        .taxId("20443322119")
+                        .taxId("24987654321")
                         .annualIncome(new BigDecimal("300000.00"))
                         .user(pymeUsers.get(7))
                         .build(),
@@ -676,7 +676,7 @@ public class DefaultUserCreator implements CommandLineRunner {
                 // Compañía 9 (Dueño: Javier Rojas) - Ingreso Medio
                 Company.builder()
                         .company_name("Desarrollos Web 3.0")
-                        .taxId("765432109")
+                        .taxId("30717171714")
                         .annualIncome(new BigDecimal("1100000.00"))
                         .user(pymeUsers.get(8))
                         .build(),
@@ -684,7 +684,7 @@ public class DefaultUserCreator implements CommandLineRunner {
                 // Compañía 10 (Dueño: Sandra Díaz) - Ingreso Medio
                 Company.builder()
                         .company_name("Logística Sur S.A.")
-                        .taxId("30998877665")
+                        .taxId("27101010102")
                         .annualIncome(new BigDecimal("1500000.00"))
                         .user(pymeUsers.get(9))
                         .build(),
@@ -692,7 +692,7 @@ public class DefaultUserCreator implements CommandLineRunner {
                 // Compañía 11 (Dueño: Eduardo Castillo) - Ingreso Bajo
                 Company.builder()
                         .company_name("Cafetería El Grano")
-                        .taxId("33112233445")
+                        .taxId("27101010103")
                         .annualIncome(new BigDecimal("600000.00"))
                         .user(pymeUsers.get(10))
                         .build(),
@@ -700,7 +700,7 @@ public class DefaultUserCreator implements CommandLineRunner {
                 // Compañía 12 (Dueño: Martín González) - Ingreso Bajo
                 Company.builder()
                         .company_name("Estudio Contable MX")
-                        .taxId("27445566778")
+                        .taxId("27101010109")
                         .annualIncome(new BigDecimal("750000.00"))
                         .user(pymeUsers.get(11))
                         .build()
