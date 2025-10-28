@@ -19,7 +19,7 @@
         <li>
           <p-button
             link
-            label="Descargar Selfie"
+            [label]="fileTitles()[0]"
             icon="pi pi-download"
             size="small"
             (onClick)="download(kyc()?.document1)"
@@ -28,7 +28,7 @@
         <li>
           <p-button
             link
-            label="Descargar Selfie"
+            [label]="fileTitles()[1]"
             icon="pi pi-download"
             size="small"
             (onClick)="download(kyc()?.document2)"
@@ -37,7 +37,7 @@
         <li>
           <p-button
             link
-            label="Descargar Selfie"
+            [label]="fileTitles()[2]"
             icon="pi pi-download"
             size="small"
             (onClick)="download(kyc()?.document3)"

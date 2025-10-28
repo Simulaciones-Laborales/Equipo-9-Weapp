@@ -48,7 +48,7 @@ export class UserApi {
   }
 
   async getById(userId: string) {
-    const call = this._http.get<User>(`${this._url}/${userId}`);
+    const call = this._http.get<Response<User>>(`${this._url}/${userId}`);
 
     return await lastValueFrom(call);
   }

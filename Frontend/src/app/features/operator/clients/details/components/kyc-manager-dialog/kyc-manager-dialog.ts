@@ -57,6 +57,7 @@ export class KycManagerDialog {
   readonly updateLoading = input.required<boolean>();
   readonly updateSuccess = input.required<boolean>();
   readonly kyc = input.required<KYCVerificationResponse | null>();
+  readonly fileTitles = input.required<string[]>();
 
   constructor() {
     effect(() => {
