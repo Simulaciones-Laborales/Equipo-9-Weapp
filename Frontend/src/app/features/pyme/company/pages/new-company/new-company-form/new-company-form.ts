@@ -1,24 +1,28 @@
-import { Component, effect, inject, input, output } from '@angular/core';
+import { Component, effect, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FloatLabel } from 'primeng/floatlabel';
 import { InputText } from 'primeng/inputtext';
 import { Button } from 'primeng/button';
-import { CompanyRequest } from '../../models/company-model';
+import { CompanyRequest } from '../../../models/company-model';
 import { getError, isInvalid } from '@core/utils/form-utils';
 import { Message } from 'primeng/message';
 import { InputNumber } from 'primeng/inputnumber';
+import { Store } from './store';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-new-company-form',
   imports: [ReactiveFormsModule, FloatLabel, InputText, Button, Message, InputNumber],
   templateUrl: './new-company-form.html',
   styleUrl: './new-company-form.css',
+  providers: [Store],
 })
 export class NewCompanyForm {
-  readonly loading = input.required<boolean>();
-  readonly onSubmit = output<CompanyRequest>();
-
   private readonly _fb = inject(FormBuilder);
+  private readonly _router = inject(Router);
+  private readonly _route = inject(ActivatedRoute);
+
+  readonly store = inject(Store);
 
   readonly form = this._fb.group({
     name: ['', Validators.required],
@@ -28,9 +32,15 @@ export class NewCompanyForm {
 
   constructor() {
     effect(() => {
-      if (this.loading()) {
+      const status = this.store.status();
+
+      if (status === 'loading') {
         this.form.disable();
       } else {
+        if (status === 'success') {
+          this._router.navigate(['..'], { relativeTo: this._route });
+        }
+
         this.form.enable();
       }
     });
@@ -41,7 +51,7 @@ export class NewCompanyForm {
       return this.form.markAllAsTouched();
     }
 
-    this.onSubmit.emit(this.form.value as CompanyRequest);
+    this.store.createCompany(this.form.value as CompanyRequest);
   }
 
   isInvalid(controlName: string) {

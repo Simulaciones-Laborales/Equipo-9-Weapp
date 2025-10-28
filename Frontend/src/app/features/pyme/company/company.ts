@@ -3,22 +3,12 @@ import { CompanyStore } from './company-store';
 import { LayoutStore } from '../layout/layout-store';
 import { TableModule } from 'primeng/table';
 import { KycWarningMessage } from './components/kyc-warning-message/kyc-warning-message';
-import { NewCompanySection } from './components/new-company-section/new-company-section';
-import { CompaniesListSection } from './components/companies-list-section/companies-list-section';
-import { LoadingSpinner } from '@components/loading-spinner/loading-spinner';
-import { Header } from '@components/header/header';
 import { MenuItem } from 'primeng/api';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-company',
-  imports: [
-    TableModule,
-    KycWarningMessage,
-    NewCompanySection,
-    CompaniesListSection,
-    LoadingSpinner,
-    Header,
-  ],
+  imports: [TableModule, KycWarningMessage, RouterOutlet],
   templateUrl: './company.html',
   styleUrl: './company.css',
   providers: [CompanyStore],

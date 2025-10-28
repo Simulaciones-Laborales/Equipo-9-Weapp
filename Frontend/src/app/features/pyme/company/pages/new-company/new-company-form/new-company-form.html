@@ -60,10 +60,10 @@
     } }
   </div>
   <p-button
-    [label]="loading() ? 'Registrando tu Empresa...' : 'Completar Registro'"
+    [label]="store.loadingMessage()"
     type="submit"
     fluid
-    [loading]="loading()"
+    [loading]="store.status() === 'loading'"
     class="mt-2"
   />
 </form>

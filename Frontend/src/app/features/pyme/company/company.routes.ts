@@ -5,9 +5,23 @@ export default [
   {
     path: '',
     component: Company,
-  },
-  {
-    path: ':id/solicitudes-de-credito',
-    loadComponent: () => import('./credits/credits'),
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./pages/list/list'),
+      },
+      {
+        path: 'registro-empresa',
+        loadComponent: () => import('./pages/new-company/new-company'),
+      },
+      {
+        path: ':id/solicitudes-de-credito',
+        loadComponent: () => import('./pages/credit-applications/credit-applications'),
+      },
+      {
+        path: ':id/verificacion',
+        loadComponent: () => import('./pages/kyc-verification/kyc-verification'),
+      },
+    ],
   },
 ] as Routes;

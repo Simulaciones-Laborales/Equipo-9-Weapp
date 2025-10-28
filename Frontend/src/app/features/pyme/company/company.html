@@ -1,16 +1,5 @@
-<div class="flex flex-col gap-y-7">
-  <app-header
-    headline="Administración de Mis Empresas"
-    description="Visualiza y gestiona tus empresas."
-    [menuItems]="menu"
-  />
-  @if (store.loadingMessage() !== null) {
-  <app-loading-spinner [message]="store.loadingMessage()!" />
-  } @else { @if (store.showKycMessage()) {
-  <app-kyc-warning-message />
-  } @else if (store.showNewCompanyForm()) {
-  <app-new-company-section />
-  } @else if (store.showCompanies()) {
-  <app-companies-list-section />
-  } }
-</div>
+@if (store.showKycMessage()) {
+<app-kyc-warning-message />
+} @else {
+<router-outlet />
+}

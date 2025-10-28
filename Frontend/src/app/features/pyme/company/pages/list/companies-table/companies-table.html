@@ -13,12 +13,11 @@
       <td>{{ company.annualIncome | currency }}</td>
       <td>{{ company.createdAt | date : 'dd/MM/yyyy hh:mm a' }}</td>
       <td>
-        <p-menu #menu [model]="items" [popup]="true" appendTo="body" />
-        <p-button
-          (click)="setSelectedItem(menu, $event, company)"
-          icon="pi pi-ellipsis-h"
-          severity="secondary"
-        />
+        <a
+          [routerLink]="`./${company.idCompany}/solicitudes-de-credito`"
+          class="font-medium text-sm sm:text-base text-blue-500 hover:text-blue-600 hover:underline duration-200"
+          >Gestionar créditos</a
+        >
       </td>
     </tr>
   </ng-template>

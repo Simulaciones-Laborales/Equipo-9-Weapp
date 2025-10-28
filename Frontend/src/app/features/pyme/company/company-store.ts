@@ -40,16 +40,7 @@ export const CompanyStore = signalStore(
     setShowKycMessage: (showKycMessage: boolean) => {
       patchState(store, { showKycMessage });
     },
-    getCompanies: async () => {
-      patchState(store, { getCompaniesStatus: 'loading' });
-
-      try {
-        const companies = await companyApi.getAllByAuthenticatedUser();
-        patchState(store, { getCompaniesStatus: 'success', companies });
-      } catch (e) {
-        patchState(store, { getCompaniesStatus: 'failure' });
-      }
-    },
+    getCompanies: async () => {},
     setShowNewCompanyForm: (show: boolean) => {
       patchState(store, { showNewCompanyForm: show });
     },
