@@ -37,13 +37,15 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.POST, "/auth/reset-password").permitAll()
                         .requestMatchers(HttpMethod.GET, "/auth/oauth-success").permitAll()
                         // USER ENDPOINTS ---------------------------------------------------
-                        .requestMatchers(HttpMethod.GET, "/user/{id}").hasAnyAuthority("OPERADOR", "ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/user/me").hasAnyAuthority("OPERADOR", "PYME")
-                        .requestMatchers(HttpMethod.PUT, "/user/update").hasAnyAuthority("ADMIN", "OPERADOR", "PYME")
-                        .requestMatchers(HttpMethod.GET, "/user/list").hasAnyAuthority("OPERADOR", "ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/user/list-active").hasAnyAuthority("OPERADOR", "ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/user/change-status").hasAnyAuthority("OPERADOR", "ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/user/{id}").hasAuthority("SUPER_ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/user/{id}").hasAnyAuthority("OPERADOR")
+                        // CORRECCIÓN: Se reescribe la autoridad para PYME, asegurando la coincidencia
+                        // También se añade ADMIN para evitar 403 futuros, si ese rol debe tener acceso
+                        .requestMatchers(HttpMethod.GET, "/user").hasAnyAuthority("PYME", "OPERADOR")
+                        .requestMatchers(HttpMethod.PUT, "/user/update").hasAnyAuthority( "OPERADOR", "PYME")
+                        .requestMatchers(HttpMethod.GET, "/user/list").hasAnyAuthority("OPERADOR")
+                        .requestMatchers(HttpMethod.GET, "/user/list-active").hasAnyAuthority("OPERADOR")
+                        .requestMatchers(HttpMethod.PUT, "/user/change-status").hasAnyAuthority("OPERADOR")
+                        .requestMatchers(HttpMethod.DELETE, "/user/{id}").hasAuthority("OPERADOR")
 
                         // KYC VERIFICATIONS -----------------------------------------------------
                         .requestMatchers(HttpMethod.POST, "/api/kyc/start").hasAnyAuthority("PYME")
@@ -54,9 +56,9 @@ public class SecurityConfiguration {
 
                         // CREDIT  -----------------------------------------------------
                         .requestMatchers(HttpMethod.POST, "/api/credit-applications").hasAnyAuthority("PYME")
-                        .requestMatchers(HttpMethod.GET, "/api/credit-applications").hasAnyAuthority("OPERADOR")
+                        .requestMatchers(HttpMethod.GET, "/api/credit-applications/all").hasAnyAuthority("OPERADOR")
                         .requestMatchers(HttpMethod.GET, "/api/credit-applications/{id}").hasAnyAuthority("OPERADOR")
-                        .requestMatchers(HttpMethod.GET, "/api/credit-applications/my").hasAnyAuthority("PYME")
+                        .requestMatchers(HttpMethod.GET, "/api/credit-applications").hasAnyAuthority("PYME")
                         .requestMatchers(HttpMethod.PUT, "/api/credit-applications/{id}").hasAnyAuthority("PYME")
                         .requestMatchers(HttpMethod.GET, "/api/credit-applications/company/{companyId}").hasAnyAuthority("OPERADOR")
                         .requestMatchers(HttpMethod.PUT, "/api/credit-applications/{id}/status").hasAnyAuthority("OPERADOR")

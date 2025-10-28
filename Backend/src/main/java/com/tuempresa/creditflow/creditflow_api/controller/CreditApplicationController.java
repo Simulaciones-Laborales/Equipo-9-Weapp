@@ -86,7 +86,7 @@ public class CreditApplicationController {
             @ApiResponse(responseCode = "403", description = "Acceso denegado (usuario sin rol OPERADOR).",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<Page<CreditApplicationResponseDTO>> getAllApplications(
             @Parameter(description = "Estado de la solicitud para filtrar los resultados (opcional).")
             @RequestParam(value = "status", required = false) CreditStatus status,
@@ -245,7 +245,7 @@ public class CreditApplicationController {
             @ApiResponse(responseCode = "403", description = "Usuario no autenticado o acceso denegado",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @GetMapping("/my")
+    @GetMapping()
     public ResponseEntity<List<CreditApplicationResponseDTO>> getMyCreditApplications(
             @Parameter(description = "Estado de la solicitud para filtrar los resultados (opcional).")
             @RequestParam(value = "status", required = false) CreditStatus status) {

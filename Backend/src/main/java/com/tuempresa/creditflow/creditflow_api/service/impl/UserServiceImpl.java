@@ -92,19 +92,6 @@ public class UserServiceImpl implements IUserService {
         return ExtendedBaseResponse.of(BaseResponse.ok("Usuario eliminado exitosamente"), null);
     }
 
-
-    // NUEVO: devuelve la entidad User por email (o lanza excepción si no existe)
-    public User findEntityByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con email: " + email));
-    }
-
-    // (opcional) devolver entidad por id
-    public User findEntityById(UUID id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con id: " + id));
-    }
-
     @Override
     public User findEntityByPrincipal(String principal) {
         return userRepository.findByEmail(principal)
@@ -124,9 +111,9 @@ public class UserServiceImpl implements IUserService {
                 );
             }
 
+            // Busca directamente por email (que es el principal)
             User user = userRepository.findByEmail(principal)
-                    .or(() -> userRepository.findByUsername(principal))
-                    .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con principal: " + principal));
+                    .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado: " + principal));
 
             UserDto userDto = userMapper.toDto(user);
             return ExtendedBaseResponse.of(BaseResponse.ok("Usuario logueado encontrado"), userDto);

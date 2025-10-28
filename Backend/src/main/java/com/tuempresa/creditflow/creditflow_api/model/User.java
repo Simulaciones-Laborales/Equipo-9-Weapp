@@ -123,11 +123,4 @@ public class User implements UserDetails {
         PYME
     }
 
-    public Role ChangeRole (String roleName){
-        try {
-            return Role.valueOf(roleName.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Rol no válido: " + roleName +
-                    ". Los roles válidos son: SUPER_ADMIN, ADMIN, PYME");}
-    }
 }

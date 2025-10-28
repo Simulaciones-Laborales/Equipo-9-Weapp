@@ -29,7 +29,6 @@ import java.util.UUID;
 public class UserController {
     private final IUserService userService;
     private final KycVerificationServiceImpl kycVerificationService;
-    private final CreditApplicationService creditService;
 
     @Operation(
             summary = "Buscar usuario por ID",
@@ -79,7 +78,7 @@ public class UserController {
                     content = @Content
             )
     })
-    @GetMapping("/me")
+    @GetMapping()
     public ResponseEntity<ExtendedBaseResponse<UserDto>> getLoggedUser() {
         ExtendedBaseResponse<UserDto> response = userService.findOnlineUser();
         return ResponseEntity.ok(response);
