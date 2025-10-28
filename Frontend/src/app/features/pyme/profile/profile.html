@@ -1,10 +1,9 @@
 <div class="flex flex-col gap-y-8">
-  <header class="flex flex-col gap-y-2.5">
-    <app-title headline="Mi Perfil" />
-    <p class="text-surface-500 text-sm sm:text-base text-pretty">
-      Puedes visualizar y actualizar tu información personal cuando gustes.
-    </p>
-  </header>
+  <app-header
+    headline="Mi Perfil"
+    description="Puedes visualizar y actualizar tu información personal cuando gustes."
+    [menuItems]="menu"
+  />
   <section class="flex flex-col gap-3.5">
     <app-subtitle headline="Información Personal" />
     <ul class="flex flex-col">

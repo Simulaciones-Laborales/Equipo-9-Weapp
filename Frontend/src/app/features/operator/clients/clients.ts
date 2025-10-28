@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { ClientsStore } from './clients-store';
-import { Header } from '../components/header/header';
+import { Header } from '../../../components/header/header';
 import { MenuItem } from 'primeng/api';
 import { ClientsTable } from './components/clients-table/clients-table';
 import { Subtitle } from '@components/subtitle/subtitle';

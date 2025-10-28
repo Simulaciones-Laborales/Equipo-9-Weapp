@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { Header } from '@features/operator/components/header/header';
+import { Header } from '@components/header/header';
 import { MenuItem } from 'primeng/api';
 import { CreditApplicationsTable } from '@components/credit-applications-table/credit-applications-table';
 import { ActivatedRoute } from '@angular/router';

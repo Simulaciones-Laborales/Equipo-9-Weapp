@@ -1,12 +1,13 @@
 import { Component, effect, inject } from '@angular/core';
-import { Title } from '@components/title/title';
 import { TokenStorage } from '@core/services/token-storage';
 import { ProfileStore } from './profile-store';
 import { Subtitle } from '@components/subtitle/subtitle';
+import { Header } from '@components/header/header';
+import { MenuItem } from 'primeng/api';
 
 @Component({
   selector: 'app-profile',
-  imports: [Title, Subtitle],
+  imports: [Header, Subtitle],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
   providers: [ProfileStore],
@@ -14,6 +15,11 @@ import { Subtitle } from '@components/subtitle/subtitle';
 export default class Profile {
   readonly store = inject(ProfileStore);
   readonly tokenStorage = inject(TokenStorage);
+
+  readonly menu: MenuItem[] = [
+    { icon: 'pi pi-home', routerLink: '../' },
+    { label: 'Mi Perfil', routerLink: './' },
+  ];
 
   constructor() {
     effect(() => {

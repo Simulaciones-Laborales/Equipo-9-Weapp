@@ -1,22 +1,23 @@
 import { Component, effect, inject } from '@angular/core';
 import { CompanyStore } from './company-store';
-import { Title } from '@components/title/title';
 import { LayoutStore } from '../layout/layout-store';
 import { TableModule } from 'primeng/table';
 import { KycWarningMessage } from './components/kyc-warning-message/kyc-warning-message';
 import { NewCompanySection } from './components/new-company-section/new-company-section';
 import { CompaniesListSection } from './components/companies-list-section/companies-list-section';
 import { LoadingSpinner } from '@components/loading-spinner/loading-spinner';
+import { Header } from '@components/header/header';
+import { MenuItem } from 'primeng/api';
 
 @Component({
   selector: 'app-company',
   imports: [
-    Title,
     TableModule,
     KycWarningMessage,
     NewCompanySection,
     CompaniesListSection,
     LoadingSpinner,
+    Header,
   ],
   templateUrl: './company.html',
   styleUrl: './company.css',
@@ -25,6 +26,11 @@ import { LoadingSpinner } from '@components/loading-spinner/loading-spinner';
 export default class Company {
   readonly layoutStore = inject(LayoutStore);
   readonly store = inject(CompanyStore);
+
+  readonly menu: MenuItem[] = [
+    { icon: 'pi pi-home', routerLink: '../' },
+    { label: 'Empresas', routerLink: './' },
+  ];
 
   constructor() {
     effect(async () => {
