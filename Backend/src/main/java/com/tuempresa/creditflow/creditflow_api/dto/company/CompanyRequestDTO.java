@@ -20,7 +20,7 @@ import java.math.BigDecimal;
 // Anotación principal para describir el objeto DTO en Swagger/OpenAPI
 @Schema(
     description = "Datos necesarios para crear o actualizar la información de una empresa.",
-    example = "{\"name\": \"Tech Innovators S.A.\", \"taxId\": \"A12345678\", \"annualIncome\": 500000.00}"
+    example = "{\"name\": \"Tech Innovators S.A.\", \"taxId\": \"20948079365\", \"annualIncome\": 500000.00}"
 )
 public class CompanyRequestDTO {
 
@@ -38,7 +38,7 @@ public class CompanyRequestDTO {
     // Anotación para describir el campo 'taxId'
     @Schema(
         description = "Identificador fiscal (ej. RUC, NIF, CIF) de la empresa.",
-        example = "A12345678",
+        example = "20948079365",
         maxLength = 50,
         required = true
     )
