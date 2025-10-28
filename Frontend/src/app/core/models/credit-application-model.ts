@@ -50,3 +50,27 @@ export interface UpdateCreditApplicationStatusDto {
   newStatus: CreditApplicationStatus;
   comments: string;
 }
+
+export enum HistoryActionType {
+  CREATION = 'CREATION',
+  UPDATE = 'UPDATE',
+  STATUS_CHANGE = 'STATUS_CHANGE',
+  COMMENT = 'COMMENT',
+  OPERATOR_ACTION = 'OPERATOR_ACTION',
+  AUTOMATION = 'AUTOMATION',
+  APPROVAL = 'APPROVAL',
+  REJECTION = 'REJECTION',
+  CANCELLATION = 'CANCELLATION',
+  DELETION = 'DELETION',
+}
+
+export interface CreditApplicationHistory {
+  id: string;
+  creditApplicationId: string;
+  actionType: HistoryActionType;
+  action: string;
+  comments: string;
+  operatorId: string;
+  operatorName: string;
+  createdAt: Date;
+}

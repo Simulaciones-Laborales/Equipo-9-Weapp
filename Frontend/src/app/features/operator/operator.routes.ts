@@ -23,10 +23,6 @@ export default [
         path: 'solicitudes',
         loadChildren: () => import('./credits/credits.routes'),
       },
-      {
-        path: 'empresas',
-        loadComponent: () => import('./companies/companies'),
-      },
     ],
   },
 ] as Routes;
