@@ -4,11 +4,15 @@ import com.tuempresa.creditflow.creditflow_api.model.Company;
 import com.tuempresa.creditflow.creditflow_api.model.User;
 import com.tuempresa.creditflow.creditflow_api.dto.company.CompanyRequestDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.company.CompanyResponseDTO;
+import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.stream.Collectors;
 
+@Component
 public class CompanyMapper {
 
-    public static Company toEntity(CompanyRequestDTO dto, User user) {
+    public Company toEntity(CompanyRequestDTO dto, User user) {
         return Company.builder()
                 .company_name(dto.getName())
                 .taxId(dto.getTaxId())
@@ -17,7 +21,8 @@ public class CompanyMapper {
                 .build();
     }
 
-    public static CompanyResponseDTO toDTO(Company company) {
+    // MÉTODO NO ESTÁTICO
+    public CompanyResponseDTO toDTO(Company company) {
         return CompanyResponseDTO.builder()
                 .idCompany(company.getId())
                 .name(company.getCompany_name())
@@ -28,5 +33,11 @@ public class CompanyMapper {
                 .userName(company.getUser().getName())
                 .build();
     }
-    
+
+    // MÉTODO NO ESTÁTICO PARA LISTAS
+    public List<CompanyResponseDTO> toDTOList(List<Company> companies) {
+        return companies.stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
 }

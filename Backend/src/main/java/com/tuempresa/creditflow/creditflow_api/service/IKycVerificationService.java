@@ -70,4 +70,8 @@ public interface IKycVerificationService {
      * @param id ID de la verificación
      */
     ExtendedBaseResponse<String> delete(UUID id);
+
+    ExtendedBaseResponse<List<KycVerificationResponseDTO>> getFiltered(String kycEntityType, String status);
+
+    ExtendedBaseResponse<KycVerificationResponseDTO> getCompanyStatusById(UUID companyId);
 }

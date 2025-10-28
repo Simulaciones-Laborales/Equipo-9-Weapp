@@ -24,10 +24,24 @@ public interface KycVerificationRepository extends JpaRepository<KycVerification
     boolean existsByUserIdAndEntityTypeAndStatus(UUID id, KycEntityType kycEntityType, KycStatus kycStatus);
     
     boolean existsByCompanyIdAndEntityTypeAndStatus( UUID companyId, KycEntityType kycEntityType, KycStatus kycStatus);
-    
+
     @Query("SELECT NEW com.tuempresa.creditflow.creditflow_api.dto.kyc.KycVerifiedCompanyResponseDTO(" +
            "k.company.id, k.company.company_name, k.status, k.idKyc) " +
-           "FROM KycVerification k " + 
+           "FROM KycVerification k " +
            "WHERE k.company IS NOT NULL")
     List<KycVerifiedCompanyResponseDTO> findVerifiedCompanyDetails();
+
+    /**
+     * Consulta JPQL para filtrar por KycEntityType y/o Status.
+     * Si un parámetro es NULL, se ignora ese filtro.
+     */
+    @Query("SELECT k FROM KycVerification k " +
+            "WHERE (:kycEntityType IS NULL OR k.entityType = :kycEntityType) " +
+            "AND (:status IS NULL OR k.status = :status)")
+    List<KycVerification> findFiltered(
+            KycEntityType kycEntityType,
+            KycStatus status
+    );
+
+    Optional<KycVerification> findByCompanyId(UUID companyId);
 }
