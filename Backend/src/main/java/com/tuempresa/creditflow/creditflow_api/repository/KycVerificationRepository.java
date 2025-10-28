@@ -44,4 +44,6 @@ public interface KycVerificationRepository extends JpaRepository<KycVerification
     );
 
     Optional<KycVerification> findByCompanyId(UUID companyId);
+
+    boolean existsByUserIdAndEntityType(UUID userId, KycEntityType kycEntityType);
 }

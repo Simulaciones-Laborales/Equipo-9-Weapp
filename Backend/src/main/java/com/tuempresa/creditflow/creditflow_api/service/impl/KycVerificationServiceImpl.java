@@ -330,18 +330,24 @@ public class KycVerificationServiceImpl implements IKycVerificationService {
 
     @Transactional(readOnly = true)
     public ExtendedBaseResponse<List<KycVerificationResponseDTO>> getAllByUserIdAndOptionalStatus(UUID userId, KycStatus status) {
+
         if (!userRepo.existsById(userId))
             throw new UserNotFoundException("Usuario no encontrado con ID: " + userId);
+
+        if (kycRepo.existsByUserIdAndEntityType(userId, KycEntityType.COMPANY)) {
+            throw new KycBadRequestException("Acceso denegado: El usuario tiene procesos KYC de entidad COMPANY asociados, que no son visibles en este endpoint (solo USER).");
+        }
 
         List<KycVerificationResponseDTO> kycs = (status != null
                 ? kycRepo.findByUserIdAndStatus(userId, status)
                 : kycRepo.findByUserId(userId))
                 .stream()
+                .filter(kyc -> kyc.getEntityType() == KycEntityType.USER)
                 .map(kyc -> kycMapper.toResponseDto(kyc, null))
                 .toList();
 
         return ExtendedBaseResponse.of(
-                BaseResponse.ok("Listado de KYC filtrado por estado"),
+                BaseResponse.ok("Listado de verificaciones KYC (Usuario) filtrado por estado"),
                 kycs
         );
     }
