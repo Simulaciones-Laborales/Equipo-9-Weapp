@@ -17,15 +17,11 @@ export default [
       },
       {
         path: 'clientes',
-        loadComponent: () => import('./clients/clients'),
+        loadChildren: () => import('./clients/clients.routes'),
       },
       {
         path: 'solicitudes',
         loadChildren: () => import('./credits/credits.routes'),
-      },
-      {
-        path: 'empresas',
-        loadComponent: () => import('./companies/companies'),
       },
     ],
   },

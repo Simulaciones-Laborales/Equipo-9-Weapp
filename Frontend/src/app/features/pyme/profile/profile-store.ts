@@ -1,9 +1,10 @@
-import { inject } from '@angular/core';
+import { computed, inject } from '@angular/core';
 import { User } from '@core/models/user-model';
 import { TokenStorage } from '@core/services/token-storage';
 import { UserApi } from '@core/services/user-api';
 import { Status } from '@core/types';
-import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
+import { patchState, signalStore, withComputed, withMethods, withState } from '@ngrx/signals';
+import { UserActivePipe } from '@pipes/user-active-pipe';
 
 type State = {
   user: User | null;
@@ -17,12 +18,33 @@ const initialState: State = {
 
 export const ProfileStore = signalStore(
   withState(initialState),
-  withMethods((store, userApi = inject(UserApi), tokenStorage = inject(TokenStorage)) => ({
+  withComputed((store, tokenUser = inject(TokenStorage).user()!) => ({
+    data: computed(() => {
+      const user = store.user();
+
+      if (!user) {
+        return [];
+      }
+
+      const isActive = new UserActivePipe().transform(user.isActive);
+
+      return [
+        { name: 'Nombres', value: tokenUser.firstName },
+        { name: 'Apellidos', value: tokenUser.lastName },
+        { name: 'Nombre de usuario', value: user.username },
+        { name: 'Correo electrónico', value: user.email },
+        { name: 'Teléfono de contacto', value: user.contact },
+        { name: 'Estado', value: isActive },
+        { name: 'Registrado', value: user.createdAt },
+      ];
+    }),
+  })),
+  withMethods((store, userApi = inject(UserApi)) => ({
     fetchUser: async () => {
       patchState(store, { fetchUserStatus: 'loading' });
 
       try {
-        const user = await userApi.getById(tokenStorage.user()?.id!);
+        const user = (await userApi.getMe()).data;
         patchState(store, { fetchUserStatus: 'success', user });
       } catch (e) {
         patchState(store, { fetchUserStatus: 'failure' });

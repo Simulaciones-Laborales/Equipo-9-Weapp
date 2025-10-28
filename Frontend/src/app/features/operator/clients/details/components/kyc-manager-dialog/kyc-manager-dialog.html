@@ -8,7 +8,9 @@
   @if (fetchLoading()) {
   <app-loading-spinner message="Cargando verificación del KYC..." />
   } @else { @if (!kyc()) {
-  <p>Sin KYC...</p>
+  <p class="text-center py-12 font-medium text-surface-600">
+    No cuenta con procesos de verificación...
+  </p>
   } @else {
   <div class="flex flex-col gap-y-7">
     <section class="flex flex-col gap-y-3.5">

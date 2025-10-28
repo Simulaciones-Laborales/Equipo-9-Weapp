@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { Header } from '../components/header/header';
+import { Header } from '../../../components/header/header';
 import { Menu } from 'primeng/menu';
 import { MenuItem } from 'primeng/api';
 import { Subtitle } from '@components/subtitle/subtitle';

@@ -40,14 +40,16 @@ export const CreditStore = signalStore(
   })),
   withMethods(
     (store, creditApplicationApi = inject(CreditApplicationApi), kycApi = inject(KycApi)) => ({
-      fetchAll: async (companyId: string) => {
+      setCompanyId: (companyId: string) => {
+        patchState(store, { companyId });
+      },
+      fetchAll: async () => {
         patchState(store, { fetchCreditsStatus: 'loading' });
 
         try {
-          const credits = await creditApplicationApi.getAllByCompanyId(companyId);
+          const credits = await creditApplicationApi.getAllByCompanyId(store.companyId());
 
           patchState(store, {
-            companyId,
             credits,
             fetchCreditsStatus: 'success',
             errorStatusCode: null,

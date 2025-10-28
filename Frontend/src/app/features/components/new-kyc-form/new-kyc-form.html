@@ -10,6 +10,7 @@
           accept="image/*"
           (onSelect)="linkImage($event, document1)"
           [chooseLabel]="linkImageText(document1)"
+          [disabled]="loading()"
         />
       </div>
       <p-divider layout="vertical" class="hidden lg:block" />
@@ -23,6 +24,7 @@
           accept="image/*"
           (onSelect)="linkImage($event, document2)"
           [chooseLabel]="linkImageText(document2)"
+          [disabled]="loading()"
         />
       </div>
       <p-divider layout="vertical" class="hidden lg:block" />
@@ -36,6 +38,7 @@
           accept="image/*"
           (onSelect)="linkImage($event, document3)"
           [chooseLabel]="linkImageText(document3)"
+          [disabled]="loading()"
         />
       </div>
     </div>
