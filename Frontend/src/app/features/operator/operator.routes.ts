@@ -17,7 +17,7 @@ export default [
       },
       {
         path: 'clientes',
-        loadComponent: () => import('./clients/clients'),
+        loadChildren: () => import('./clients/clients.routes'),
       },
       {
         path: 'solicitudes',

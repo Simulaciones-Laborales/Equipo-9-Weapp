@@ -1,0 +1,7 @@
+<ul class="flex flex-col">
+  <app-info-item name="Nombre de usuario" [value]="user()?.username" />
+  <app-info-item name="Correo electrónico" [value]="user()?.email" />
+  <app-info-item name="Teléfono de contacto" [value]="user()?.contact" />
+  <app-info-item name="Correo electrónico" [value]="user()?.isActive | userActive" />
+  <app-info-item name="Teléfono de contacto" [value]="user()?.createdAt" />
+</ul>

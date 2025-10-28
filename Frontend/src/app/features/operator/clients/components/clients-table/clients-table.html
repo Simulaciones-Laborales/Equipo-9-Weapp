@@ -1,7 +1,7 @@
 <div class="w-full flex items-center justify-between gap-x-2.5 mb-2.5">
   <p class="text-surface-500 text-xs sm:text-sm">Mostrando {{ clients().length }} resultados.</p>
 </div>
-<p-table [value]="clients()" [tableStyle]="{ 'min-width': '100rem' }" size="small">
+<p-table [value]="clients()" [tableStyle]="{ 'min-width': '100rem' }">
   <ng-template #header>
     <tr>
       <th scope="col">Nombre de usuario</th>
@@ -24,13 +24,11 @@
       <td>{{ user.createdAt }}</td>
       <td>{{ user.updatedAt }}</td>
       <td>
-        <p-button
-          link
-          variant="text"
-          severity="info"
-          label="Gestionar verificación"
-          (onClick)="onSelectVerification.emit(user.id)"
-        />
+        <a
+          [routerLink]="`./${user.id}`"
+          class="text-blue-500 hover:text-blue-400 hover:underline duration-200 font-medium"
+          >Ver detalles</a
+        >
       </td>
     </tr>
   </ng-template>

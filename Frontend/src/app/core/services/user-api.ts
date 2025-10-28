@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { KYCVerificationResponse, KYCVerificationStatus } from '@core/models/kyc-model';
 import { Response } from '@core/models/response-model';
 import { User } from '@core/models/user-model';
+import { CompanyResponse } from '@features/pyme/company/models/company-model';
 import { environment } from 'environments/environment.development';
 import { lastValueFrom } from 'rxjs';
 
@@ -59,6 +60,12 @@ export class UserApi {
    */
   async getMe() {
     const call = this._http.get<Response<User>>(this._url);
+
+    return await lastValueFrom(call);
+  }
+
+  async getCompanies(userId: string) {
+    const call = this._http.get<Response<CompanyResponse[]>>(`${this._url}/${userId}/companies`);
 
     return await lastValueFrom(call);
   }
