@@ -30,6 +30,9 @@ export default class Credits {
   ];
 
   constructor() {
+    const companyId = this._route.snapshot.paramMap.get('id');
+    this.store.setCompanyId(companyId!);
+
     effect(() => {
       switch (this.store.errorStatusCode()) {
         case 403:
@@ -41,14 +44,13 @@ export default class Credits {
     effect(async () => {
       switch (this.store.kycVerificationStatus()) {
         case 'success':
-          await this.store.fetchAll(this.store.companyId());
+          await this.store.fetchAll();
           break;
       }
     });
   }
 
   async ngOnInit() {
-    const companyId = this._route.snapshot.queryParamMap.get('id');
-    await this.store.fetchAll(companyId!);
+    await this.store.fetchAll();
   }
 }
