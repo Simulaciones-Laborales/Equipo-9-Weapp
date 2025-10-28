@@ -182,8 +182,7 @@ public class CreditApplicationController {
             description = """
         Permite obtener los detalles de una solicitud de crédito específica por su ID.
         Solo el propietario de la solicitud puede acceder a esta información.
-        """,
-            security = @SecurityRequirement(name = "bearerAuth")
+        """
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Solicitud de crédito obtenida correctamente",
@@ -207,8 +206,7 @@ public class CreditApplicationController {
             description = """
         Permite obtener los detalles de una solicitud de crédito específica por su ID.
         Solo el propietario de la solicitud, un operador o un administrador puede acceder a esta información.
-        """,
-            security = @SecurityRequirement(name = "bearerAuth")
+        """
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Solicitud de crédito obtenida correctamente",
@@ -245,7 +243,7 @@ public class CreditApplicationController {
             @ApiResponse(responseCode = "403", description = "Usuario no autenticado o acceso denegado",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @GetMapping()
+    @GetMapping
     public ResponseEntity<List<CreditApplicationResponseDTO>> getMyCreditApplications(
             @Parameter(description = "Estado de la solicitud para filtrar los resultados (opcional).")
             @RequestParam(value = "status", required = false) CreditStatus status) {

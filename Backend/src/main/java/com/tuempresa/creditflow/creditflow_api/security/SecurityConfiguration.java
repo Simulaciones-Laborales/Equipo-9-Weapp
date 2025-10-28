@@ -38,8 +38,6 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.GET, "/auth/oauth-success").permitAll()
                         // USER ENDPOINTS ---------------------------------------------------
                         .requestMatchers(HttpMethod.GET, "/user/{id}").hasAnyAuthority("OPERADOR")
-                        // CORRECCIÓN: Se reescribe la autoridad para PYME, asegurando la coincidencia
-                        // También se añade ADMIN para evitar 403 futuros, si ese rol debe tener acceso
                         .requestMatchers(HttpMethod.GET, "/user").hasAnyAuthority("PYME", "OPERADOR")
                         .requestMatchers(HttpMethod.PUT, "/user/update").hasAnyAuthority( "OPERADOR", "PYME")
                         .requestMatchers(HttpMethod.GET, "/user/list").hasAnyAuthority("OPERADOR")
