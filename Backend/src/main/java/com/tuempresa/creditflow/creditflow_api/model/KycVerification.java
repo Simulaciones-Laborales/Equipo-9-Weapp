@@ -56,15 +56,6 @@ public class KycVerification {
     @JoinColumn(name = "company_id")
     private Company company;
 
-    @Column(name = "bcra_situacion")
-    private Integer bcraSituacion;
-
-    @Column(name = "bcra_monto_deuda")
-    private BigDecimal bcraMontoDeuda;
-
-    @Column(name = "bcra_cheques_rechazados")
-    private Integer bcraChequesRechazados;
-
     @PrePersist
     public void onCreate() {
         submissionDate = LocalDateTime.now();
