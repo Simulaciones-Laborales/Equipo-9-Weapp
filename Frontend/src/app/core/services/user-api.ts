@@ -51,4 +51,15 @@ export class UserApi {
 
     return await lastValueFrom(call);
   }
+
+  /**
+   * Devuelve los datos del usuario que ha iniciado sesión actualmente.
+   *
+   * @returns usuario autenticado.
+   */
+  async getMe() {
+    const call = this._http.get<Response<User>>(this._url);
+
+    return await lastValueFrom(call);
+  }
 }
