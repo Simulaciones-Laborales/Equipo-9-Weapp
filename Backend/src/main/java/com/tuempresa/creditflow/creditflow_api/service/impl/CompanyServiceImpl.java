@@ -1,7 +1,9 @@
 package com.tuempresa.creditflow.creditflow_api.service.impl;
 
+import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
 import com.tuempresa.creditflow.creditflow_api.dto.company.CompanyRequestDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.company.CompanyResponseDTO;
+import com.tuempresa.creditflow.creditflow_api.dto.kyc.KycVerificationResponseDTO;
 import com.tuempresa.creditflow.creditflow_api.enums.KycEntityType;
 import com.tuempresa.creditflow.creditflow_api.exception.kycExc.UserNotVerifiedException;
 import com.tuempresa.creditflow.creditflow_api.model.Company;
@@ -11,6 +13,7 @@ import com.tuempresa.creditflow.creditflow_api.repository.CompanyRepository;
 import com.tuempresa.creditflow.creditflow_api.repository.KycVerificationRepository;
 import com.tuempresa.creditflow.creditflow_api.service.CompanyService;
 import com.tuempresa.creditflow.creditflow_api.exception.ResourceNotFoundException;
+import com.tuempresa.creditflow.creditflow_api.service.IKycVerificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +29,7 @@ public class CompanyServiceImpl implements CompanyService {
 
     private final CompanyRepository companyRepository;
     private final KycVerificationRepository kycVerificationRepository;
+    private final IKycVerificationService kycVerificationService;
 
     @Override
     @Transactional
@@ -106,6 +110,33 @@ public class CompanyServiceImpl implements CompanyService {
         }
         companyRepository.delete(company);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public KycVerificationResponseDTO getCompanyKycByIdAndUser(UUID companyId, User currentUser) {
+
+        // 1. VALIDACIÓN DE PROPIEDAD Y EXISTENCIA
+        // Si la empresa no existe O no pertenece al usuario autenticado, lanza ResourceNotFoundException.
+        // Usamos el resultado de esta llamada solo para forzar la excepción si no se encuentra.
+        companyRepository.findByIdAndUser(companyId, currentUser)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Empresa no encontrada o no pertenece al usuario autenticado con ID: " + companyId));
+
+        // 2. OBTENER ESTADO KYC (DELEGACIÓN)
+        // Delegamos la búsqueda de KYC, consulta BCRA y mapeo al servicio especializado.
+        ExtendedBaseResponse<KycVerificationResponseDTO> responseWrapper =
+                kycVerificationService.getCompanyStatusById(companyId);
+
+        // 3. DESEMPAQUETAR y DEVOLVER
+        if (responseWrapper.code() == 200) {
+            return responseWrapper.data();
+        } else {
+            // Manejo de errores
+            String errorMessage = responseWrapper.message();
+            throw new RuntimeException("Fallo al obtener el estado KYC: " + errorMessage);
+        }
+    }
+
 
     private CompanyResponseDTO mapToResponseDTO(Company company) {
         return CompanyResponseDTO.builder()

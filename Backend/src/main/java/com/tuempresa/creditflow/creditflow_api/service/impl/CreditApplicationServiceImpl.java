@@ -151,6 +151,29 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<CreditApplicationResponseDTO> getCreditApplicationsByCompanyIdAndUser(
+            UUID companyId,
+            User currentUser) {
+
+        // 1. Validar que la empresa existe y pertenece al usuario autenticado.
+        // Esto garantiza la seguridad y la integridad del acceso.
+        Company company = companyRepository.findByIdAndUser(companyId, currentUser)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Empresa no encontrada o no pertenece al usuario autenticado con ID: " + companyId));
+
+        // 2. Obtener todas las solicitudes de crédito asociadas a la empresa.
+        // Asumimos que el Repositorio tiene un método para buscar por la entidad Company.
+        List<CreditApplication> applications = creditApplicationRepository.findByCompany(company);
+
+        // 3. Mapear las entidades a DTOs de respuesta.
+        // Usamos el método estático toDTO que definiste, ya que maneja la lista de documentos.
+        return applications.stream()
+                .map(CreditApplicationMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     @Transactional
     public CreditApplicationResponseDTO createApplicationWithFiles(
             CreditApplicationRequestDTO dto,
