@@ -1,1 +1,11 @@
-<p>history works!</p>
+<div class="flex flex-col gap-y-8">
+  <app-header
+    headline="Historial de Seguimiento"
+    description="Observa el seguimiento de tu solicitud de crédito."
+    [menuItems]="menu"
+  />
+  <section class="flex flex-col gap-y-3.5">
+    <app-subtitle headline="Seguimiento de acciones" />
+    <app-credit-application-history-table [creditId]="creditId" />
+  </section>
+</div>

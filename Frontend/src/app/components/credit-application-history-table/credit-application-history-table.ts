@@ -6,13 +6,13 @@ import { HistoryActionTypePipe } from '@pipes/history-action-type-pipe';
 import { TableModule } from 'primeng/table';
 
 @Component({
-  selector: 'app-credit-applications-table',
+  selector: 'app-credit-application-history-table',
   imports: [TableModule, DatePipe, HistoryActionTypePipe, LoadingSpinner],
-  templateUrl: './credit-applications-table.html',
-  styleUrl: './credit-applications-table.css',
+  templateUrl: './credit-application-history-table.html',
+  styleUrl: './credit-application-history-table.css',
   providers: [HistoryStore],
 })
-export class CreditApplicationsTable {
+export class CreditApplicationHistoryTable {
   readonly creditId = input.required<string>();
   readonly store = inject(HistoryStore);
 
