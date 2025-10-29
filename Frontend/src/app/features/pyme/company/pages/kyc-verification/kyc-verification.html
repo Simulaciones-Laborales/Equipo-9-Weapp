@@ -1,1 +1,18 @@
-<p>kyc-verification works!</p>
+<div class="flex flex-col gap-y-8">
+  <app-header
+    headline="Verificación"
+    description="Empieza un proceso de verificación o haz seguimiento de uno ya existente."
+    [menuItems]="menu"
+  />
+  <section class="flex flex-col gap-y-3.5">
+    <app-subtitle headline="Formulario de verificación" />
+    <app-new-kyc-form
+      [loading]="store.newKycStatus() === 'loading'"
+      title1="Constancia CUIT"
+      title2="Estatuto Social"
+      title3="Comprobante de domicilio"
+      (onSubmit)="store.startVerification($event)"
+    />
+  </section>
+</div>
+<p-confirm-dialog />

@@ -31,9 +31,9 @@ export interface KYCVerificationResponse {
   verificationDate: Date;
   kycEntityType: KYCEntityType;
   entityName: string;
-  document1: string;
-  document2: string;
-  document3: string;
+  document1Url: string;
+  document2Url: string;
+  document3Url: string;
 }
 
 export interface UpdateKycStatusDto {

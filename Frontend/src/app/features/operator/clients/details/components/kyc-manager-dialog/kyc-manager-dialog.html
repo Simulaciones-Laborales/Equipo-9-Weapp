@@ -22,7 +22,7 @@
             [label]="fileTitles()[0]"
             icon="pi pi-download"
             size="small"
-            (onClick)="download(kyc()?.document1)"
+            (onClick)="download(kyc()?.document1Url)"
           />
         </li>
         <li>
@@ -31,7 +31,7 @@
             [label]="fileTitles()[1]"
             icon="pi pi-download"
             size="small"
-            (onClick)="download(kyc()?.document2)"
+            (onClick)="download(kyc()?.document2Url)"
           />
         </li>
         <li>
@@ -40,7 +40,7 @@
             [label]="fileTitles()[2]"
             icon="pi pi-download"
             size="small"
-            (onClick)="download(kyc()?.document3)"
+            (onClick)="download(kyc()?.document3Url)"
           />
         </li>
       </ul>
