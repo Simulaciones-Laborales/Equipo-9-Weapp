@@ -1,4 +1,7 @@
-<p class="text-surface-500 text-xs sm:text-sm">Mostrando {{ credits().length }} resultados.</p>
+<div class="flex items-center justify-between gap-x-5 flex-wrap mb-3">
+  <p class="text-surface-500 text-xs sm:text-sm">Mostrando {{ credits().length }} resultados.</p>
+  <p-button label="Solicitar nuevo crédito" size="small" routerLink="./nueva-solicitud" />
+</div>
 <p-table [value]="credits()" [tableStyle]="{ 'min-width': '100rem' }">
   <ng-template #header>
     <tr>
