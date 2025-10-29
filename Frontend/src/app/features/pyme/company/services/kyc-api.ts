@@ -1,6 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { KYCEntityType, KYCVerificationResponse, UpdateKycStatusDto } from '@core/models/kyc-model';
+import { Response } from '@core/models/response-model';
 import { environment } from 'environments/environment.development';
 import { lastValueFrom } from 'rxjs';
 
@@ -26,9 +27,27 @@ export class KycApi {
 
     const params = new HttpParams().append('entityId', entityId).append('entityType', entityType);
 
-    const call = this._http.post<KYCVerificationResponse>(`${this._url}/start`, formData, {
-      params,
-    });
+    const call = this._http.post<Response<KYCVerificationResponse>>(
+      `${this._url}/start`,
+      formData,
+      {
+        params,
+      }
+    );
+
+    return await lastValueFrom(call);
+  }
+
+  /**
+   * Consulta la verificación KYC de una empresa específica usando su ID.
+   *
+   * @param companyId ID de la empresa.
+   * @returns Devuelve los detalles de la verificación.
+   */
+  async getByCompanyId(companyId: string) {
+    const call = this._http.get<Response<KYCVerificationResponse>>(
+      `${this._url}/companies/${companyId}`
+    );
 
     return await lastValueFrom(call);
   }

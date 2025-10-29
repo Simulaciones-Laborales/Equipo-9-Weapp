@@ -2,6 +2,8 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from 'environments/environment.development';
 import {
+  CreateCreditApplicationDto,
+  CreditApplicationHistory,
   CreditApplicationResponse,
   CreditApplicationStatus,
   UpdateCreditApplicationStatusDto,
@@ -16,6 +18,17 @@ export class CreditApplicationApi {
   private readonly _url = `${environment.apiUrl}/api/credit-applications`;
   private readonly _http = inject(HttpClient);
 
+  async create(dto: CreateCreditApplicationDto, files: File[]) {
+    const formData = new FormData();
+
+    formData.append('data', JSON.stringify(dto));
+    files.forEach((file) => formData.append('files', file, file.name));
+
+    const call = this._http.post<CreditApplicationResponse>(this._url, formData);
+
+    return await lastValueFrom(call);
+  }
+
   async getAll(status: CreditApplicationStatus | null, pageable: Pageable) {
     let params = new HttpParams().append('pageable', JSON.stringify(pageable));
 
@@ -23,7 +36,9 @@ export class CreditApplicationApi {
       params = params.append('status', status);
     }
 
-    const call = this._http.get<PageableResponse<CreditApplicationResponse>>(this._url, { params });
+    const call = this._http.get<PageableResponse<CreditApplicationResponse>>(`${this._url}/all`, {
+      params,
+    });
 
     return await lastValueFrom(call);
   }
@@ -53,6 +68,24 @@ export class CreditApplicationApi {
    */
   async getAllByCompanyId(companyId: string) {
     const call = this._http.get<CreditApplicationResponse[]>(`${this._url}/company/${companyId}`);
+
+    return await lastValueFrom(call);
+  }
+
+  /**
+   * Obtiene el registro de auditoría y eventos (cambios de estado, comentarios, actualizaciones) para una solicitud específica. La respuesta está paginada.
+   *
+   * @param id ID de la solicitud de crédito.
+   * @param pageable solicitud de paginación.
+   * @returns paginado con el historial de solicitudes.
+   */
+  async getHistory(id: string, pageable: Pageable) {
+    const params = new HttpParams().append('pageable', JSON.stringify(pageable));
+
+    const call = this._http.get<PageableResponse<CreditApplicationHistory>>(
+      `${this._url}/${id}/history`,
+      { params }
+    );
 
     return await lastValueFrom(call);
   }

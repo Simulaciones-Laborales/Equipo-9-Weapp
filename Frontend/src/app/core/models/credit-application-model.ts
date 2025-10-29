@@ -27,6 +27,16 @@ export enum CreditApplicationPurpose {
 }
 
 /**
+ * Modelo para crear una nueva solicitud de crédito.
+ */
+export interface CreateCreditApplicationDto {
+  companyId: string;
+  amount: number;
+  creditPurpose: CreditApplicationPurpose;
+  termMonths: number;
+}
+
+/**
  * Modelo de respuesta para la aplicación de un crédito.
  */
 export interface CreditApplicationResponse {
@@ -49,4 +59,28 @@ export interface CreditApplicationResponse {
 export interface UpdateCreditApplicationStatusDto {
   newStatus: CreditApplicationStatus;
   comments: string;
+}
+
+export enum HistoryActionType {
+  CREATION = 'CREATION',
+  UPDATE = 'UPDATE',
+  STATUS_CHANGE = 'STATUS_CHANGE',
+  COMMENT = 'COMMENT',
+  OPERATOR_ACTION = 'OPERATOR_ACTION',
+  AUTOMATION = 'AUTOMATION',
+  APPROVAL = 'APPROVAL',
+  REJECTION = 'REJECTION',
+  CANCELLATION = 'CANCELLATION',
+  DELETION = 'DELETION',
+}
+
+export interface CreditApplicationHistory {
+  id: string;
+  creditApplicationId: string;
+  actionType: HistoryActionType;
+  action: string;
+  comments: string;
+  operatorId: string;
+  operatorName: string;
+  createdAt: Date;
 }

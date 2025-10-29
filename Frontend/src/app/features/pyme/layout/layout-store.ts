@@ -22,7 +22,7 @@ export const LayoutStore = signalStore(
     userKycStatus: computed((): UserKycStatus => {
       if (store.kyc().length === 0) {
         return {
-          name: 'Sin KYC',
+          name: 'Sin Verificar',
           message:
             'Bienvenido, por favor ve al Inicio para iniciar con la verificación de tu KYC personal.',
         };
@@ -34,7 +34,7 @@ export const LayoutStore = signalStore(
 
       if (n === 0) {
         return {
-          name: 'Sin KYC',
+          name: 'Sin Verificar',
           message:
             'Bienvenido, por favor ve al Inicio para iniciar con la verificación de tu KYC personal.',
         };
@@ -51,30 +51,30 @@ export const LayoutStore = signalStore(
       switch (lastKyc.status) {
         case 'PENDING':
           return {
-            name: 'KYC Pendiente',
+            name: 'Verificación Pendiente',
             message:
               'Tienes un proceso de verificación pendiente, por favor sé paciente hasta que culmine el proceso.',
           };
         case 'VERIFIED':
           return {
-            name: 'KYC Verificado',
+            name: 'Verificado',
             message: null,
           };
         case 'REJECTED':
           return {
-            name: 'KYC Rechazado',
+            name: 'Rechazado',
             message:
               'Tu documentación ha sido rechazada, te invitamos a que inicies nuevamente el proceso de verificación.',
           };
         case 'REVIEW_REQUIRED':
           return {
-            name: 'KYC Por Revisar',
+            name: 'Por Revisar',
             message:
               'Estamos verificando tu documentación con nuestros operadores, por favor sé paciente hasta que culmine el proceso.',
           };
         default:
           return {
-            name: 'Sin KYC',
+            name: 'Sin Verificar',
             message: '',
           };
       }

@@ -22,4 +22,8 @@ export const routes: Routes = [
     canActivate: [loggedGuard],
     loadChildren: () => import('./features/operator/operator.routes'),
   },
+  {
+    path: '**',
+    loadComponent: () => import('./features/not-found/not-found'),
+  },
 ];

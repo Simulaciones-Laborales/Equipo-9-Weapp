@@ -27,7 +27,7 @@ export class NewKycForm {
   }
 
   linkImageText(to: WritableSignal<File | null>) {
-    return to() === null ? 'Adjuntar Imagen' : 'Imagen cargada';
+    return to() === null ? 'Adjuntar Archivo' : 'Archivo Adjunto';
   }
 
   isInvalid() {

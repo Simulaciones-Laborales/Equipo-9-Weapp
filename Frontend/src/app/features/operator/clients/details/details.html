@@ -1,0 +1,42 @@
+<div class="flex flex-col gap-y-8">
+  <app-header
+    [menuItems]="menu"
+    headline="Detalles"
+    description="Observa y gestiona la verificación del usuario y sus empresas."
+  />
+  @if (store.fetchStatus() === 'loading') {
+  <app-loading-spinner message="Cargando información del usuario..." />
+  } @else {
+  <section class="flex flex-col gap-y-3.5">
+    <header class="flex items-center justify-between gap-x-3.5 gap-y-2 flex-wrap">
+      <app-subtitle headline="Información del usuario" />
+      <p-button
+        severity="contrast"
+        size="small"
+        label="Gestionar KYC"
+        (onClick)="store.fetchKyc(store.userId(), 'user')"
+      />
+    </header>
+    <app-info [user]="store.user()" />
+  </section>
+  <section class="flex flex-col gap-y-3.5">
+    <app-subtitle headline="Empresas vinculadas" />
+    <app-companies-table
+      [companies]="store.companies()"
+      (onVerificationClick)="store.fetchKyc($event, 'company')"
+    />
+  </section>
+  }
+</div>
+@if (store.showDialog()) {
+<app-kyc-manager-dialog
+  [visible]="store.showDialog()"
+  [fetchLoading]="store.fetchKycStatus() === 'loading'"
+  [updateLoading]="store.updateKycStatus() === 'loading'"
+  [updateSuccess]="store.updateKycStatus() === 'success'"
+  (onSubmit)="store.updateKyc($event)"
+  (onClose)="store.closeDialog()"
+  [kyc]="store.kyc()"
+  [fileTitles]="store.fileTitles()"
+/>
+}

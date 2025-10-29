@@ -1,0 +1,26 @@
+@if (store.status() === 'loading') {
+<div class="mt-36">
+  <app-loading-spinner message="Cargando historial..." />
+</div>
+} @else {
+<p-table [value]="store.history()" [tableStyle]="{ 'min-width': '80rem' }">
+  <ng-template #header>
+    <tr>
+      <th scope="col">Comentarios del Operador</th>
+      <th scope="col">Acción</th>
+      <th scope="col">Tipo de acción</th>
+      <th scope="col">Operador</th>
+      <th scope="col">Fecha</th>
+    </tr>
+  </ng-template>
+  <ng-template #body let-item>
+    <tr>
+      <td>{{ item.comments }}</td>
+      <td>{{ item.action }}</td>
+      <td>{{ item.actionType | historyActionType }}</td>
+      <td>{{ item.operatorName }}</td>
+      <td>{{ item.createdAt | date : 'dd/MM/yyyy hh:mm aa' }}</td>
+    </tr>
+  </ng-template>
+</p-table>
+}

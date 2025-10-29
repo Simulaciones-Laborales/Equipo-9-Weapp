@@ -1,0 +1,34 @@
+@if (companies().length === 0) {
+<p class="text-center text-base sm:text-lg font-medium text-surface-600 py-12">
+  El usuario no cuenta con empresas vinculadas
+</p>
+} @else {
+<p-table [value]="companies()" [tableStyle]="{ 'min-width': '80rem' }">
+  <ng-template #header>
+    <tr>
+      <th scope="col">Nombre</th>
+      <th scope="col">CUIT</th>
+      <th scope="col">Ingreso Anual</th>
+      <th scope="col">Registrado</th>
+      <th scope="col"></th>
+    </tr>
+  </ng-template>
+  <ng-template #body let-company>
+    <tr>
+      <td>{{ company.name }}</td>
+      <td>{{ company.taxId }}</td>
+      <td>{{ company.annualIncome | currency }}</td>
+      <td>{{ company.createdAt | date : 'dd/MM/yyyy hh:mm aa' }}</td>
+      <td>
+        <p-button
+          link
+          variant="text"
+          severity="info"
+          label="Verificación"
+          (onClick)="onVerificationClick.emit(company.idCompany)"
+        />
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
+}

@@ -4,8 +4,12 @@ import { Pipe, PipeTransform } from '@angular/core';
   name: 'userActive',
 })
 export class UserActivePipe implements PipeTransform {
-  transform(value: boolean): string {
-    if (value) {
+  transform(value: boolean | undefined): string {
+    if (value == undefined) {
+      return '--';
+    }
+
+    if (value === true) {
       return 'Activo';
     }
 

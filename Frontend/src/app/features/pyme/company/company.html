@@ -1,12 +1,5 @@
-<section class="flex flex-col gap-y-7">
-  <app-title headline="Administración de Mis Empresas" />
-  @if (store.loadingMessage() !== null) {
-  <app-loading-spinner [message]="store.loadingMessage()!" />
-  } @else { @if (store.showKycMessage()) {
-  <app-kyc-warning-message />
-  } @else if (store.showNewCompanyForm()) {
-  <app-new-company-section />
-  } @else if (store.showCompanies()) {
-  <app-companies-list-section />
-  } }
-</section>
+@if (store.showKycMessage()) {
+<app-kyc-warning-message />
+} @else {
+<router-outlet />
+}
