@@ -2,8 +2,14 @@ package com.tuempresa.creditflow.creditflow_api.controller;
 
 import com.tuempresa.creditflow.creditflow_api.dto.company.CompanyRequestDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.company.CompanyResponseDTO;
+import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.CreditApplicationRequestDTO;
+import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.CreditApplicationResponseDTO;
+import com.tuempresa.creditflow.creditflow_api.dto.kyc.KycVerificationRequestCompanyDTO;
+import com.tuempresa.creditflow.creditflow_api.dto.kyc.KycVerificationRequestDTO;
+import com.tuempresa.creditflow.creditflow_api.dto.kyc.KycVerificationResponseDTO;
 import com.tuempresa.creditflow.creditflow_api.model.User;
 import com.tuempresa.creditflow.creditflow_api.service.CompanyService;
+import com.tuempresa.creditflow.creditflow_api.service.CreditApplicationService;
 import com.tuempresa.creditflow.creditflow_api.service.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -35,7 +41,7 @@ import java.util.UUID;
 public class CompanyController {
 
     private final CompanyService companyService;
-
+    private final CreditApplicationService creditApplicationService;
     private final IUserService userService; // Para obtener el usuario autenticado
 
 
@@ -173,6 +179,64 @@ public class CompanyController {
         User currentUser = getAuthenticatedUser();
         companyService.deleteCompany(id, currentUser);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(
+            summary = "Listar solicitudes de crédito por empresa",
+            description = "Devuelve una lista de las solicitudes de crédito de una empresa específica. Solo si la empresa pertenece al usuario autenticado.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Lista de solicitudes de crédito recuperada.",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    array = @ArraySchema(schema = @Schema(implementation = CreditApplicationRequestDTO.class))
+                            )
+                    ),
+                    @ApiResponse(responseCode = "404", description = "Empresa no encontrada o el ID no pertenece al usuario."),
+                    @ApiResponse(responseCode = "401", description = "No autenticado.")
+            }
+    )
+    @GetMapping("/{id}/credit-applications")
+    public ResponseEntity<List<CreditApplicationResponseDTO>> getCreditRequestsByCompanyId(
+            @Parameter(description = "Identificador único (UUID) de la empresa para la que se consultan las solicitudes.")
+            @PathVariable("id") UUID companyId) {
+
+        User currentUser = getAuthenticatedUser();
+        List<CreditApplicationResponseDTO> creditRequests = creditApplicationService.getCreditApplicationsByCompanyIdAndUser(companyId, currentUser);
+
+        return ResponseEntity.ok(creditRequests);
+    }
+
+    @Operation(
+            summary = "Obtener KYC de la empresa",
+            description = "Consulta la información de KYC (Know Your Customer) de una empresa específica. Solo si la empresa pertenece al usuario autenticado.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "KYC de la empresa encontrado y devuelto.",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = KycVerificationRequestCompanyDTO.class) // Asumiendo este DTO
+                            )
+                    ),
+                    @ApiResponse(responseCode = "404", description = "Empresa o registro de KYC no encontrado, o la empresa no pertenece al usuario."),
+                    @ApiResponse(responseCode = "401", description = "No autenticado.")
+            }
+    )
+    @GetMapping("/{id}/kyc")
+    public ResponseEntity<KycVerificationResponseDTO> getCompanyKycById(
+            @Parameter(description = "Identificador único (UUID) de la empresa cuyo KYC se va a consultar.")
+            @PathVariable("id") UUID companyId) {
+
+        User currentUser = getAuthenticatedUser();
+
+        // El CompanyService manejará:
+        // 1. Verificar que la empresa con `companyId` existe y pertenece a `currentUser`.
+        // 2. Obtener la información de KYC asociada a esa empresa.
+        KycVerificationResponseDTO kycResponse = companyService.getCompanyKycByIdAndUser(companyId, currentUser);
+
+        return ResponseEntity.ok(kycResponse);
     }
 
     // -----------------------------

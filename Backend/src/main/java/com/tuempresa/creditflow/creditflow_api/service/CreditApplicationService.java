@@ -104,5 +104,7 @@ public interface CreditApplicationService {
     ExtendedBaseResponse<Void> purgeAllImageCloudinary();
 
     ExtendedBaseResponse<Void> deleteRiskDocument(UUID id);
+
+    List<CreditApplicationResponseDTO> getCreditApplicationsByCompanyIdAndUser(UUID companyId, User currentUser);
 }
 
