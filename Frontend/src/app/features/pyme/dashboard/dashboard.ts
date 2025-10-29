@@ -27,7 +27,7 @@ export default class Dashboard {
     effect(async () => {
       const status = this.layoutStorage.userKycStatus();
 
-      const showKycButton = status.name === 'Sin KYC' || status.name === 'KYC Rechazado';
+      const showKycButton = status.name === 'Sin Verificar';
 
       this.store.setShowKycButton(showKycButton);
     });

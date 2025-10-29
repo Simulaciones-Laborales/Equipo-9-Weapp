@@ -6,11 +6,11 @@ export enum KYCVerificationStatus {
 }
 
 export type DisplayKycStatus =
-  | 'Sin KYC'
-  | 'KYC Pendiente'
-  | 'KYC Verificado'
-  | 'KYC Rechazado'
-  | 'KYC Por Revisar';
+  | 'Sin Verificar'
+  | 'Verificación Pendiente'
+  | 'Verificado'
+  | 'Rechazado'
+  | 'Por Revisar';
 
 export interface UserKycStatus {
   name: DisplayKycStatus;

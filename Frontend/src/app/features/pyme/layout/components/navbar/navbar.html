@@ -4,16 +4,16 @@
   <nav class="container mx-auto flex items-center justify-between gap-x-2.5 px-5">
     <app-logo />
     <div
-      class="relative font-semibold text-xs sm:text-sm"
+      class="relative font-medium text-xs sm:text-sm"
       [ngClass]="{
-        'text-surface-500': kycStatus() === 'Sin KYC',
-        'text-primary-600': kycStatus() === 'KYC Verificado',
-        'text-red-600': kycStatus() === 'KYC Rechazado',
-        'text-blue-600': kycStatus() === 'KYC Pendiente',
-        'text-yellow-600': kycStatus() === 'KYC Por Revisar'
+        'text-surface-500': kycStatus() === 'Sin Verificar',
+        'text-primary-600': kycStatus() === 'Verificado',
+        'text-red-600': kycStatus() === 'Rechazado',
+        'text-blue-600': kycStatus() === 'Verificación Pendiente',
+        'text-yellow-600': kycStatus() === 'Por Revisar'
       }"
     >
-      <div class="absolute -top-4.5 -left-3.5 text-3xl">.</div>
+      <div class="absolute -top-5.5 sm:-top-4.5 -left-3.5 text-3xl">.</div>
       <span>{{ kycStatus() }}</span>
     </div>
     <ul
