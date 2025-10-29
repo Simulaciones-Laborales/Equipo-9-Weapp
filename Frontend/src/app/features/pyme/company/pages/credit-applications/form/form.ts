@@ -11,10 +11,20 @@ import { getError, isInvalid } from '@core/utils/form-utils';
 import { Message } from 'primeng/message';
 import { CreditApplicationPurpose } from '@core/models/credit-application-model';
 import { CreditApplicationPurposePipe } from '@pipes/credit-application-purpose-pipe';
+import { FileRemoveEvent, FileSelectEvent, FileUpload } from 'primeng/fileupload';
 
 @Component({
   selector: 'app-form',
-  imports: [ReactiveFormsModule, Fieldset, Button, FloatLabel, InputNumber, Select, Message],
+  imports: [
+    ReactiveFormsModule,
+    Fieldset,
+    Button,
+    FloatLabel,
+    InputNumber,
+    Select,
+    Message,
+    FileUpload,
+  ],
   templateUrl: './form.html',
   styleUrl: './form.css',
   providers: [Store],
@@ -24,6 +34,7 @@ export class Form {
   private readonly _router = inject(Router);
   private readonly _route = inject(ActivatedRoute);
   private readonly _pipe = new CreditApplicationPurposePipe();
+  private readonly _files = signal<File[]>([]);
 
   readonly form = this._fb.group({
     amount: [0, [Validators.required, Validators.min(0)]],
@@ -31,7 +42,6 @@ export class Form {
     termMonths: ['0', [Validators.required, Validators.min(0)]],
   });
 
-  readonly files = signal<File[]>([]);
   readonly store = inject(Store);
 
   readonly options = [
@@ -52,12 +62,30 @@ export class Form {
         this.form.disable();
       } else {
         if (this.store.status() === 'success') {
-          this._router.navigate(['..'], { relativeTo: this._route }).then(() => this.form.reset());
+          this._router.navigate(['..'], { relativeTo: this._route }).then(() => {
+            this.form.reset();
+            this.onClear();
+          });
         }
 
         this.form.enable();
       }
     });
+  }
+
+  onSelect(e: FileSelectEvent) {
+    this._files.update((files) => [...files, ...e.files]);
+    console.log(this._files());
+  }
+
+  onRemove(e: FileRemoveEvent) {
+    this._files.update((files) => files.filter((file) => file !== e.file));
+    console.log(this._files());
+  }
+
+  onClear() {
+    this._files.set([]);
+    console.log(this._files());
   }
 
   private _purpose(purpose: CreditApplicationPurpose) {
@@ -73,6 +101,7 @@ export class Form {
     }
 
     console.log(this.form.value);
+    console.log(this._files());
   }
 
   isInvalid(name: string) {
