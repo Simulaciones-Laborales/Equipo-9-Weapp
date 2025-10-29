@@ -16,7 +16,7 @@ export default [
       },
       {
         path: ':id/solicitudes-de-credito',
-        loadComponent: () => import('./pages/credit-applications/credit-applications'),
+        loadChildren: () => import('./pages/credit-applications/credit-applications.routes'),
       },
       {
         path: ':id/verificacion',
