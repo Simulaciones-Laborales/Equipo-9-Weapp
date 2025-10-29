@@ -464,6 +464,23 @@ public class KycVerificationServiceImpl implements IKycVerificationService {
         );
     }
 
+    @Override
+    public Long countTotalKyc() {
+        return kycRepo.count();
+    }
+
+    @Override
+    public Map<String, Long> countKycByStatus() {
+
+        List<Object[]> results = kycRepo.countByStateVerification();
+
+        // Mapear los resultados (ej: [PENDIENTE, 3]) a un Map<String, Long>
+        return results.stream()
+                .collect(Collectors.toMap(
+                        row -> ((KycStatus) row[0]).name(), // Asumiendo que KycStatus es el Enum
+                        row -> (Long) row[1]
+                ));
+    }
 
 
     // ====================================================

@@ -137,6 +137,11 @@ public class CompanyServiceImpl implements CompanyService {
         }
     }
 
+    @Override
+    public Long countTotalCompanies() {
+        return companyRepository.count();
+    }
+
 
     private CompanyResponseDTO mapToResponseDTO(Company company) {
         return CompanyResponseDTO.builder()
