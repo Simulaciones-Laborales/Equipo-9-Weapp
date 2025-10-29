@@ -158,5 +158,10 @@ public class UserServiceImpl implements IUserService {
                 companyDtos
         );
     }
+
+    @Override
+    public Long countTotalUsers() {
+        return userRepository.count();
+    }
 }
 

@@ -49,4 +49,7 @@ public interface KycVerificationRepository extends JpaRepository<KycVerification
     boolean existsByUserIdAndEntityType(UUID userId, KycEntityType kycEntityType);
 
     Optional<KycVerification> findByCompany(Company company);
+
+    @Query("SELECT k.status, COUNT(k) FROM KycVerification k GROUP BY k.status")
+    List<Object[]> countByStateVerification();
 }

@@ -174,6 +174,24 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
     }
 
     @Override
+    public Long countTotalApplications() {
+        return creditApplicationRepository.count();
+    }
+
+    @Override
+    public Map<String, Long> countApplicationsByStatus() {
+
+        List<Object[]> results = creditApplicationRepository.countByStatus();
+
+        // Mapear los resultados (ej: [EN_REVISION, 5]) a un Map<String, Long>
+        return results.stream()
+                .collect(Collectors.toMap(
+                        row -> ((CreditStatus) row[0]).name(), // Asumiendo que EEstadoSolicitud es el Enum
+                        row -> (Long) row[1]
+                ));
+    }
+
+    @Override
     @Transactional
     public CreditApplicationResponseDTO createApplicationWithFiles(
             CreditApplicationRequestDTO dto,

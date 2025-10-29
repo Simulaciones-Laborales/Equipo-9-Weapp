@@ -6,6 +6,7 @@ import com.tuempresa.creditflow.creditflow_api.enums.CreditStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -27,4 +28,7 @@ public interface CreditApplicationRepository extends JpaRepository<CreditApplica
     List<CreditApplication> findAllByCompany_User_IdAndStatus(UUID userId, CreditStatus status);
 
     Page<CreditApplication> findAllByStatus(CreditStatus status, Pageable pageable);
+
+    @Query("SELECT c.status, COUNT(c) FROM CreditApplication c GROUP BY c.status")
+    List<Object[]> countByStatus();
 }

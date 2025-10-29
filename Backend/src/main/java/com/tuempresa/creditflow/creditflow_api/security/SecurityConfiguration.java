@@ -58,6 +58,9 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.GET, "/api/companies/{id}/kyc").hasAnyAuthority("PYME")
                         .requestMatchers(HttpMethod.GET, "/api/companies/{id}/credit-applications").hasAnyAuthority("PYME")
 
+                        //DASHBOARD
+                        .requestMatchers(HttpMethod.GET, "/dashboard").hasAnyAuthority("OPERADOR")
+
                         // CREDIT  -----------------------------------------------------
                         .requestMatchers(HttpMethod.POST, "/api/credit-applications").hasAnyAuthority("PYME")
                         .requestMatchers(HttpMethod.GET, "/api/credit-applications/all").hasAnyAuthority("OPERADOR")

@@ -38,6 +38,8 @@ public interface CompanyService {
     void deleteCompany(UUID id, User user);
 
     KycVerificationResponseDTO getCompanyKycByIdAndUser(UUID companyId, User currentUser);
+
+    Long countTotalCompanies();
 }
 
 

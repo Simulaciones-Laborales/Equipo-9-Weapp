@@ -28,4 +28,6 @@ public interface IUserService {
     ExtendedBaseResponse<UserDto> findOnlineUser();
 
     ExtendedBaseResponse<List<CompanyResponseDTO>> getCompaniesByUserId(UUID userId);
+
+    Long countTotalUsers();
 }

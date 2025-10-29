@@ -7,6 +7,7 @@ import com.tuempresa.creditflow.creditflow_api.dto.kyc.KycVerifiedCompanyRespons
 import com.tuempresa.creditflow.creditflow_api.enums.KycStatus;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -74,4 +75,8 @@ public interface IKycVerificationService {
     ExtendedBaseResponse<List<KycVerificationResponseDTO>> getFiltered(String kycEntityType, String status);
 
     ExtendedBaseResponse<KycVerificationResponseDTO> getCompanyStatusById(UUID companyId);
+
+    Long countTotalKyc();
+
+    Map<String, Long> countKycByStatus();
 }
