@@ -1,6 +1,11 @@
-<app-header
-  headline="Solicitudes de Crédito"
-  description="Puedes gestionar y crear nuevas solicitudes de crédito de acuerdo a tus necesidades."
-  [menuItems]="menu"
-/>
+<div class="flex flex-col gap-y-8">
+  <app-header
+    headline="Solicitudes de Crédito"
+    description="Puedes gestionar y crear nuevas solicitudes de crédito de acuerdo a tus necesidades."
+    [menuItems]="menu"
+  />
+  @defer (when store.fetchStatus() !== 'loading') {} @placeholder {
+  <app-loading-spinner message="Cargando datos de la empresa..." />
+  }
+</div>
 <p-confirm-dialog />

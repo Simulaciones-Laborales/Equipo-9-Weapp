@@ -3,6 +3,8 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from 'environments/environment.development';
 import { CompanyRequest, CompanyResponse } from '../models/company-model';
 import { lastValueFrom } from 'rxjs';
+import { CreditApplicationResponse } from '@core/models/credit-application-model';
+import { KYCVerificationResponse } from '@core/models/kyc-model';
 
 @Injectable({
   providedIn: 'root',
@@ -30,6 +32,32 @@ export class CompanyApi {
    */
   async getAllByAuthenticatedUser() {
     const call = this._http.get<CompanyResponse[]>(this._url);
+
+    return await lastValueFrom(call);
+  }
+
+  /**
+   * Consulta la información de KYC (Know Your Customer) de una empresa específica. Solo si la empresa pertenece al usuario autenticado.
+   *
+   * @param companyId ID de la empresa.
+   * @returns kyc de la empresa.
+   */
+  async getKyc(companyId: string) {
+    const call = this._http.get<KYCVerificationResponse>(`${this._url}/${companyId}/kyc`);
+
+    return await lastValueFrom(call);
+  }
+
+  /**
+   * Devuelve una lista de las solicitudes de crédito de una empresa específica. Solo si la empresa pertenece al usuario autenticado.
+   *
+   * @param companyId ID de la empresa.
+   * @returns listado de solicitudes de crédito.
+   */
+  async getAllCreditApplications(companyId: string) {
+    const call = this._http.get<CreditApplicationResponse[]>(
+      `${this._url}/${companyId}/credit-applications`
+    );
 
     return await lastValueFrom(call);
   }

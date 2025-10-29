@@ -4,7 +4,9 @@
     description="Empieza un proceso de verificación o haz seguimiento de uno ya existente."
     [menuItems]="menu"
   />
+  @defer (when store.fetchStatus() !== 'loading') {
   <section class="flex flex-col gap-y-3.5">
+    @if (store.action().showForm) {
     <app-subtitle headline="Formulario de verificación" />
     <app-new-kyc-form
       [loading]="store.newKycStatus() === 'loading'"
@@ -13,6 +15,14 @@
       title3="Comprobante de domicilio"
       (onSubmit)="store.startVerification($event)"
     />
+    } @else {
+    <p class="text-lg sm:text-xl font-medium text-surface-600 text-center py-32">
+      {{ store.action().message }}
+    </p>
+    }
   </section>
+  } @placeholder {
+  <app-loading-spinner message="Cargando documentación de la empresa..." />
+  }
 </div>
 <p-confirm-dialog />

@@ -4,10 +4,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ConfirmationService, MenuItem } from 'primeng/api';
 import { ConfirmDialog } from 'primeng/confirmdialog';
 import { Header } from '@components/header/header';
+import { LoadingSpinner } from '@components/loading-spinner/loading-spinner';
 
 @Component({
   selector: 'app-credit-applications',
-  imports: [ConfirmDialog, Header],
+  imports: [ConfirmDialog, Header, LoadingSpinner],
   templateUrl: './credit-applications.html',
   styleUrl: './credit-applications.css',
   providers: [Store, ConfirmationService],

@@ -7,10 +7,11 @@ import { Subtitle } from '@components/subtitle/subtitle';
 import { NewKycForm } from '@features/components/new-kyc-form/new-kyc-form';
 import { ConfirmDialog } from 'primeng/confirmdialog';
 import { KYCVerificationStatus } from '@core/models/kyc-model';
+import { LoadingSpinner } from '@components/loading-spinner/loading-spinner';
 
 @Component({
   selector: 'app-kyc-verification',
-  imports: [Header, Subtitle, NewKycForm, ConfirmDialog],
+  imports: [Header, Subtitle, NewKycForm, ConfirmDialog, LoadingSpinner],
   templateUrl: './kyc-verification.html',
   styleUrl: './kyc-verification.css',
   providers: [Store, ConfirmationService],
@@ -31,6 +32,14 @@ export default class KycVerification {
   constructor() {
     const id = this._route.snapshot.paramMap.get('id')!;
     this.store.setCompanyId(id);
+
+    effect(() => {
+      const action = this.store.action();
+
+      if (action.redirect) {
+        this._router.navigate(['..', 'solicitudes-de-credito'], { relativeTo: this._route });
+      }
+    });
 
     effect(() => {
       const newKyc = this.store.newKyc();
@@ -56,6 +65,6 @@ export default class KycVerification {
   }
 
   async ngOnInit() {
-    // await this.store.fetch();
+    await this.store.fetch();
   }
 }
