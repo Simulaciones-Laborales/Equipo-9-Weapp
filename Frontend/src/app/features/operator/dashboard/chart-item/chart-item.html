@@ -1,0 +1,11 @@
+<p-card
+  ><div class="w-full max-w-sm mx-auto flex justify-center items-center">
+    <div class="flex flex-col gap-y-3.5">
+      <header class="flex flex-col gap-y-0.5 text-center font-semibold">
+        <h3 class="text-xl sm:text-2xl text-surface-600">{{ total() }}</h3>
+        <h4 class="text-base sm:text-lg text-surface-500">{{ headline() }}</h4>
+      </header>
+      <p-chart type="doughnut" [data]="chartData()" class="z-0 relative w-full" />
+    </div>
+  </div>
+</p-card>

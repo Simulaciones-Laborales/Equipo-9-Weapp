@@ -1,1 +1,39 @@
-<p>dashboard works!</p>
+<div class="flex flex-col gap-y-8">
+  <app-header
+    headline="Panel de Estadísticas"
+    description="Echa un vistazo a todas las operaciones del portal."
+    [menuItems]="menu"
+  />
+  <section class="flex flex-col gap-y-3.5 sm:flex-row sm:justify-center gap-x-7">
+    <p-card>
+      <div class="flex flex-col gap-y-1.5 font-semibold text-center">
+        <h3 class="text-surface-600 text-2xl sm:text-3xl">{{ dashboard.totalCompanies }}</h3>
+        <h4 class="text-surface-500 text-base sm:text-lg">Total de Empresas</h4>
+      </div>
+    </p-card>
+    <p-card>
+      <div class="flex flex-col gap-y-1.5 font-semibold text-center">
+        <h3 class="text-surface-600 text-2xl sm:text-3xl">{{ dashboard.totalUsers }}</h3>
+        <h4 class="text-surface-500 text-base sm:text-lg">Total de Usuarios</h4>
+      </div>
+    </p-card>
+  </section>
+  <section class="flex flex-col gap-y-3.5 items-center lg:flex-row md:justify-between gap-x-5">
+    <app-chart-item
+      headline="Solicitudes de Crédito"
+      [data]="dashboard.applicationsByStatus"
+      [total]="dashboard.totalCreditApplications"
+      [backgroundColors]="getBackgroundColors"
+      [hoverBackgroundColors]="getHoverBackgroundColors"
+      class="lg:flex-1/2"
+    />
+    <app-chart-item
+      headline="Verificaciones"
+      [data]="dashboard.kycByStatus"
+      [total]="dashboard.totalKyc"
+      [backgroundColors]="getBackgroundColors"
+      [hoverBackgroundColors]="getHoverBackgroundColors"
+      class="lg:flex-1/2"
+    />
+  </section>
+</div>
