@@ -8,10 +8,11 @@ import { Button } from 'primeng/button';
 import { KycManagerDialog } from './components/kyc-manager-dialog/kyc-manager-dialog';
 import { ActivatedRoute } from '@angular/router';
 import { LoadingSpinner } from '@components/loading-spinner/loading-spinner';
+import { CompaniesTable } from './components/companies-table/companies-table';
 
 @Component({
   selector: 'app-details',
-  imports: [Header, Info, Subtitle, Button, KycManagerDialog, LoadingSpinner],
+  imports: [Header, Info, Subtitle, Button, KycManagerDialog, LoadingSpinner, CompaniesTable],
   templateUrl: './details.html',
   styleUrl: './details.css',
   providers: [DetailsStore],

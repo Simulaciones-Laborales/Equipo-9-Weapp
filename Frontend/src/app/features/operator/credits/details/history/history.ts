@@ -1,12 +1,13 @@
 import { Component, inject } from '@angular/core';
 import { Header } from '@components/header/header';
 import { MenuItem } from 'primeng/api';
-import { CreditApplicationsTable } from '@components/credit-applications-table/credit-applications-table';
+import { CreditApplicationHistoryTable } from '@components/credit-application-history-table/credit-application-history-table';
 import { ActivatedRoute } from '@angular/router';
+import { Subtitle } from '@components/subtitle/subtitle';
 
 @Component({
   selector: 'app-history',
-  imports: [Header, CreditApplicationsTable],
+  imports: [Header, CreditApplicationHistoryTable, Subtitle],
   templateUrl: './history.html',
   styleUrl: './history.css',
 })

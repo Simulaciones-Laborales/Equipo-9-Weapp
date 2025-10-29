@@ -1,2 +1,10 @@
 <router-outlet />
-<p-toast [key]="key" />
+<p-toast
+  [key]="key"
+  position="top-left"
+  [showTransitionOptions]="'250ms'"
+  [showTransformOptions]="'translateX(-100%)'"
+  [hideTransitionOptions]="'150ms'"
+  [hideTransformOptions]="'translateX(-100%)'"
+  [breakpoints]="{ '920px': { width: '100%', right: '0', left: '0' } }"
+/>

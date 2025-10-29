@@ -27,6 +27,16 @@ export enum CreditApplicationPurpose {
 }
 
 /**
+ * Modelo para crear una nueva solicitud de crédito.
+ */
+export interface CreateCreditApplicationDto {
+  companyId: string;
+  amount: number;
+  creditPurpose: CreditApplicationPurpose;
+  termMonths: number;
+}
+
+/**
  * Modelo de respuesta para la aplicación de un crédito.
  */
 export interface CreditApplicationResponse {

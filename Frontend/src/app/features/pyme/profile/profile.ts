@@ -4,10 +4,11 @@ import { ProfileStore } from './profile-store';
 import { Subtitle } from '@components/subtitle/subtitle';
 import { Header } from '@components/header/header';
 import { MenuItem } from 'primeng/api';
+import { LoadingSpinner } from '@components/loading-spinner/loading-spinner';
 
 @Component({
   selector: 'app-profile',
-  imports: [Header, Subtitle],
+  imports: [Header, Subtitle, LoadingSpinner],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
   providers: [ProfileStore],

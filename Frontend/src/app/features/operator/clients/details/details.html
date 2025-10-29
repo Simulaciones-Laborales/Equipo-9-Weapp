@@ -14,10 +14,17 @@
         severity="contrast"
         size="small"
         label="Gestionar KYC"
-        (onClick)="store.fetchKyc(store.userId())"
+        (onClick)="store.fetchKyc(store.userId(), 'user')"
       />
     </header>
     <app-info [user]="store.user()" />
+  </section>
+  <section class="flex flex-col gap-y-3.5">
+    <app-subtitle headline="Empresas vinculadas" />
+    <app-companies-table
+      [companies]="store.companies()"
+      (onVerificationClick)="store.fetchKyc($event, 'company')"
+    />
   </section>
   }
 </div>
@@ -30,5 +37,6 @@
   (onSubmit)="store.updateKyc($event)"
   (onClose)="store.closeDialog()"
   [kyc]="store.kyc()"
+  [fileTitles]="store.fileTitles()"
 />
 }

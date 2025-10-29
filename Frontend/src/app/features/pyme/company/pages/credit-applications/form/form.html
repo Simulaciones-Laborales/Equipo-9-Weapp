@@ -1,0 +1,94 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="w-full flex flex-col gap-y-10">
+  <div class="flex flex-col gap-y-6">
+    <p-fieldset legend="Información del crédito" class="text-lg">
+      <div class="flex flex-col gap-y-5 py-2.5 lg:flex-row lg:justify-between gap-x-3.5">
+        <div class="flex flex-col gap-y-1 lg:flex-1/3">
+          <p-float-label variant="on">
+            <p-input-number
+              inputId="amount"
+              fluid
+              formControlName="amount"
+              [invalid]="isInvalid('amount')"
+            />
+            <label for="amount">Cantidad que requieres</label>
+          </p-float-label>
+          @if (isInvalid('amount')) { @if (getError('amount', 'required')) {
+          <p-message severity="error" size="small" variant="simple"
+            >La cantidad es requerida</p-message
+          >
+          } @if (getError('amount', 'min')) {
+          <p-message severity="error" size="small" variant="simple"
+            >Debe ser igual o mayor a 0</p-message
+          >
+          } }
+        </div>
+        <div class="flex flex-col gap-y-1 lg:flex-1/3">
+          <p-float-label variant="on">
+            <p-select
+              [options]="options"
+              optionLabel="name"
+              inputId="creditPurpose"
+              fluid
+              formControlName="creditPurpose"
+              [invalid]="isInvalid('creditPurpose')"
+            />
+            <label for="creditPurpose">Propósito</label>
+          </p-float-label>
+          @if (isInvalid('creditPurpose')) {
+          <p-message severity="error" size="small" variant="simple"
+            >El propósito es requerido</p-message
+          >
+          }
+        </div>
+        <div class="flex flex-col gap-y-1 lg:flex-1/3">
+          <p-float-label variant="on">
+            <p-input-number
+              inputId="termMonths"
+              fluid
+              formControlName="termMonths"
+              [invalid]="isInvalid('termMonths')"
+            />
+            <label for="termMonths">Plazo en Meses</label>
+          </p-float-label>
+          @if (isInvalid('termMonths')) { @if (getError('termMonths', 'required')) {
+          <p-message severity="error" size="small" variant="simple"
+            >El plazo en meses es requerido</p-message
+          >
+          } @if (getError('termMonths', 'min')) {
+          <p-message severity="error" size="small" variant="simple"
+            >Debe ser igual o mayor a 0</p-message
+          >
+          } }
+        </div>
+      </div>
+    </p-fieldset>
+    <p-fieldset legend="Comprobantes o archivos importantes" class="text-lg">
+      <div class="py-2.5">
+        <p-fileupload
+          [multiple]="true"
+          maxFileSize="10000000"
+          chooseLabel="Adjuntar"
+          cancelLabel="Cancelar"
+          [showUploadButton]="false"
+          (onSelect)="onSelect($event)"
+          (onRemove)="onRemove($event)"
+          (onClear)="onClear()"
+          [disabled]="store.status() === 'loading'"
+        />
+      </div>
+    </p-fieldset>
+  </div>
+  <div class="flex items-center justify-center">
+    <p-button
+      type="submit"
+      [label]="
+        store.status() === 'loading'
+          ? 'Enviando solicitud de crédito...'
+          : 'Enviar solicitud de crédito'
+      "
+      fluid
+      class="w-full max-w-md mx-auto"
+      [loading]="store.status() === 'loading'"
+    />
+  </div>
+</form>
