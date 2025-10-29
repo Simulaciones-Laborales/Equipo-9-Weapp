@@ -9,7 +9,10 @@ import { Select } from 'primeng/select';
 import { ActivatedRoute, Router } from '@angular/router';
 import { getError, isInvalid } from '@core/utils/form-utils';
 import { Message } from 'primeng/message';
-import { CreditApplicationPurpose } from '@core/models/credit-application-model';
+import {
+  CreateCreditApplicationDto,
+  CreditApplicationPurpose,
+} from '@core/models/credit-application-model';
 import { CreditApplicationPurposePipe } from '@pipes/credit-application-purpose-pipe';
 import { FileRemoveEvent, FileSelectEvent, FileUpload } from 'primeng/fileupload';
 
@@ -39,7 +42,7 @@ export class Form {
   readonly form = this._fb.group({
     amount: [0, [Validators.required, Validators.min(0)]],
     creditPurpose: ['', Validators.required],
-    termMonths: ['0', [Validators.required, Validators.min(0)]],
+    termMonths: [0, [Validators.required, Validators.min(0)]],
   });
 
   readonly store = inject(Store);
@@ -75,17 +78,14 @@ export class Form {
 
   onSelect(e: FileSelectEvent) {
     this._files.update((files) => [...files, ...e.files]);
-    console.log(this._files());
   }
 
   onRemove(e: FileRemoveEvent) {
     this._files.update((files) => files.filter((file) => file !== e.file));
-    console.log(this._files());
   }
 
   onClear() {
     this._files.set([]);
-    console.log(this._files());
   }
 
   private _purpose(purpose: CreditApplicationPurpose) {
@@ -95,13 +95,21 @@ export class Form {
     };
   }
 
-  onSubmit() {
+  async onSubmit() {
     if (this.form.invalid) {
       return this.form.markAllAsTouched();
     }
 
-    console.log(this.form.value);
-    console.log(this._files());
+    const id = this._route.snapshot.paramMap.get('id')!;
+
+    const dto: CreateCreditApplicationDto = {
+      companyId: id,
+      amount: this.form.get('amount')?.value!,
+      creditPurpose: (this.form.get('creditPurpose')?.value! as any).value,
+      termMonths: this.form.get('termMonths')?.value!,
+    };
+
+    await this.store.create(dto, this._files());
   }
 
   isInvalid(name: string) {

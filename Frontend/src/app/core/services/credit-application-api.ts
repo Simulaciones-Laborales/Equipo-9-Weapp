@@ -2,6 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from 'environments/environment.development';
 import {
+  CreateCreditApplicationDto,
   CreditApplicationHistory,
   CreditApplicationResponse,
   CreditApplicationStatus,
@@ -16,6 +17,17 @@ import { Pageable, PageableResponse } from '@core/types';
 export class CreditApplicationApi {
   private readonly _url = `${environment.apiUrl}/api/credit-applications`;
   private readonly _http = inject(HttpClient);
+
+  async create(dto: CreateCreditApplicationDto, files: File[]) {
+    const formData = new FormData();
+
+    formData.append('data', JSON.stringify(dto));
+    files.forEach((file) => formData.append('files', file, file.name));
+
+    const call = this._http.post<CreditApplicationResponse>(this._url, formData);
+
+    return await lastValueFrom(call);
+  }
 
   async getAll(status: CreditApplicationStatus | null, pageable: Pageable) {
     let params = new HttpParams().append('pageable', JSON.stringify(pageable));

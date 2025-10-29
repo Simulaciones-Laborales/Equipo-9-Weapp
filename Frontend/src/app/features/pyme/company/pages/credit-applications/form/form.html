@@ -73,6 +73,7 @@
           (onSelect)="onSelect($event)"
           (onRemove)="onRemove($event)"
           (onClear)="onClear()"
+          [disabled]="store.status() === 'loading'"
         />
       </div>
     </p-fieldset>
@@ -80,9 +81,14 @@
   <div class="flex items-center justify-center">
     <p-button
       type="submit"
-      label="Completar solicitud de crédito"
+      [label]="
+        store.status() === 'loading'
+          ? 'Enviando solicitud de crédito...'
+          : 'Enviar solicitud de crédito'
+      "
       fluid
       class="w-full max-w-md mx-auto"
+      [loading]="store.status() === 'loading'"
     />
   </div>
 </form>
