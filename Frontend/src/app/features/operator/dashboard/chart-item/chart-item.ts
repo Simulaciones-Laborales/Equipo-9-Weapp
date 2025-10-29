@@ -10,16 +10,20 @@ import { Card } from 'primeng/card';
 })
 export class ChartItem {
   readonly headline = input.required<string>();
-  readonly total = input.required<number>();
+  readonly total = input.required<number | undefined>();
   readonly data = input.required<any>();
   readonly backgroundColors = input.required<any>();
   readonly hoverBackgroundColors = input.required<any>();
 
   readonly chartData = computed(() => {
-    const data = this.data();
+    const data = this.data() ?? {};
 
     const keys = Object.keys(data);
     const values = Object.values(data);
+
+    if (keys.length === 0) {
+      return { labels: ['No Data'], datasets: [{ data: [1], backgroundColor: ['#CCCCCC'] }] };
+    }
 
     return {
       labels: keys,

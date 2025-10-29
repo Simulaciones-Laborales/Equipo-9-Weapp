@@ -1,39 +1,26 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ChartModule } from 'primeng/chart';
 import { ChartItem } from './chart-item/chart-item';
 import { Header } from '@components/header/header';
 import { MenuItem } from 'primeng/api';
 import { Card } from 'primeng/card';
+import { Store } from './store';
+import { LoadingSpinner } from '@components/loading-spinner/loading-spinner';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [ChartModule, ChartItem, Header, Card],
+  imports: [ChartModule, ChartItem, Header, Card, LoadingSpinner],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
+  providers: [Store],
 })
 export default class Dashboard {
+  readonly store = inject(Store);
+
   readonly menu: MenuItem[] = [
     { icon: 'pi pi-home', routerLink: './' },
     { label: 'Estadísticas', routerLink: './' },
   ];
-
-  dashboard = {
-    totalCreditApplications: 24,
-    applicationsByStatus: {
-      PENDING: 4,
-      APPROVED: 17,
-      UNDER_REVIEW: 1,
-      REJECTED: 2,
-    },
-    totalUsers: 32,
-    totalCompanies: 37,
-    totalKyc: 61,
-    kycByStatus: {
-      PENDING: 17,
-      VERIFIED: 40,
-      REJECTED: 4,
-    },
-  };
 
   readonly STATUS_COLORS: { [key: string]: string } = {
     APPROVED: '#00B894',
@@ -59,4 +46,8 @@ export default class Dashboard {
   getHoverBackgroundColors = (labels: any) => {
     return this.getBackgroundColors(labels).map((color: any) => this.getHoverColor(color));
   };
+
+  async ngOnInit() {
+    await this.store.fetch();
+  }
 }
