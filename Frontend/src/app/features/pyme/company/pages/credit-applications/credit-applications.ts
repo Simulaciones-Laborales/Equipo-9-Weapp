@@ -1,14 +1,17 @@
 import { Component, effect, inject } from '@angular/core';
 import { Store } from './store';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ConfirmationService, MenuItem } from 'primeng/api';
 import { ConfirmDialog } from 'primeng/confirmdialog';
 import { Header } from '@components/header/header';
 import { LoadingSpinner } from '@components/loading-spinner/loading-spinner';
+import { CreditsTable } from './credits-table/credits-table';
+import { Subtitle } from '@components/subtitle/subtitle';
+import { Button } from 'primeng/button';
 
 @Component({
   selector: 'app-credit-applications',
-  imports: [ConfirmDialog, Header, LoadingSpinner],
+  imports: [ConfirmDialog, Header, LoadingSpinner, CreditsTable, Subtitle, Button, RouterLink],
   templateUrl: './credit-applications.html',
   styleUrl: './credit-applications.css',
   providers: [Store, ConfirmationService],

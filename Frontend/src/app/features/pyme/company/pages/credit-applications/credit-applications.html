@@ -4,7 +4,21 @@
     description="Puedes gestionar y crear nuevas solicitudes de crédito de acuerdo a tus necesidades."
     [menuItems]="menu"
   />
-  @defer (when store.fetchStatus() !== 'loading') {} @placeholder {
+  @defer (when store.fetchStatus() !== 'loading') { @if (store.credits().length === 0) {
+  <section class="flex flex-col items-center gap-y-3.5">
+    <app-subtitle headline="Parece que no haz hecho solicitudes..." />
+    <p-button
+      routerLink="./nueva-solicitud"
+      label="¡Solicita tu primer crédito!"
+      icon="pi pi-money-bill"
+    />
+  </section>
+  } @else {
+  <section class="flex flex-col gap-y-3.5">
+    <app-subtitle headline="Listado de solicitudes" />
+    <app-credits-table [credits]="store.credits()" />
+  </section>
+  } } @placeholder {
   <app-loading-spinner message="Cargando datos de la empresa..." />
   }
 </div>
