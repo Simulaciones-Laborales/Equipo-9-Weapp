@@ -3,10 +3,11 @@ import { Header } from '@components/header/header';
 import { MenuItem } from 'primeng/api';
 import { CreditApplicationsTable } from '@components/credit-applications-table/credit-applications-table';
 import { ActivatedRoute } from '@angular/router';
+import { Subtitle } from '@components/subtitle/subtitle';
 
 @Component({
   selector: 'app-history',
-  imports: [Header, CreditApplicationsTable],
+  imports: [Header, CreditApplicationsTable, Subtitle],
   templateUrl: './history.html',
   styleUrl: './history.css',
 })
