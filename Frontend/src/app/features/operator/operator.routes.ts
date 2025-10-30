@@ -14,14 +14,17 @@ export default [
       {
         path: 'dashboard',
         loadComponent: () => import('./dashboard/dashboard'),
+        data: { preload: true },
       },
       {
         path: 'clientes',
         loadChildren: () => import('./clients/clients.routes'),
+        data: { preload: true },
       },
       {
         path: 'solicitudes',
         loadChildren: () => import('./credits/credits.routes'),
+        data: { preload: true },
       },
     ],
   },
