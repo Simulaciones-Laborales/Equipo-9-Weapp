@@ -2,17 +2,27 @@ package com.tuempresa.creditflow.creditflow_api.service.impl;
 
 import com.tuempresa.creditflow.creditflow_api.dto.BaseResponse;
 import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
+import com.tuempresa.creditflow.creditflow_api.dto.company.CompanyResponseDTO;
+import com.tuempresa.creditflow.creditflow_api.dto.kyc.KycVerificationResponseDTO;
 import com.tuempresa.creditflow.creditflow_api.dto.user.*;
+import com.tuempresa.creditflow.creditflow_api.enums.KycEntityType;
 import com.tuempresa.creditflow.creditflow_api.exception.userExc.UserNotFoundException;
+import com.tuempresa.creditflow.creditflow_api.mapper.CompanyMapper;
 import com.tuempresa.creditflow.creditflow_api.mapper.UserMapper;
+import com.tuempresa.creditflow.creditflow_api.model.Company;
+import com.tuempresa.creditflow.creditflow_api.model.KycVerification;
 import com.tuempresa.creditflow.creditflow_api.model.User;
+import com.tuempresa.creditflow.creditflow_api.repository.CompanyRepository;
 import com.tuempresa.creditflow.creditflow_api.repository.UserRepository;
 import com.tuempresa.creditflow.creditflow_api.service.IUserService;
+import com.tuempresa.creditflow.creditflow_api.utils.AuthenticationUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,7 +32,10 @@ public class UserServiceImpl implements IUserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationUtils authenticationUtils;
+    private final CompanyRepository companyRepository;
+    private final CompanyMapper companyMapper;
+
 
     @Override
     @Transactional(readOnly = true)
@@ -81,13 +94,6 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public UUID getUserIdByEmail(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Email no encontrado con username: " + email));
-        return user.getId();
-    }
-
-    @Override
     @Transactional
     public ExtendedBaseResponse<String> deleteUserById(UUID id) {
         User user = userRepository.findById(id).orElseThrow(() ->
@@ -96,37 +102,66 @@ public class UserServiceImpl implements IUserService {
         return ExtendedBaseResponse.of(BaseResponse.ok("Usuario eliminado exitosamente"), null);
     }
 
-
-    // NUEVO: devuelve la entidad User por email (o lanza excepción si no existe)
-    public User findEntityByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con email: " + email));
-    }
-
-    // (opcional) devolver entidad por id
-    public User findEntityById(UUID id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con id: " + id));
-    }
-    
-    @Transactional(readOnly = true)
+    @Override
     public User findEntityByPrincipal(String principal) {
-        // --1-- Intentar buscar por email
         return userRepository.findByEmail(principal)
-                //--2-- Si no encuentra, intentar por username
-                .or(() -> userRepository.findByUsername(principal))
-                //--3-- Si no encuentra, intentar por UUID (por si el token tuviera id)
-                .or(() -> {
-                    try {
-                        UUID id = UUID.fromString(principal);
-                        return userRepository.findById(id);
-                    } catch (IllegalArgumentException ex) {
-                        return java.util.Optional.empty();
-                    }
-                })
-                //--4--Si no encuentra, lanzar excepción
-                .orElseThrow(() -> new UserNotFoundException("User not found with principal: " + principal));
+                .or(() -> userRepository.findByUsername(principal)) // Si también buscas por username
+                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado con principal: " + principal));
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public ExtendedBaseResponse<UserDto> findOnlineUser() {
+        try {
+            String principal = authenticationUtils.getLoggedInPrincipal();
+            if (principal == null) {
+                return ExtendedBaseResponse.of(
+                        BaseResponse.error(HttpStatus.UNAUTHORIZED, "Usuario no autenticado"),
+                        null
+                );
+            }
+
+            // Busca directamente por email (que es el principal)
+            User user = userRepository.findByEmail(principal)
+                    .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado: " + principal));
+
+            UserDto userDto = userMapper.toDto(user);
+            return ExtendedBaseResponse.of(BaseResponse.ok("Usuario logueado encontrado"), userDto);
+
+        } catch (UserNotFoundException e) {
+            return ExtendedBaseResponse.of(
+                    BaseResponse.error(HttpStatus.NOT_FOUND, e.getMessage()),
+                    null
+            );
+        } catch (Exception e) {
+            return ExtendedBaseResponse.of(
+                    BaseResponse.error(HttpStatus.INTERNAL_SERVER_ERROR, "Error al obtener el usuario logueado"),
+                    null
+            );
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ExtendedBaseResponse<List<CompanyResponseDTO>> getCompaniesByUserId(UUID userId) {
+
+        // 1. Obtener las entidades Company filtradas por el Repositorio
+        List<Company> companies = companyRepository.findByUserId(userId);
+
+        // 2. Mapeo a DTOs (CORREGIDO)
+        // 💡 CAMBIO: Llamamos a través de la INSTANCIA 'companyMapper'
+        List<CompanyResponseDTO> companyDtos = companyMapper.toDTOList(companies);
+
+        // 3. Devolver la respuesta en el formato ExtendedBaseResponse
+        return ExtendedBaseResponse.of(
+                BaseResponse.ok("Empresas asociadas al usuario encontradas"),
+                companyDtos
+        );
+    }
+
+    @Override
+    public Long countTotalUsers() {
+        return userRepository.count();
+    }
 }
 

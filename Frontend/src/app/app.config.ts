@@ -3,7 +3,7 @@ import {
   provideBrowserGlobalErrorListeners,
   provideZoneChangeDetection,
 } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, TitleStrategy, withPreloading } from '@angular/router';
 
 import { routes } from './app.routes';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
@@ -13,12 +13,14 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { tokenInterceptor } from '@core/interceptors/token-interceptor';
 import { httpInterceptor } from '@core/interceptors/http-interceptor';
 import { MessageService } from 'primeng/api';
+import { RolePreloadingStrategy } from '@core/strategies/role-preloading-strategy';
+import { AppTitleStrategy } from '@core/strategies/app-title-strategy';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes),
+    provideRouter(routes, withPreloading(RolePreloadingStrategy)),
     provideHttpClient(withInterceptors([tokenInterceptor, httpInterceptor])),
     provideAnimationsAsync(),
     providePrimeNG({
@@ -34,5 +36,6 @@ export const appConfig: ApplicationConfig = {
       },
     }),
     MessageService,
+    { provide: TitleStrategy, useClass: AppTitleStrategy },
   ],
 };

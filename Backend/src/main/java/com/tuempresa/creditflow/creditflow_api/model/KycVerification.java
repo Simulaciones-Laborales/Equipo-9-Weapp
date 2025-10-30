@@ -4,6 +4,8 @@ import com.tuempresa.creditflow.creditflow_api.enums.KycEntityType;
 import com.tuempresa.creditflow.creditflow_api.enums.KycStatus;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 

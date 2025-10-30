@@ -5,9 +5,11 @@ export default [
   {
     path: '',
     component: Details,
+    title: 'Crédito Detalles',
   },
   {
     path: 'historial',
     loadComponent: () => import('./history/history'),
+    title: 'Historial',
   },
 ] as Routes;

@@ -3,6 +3,7 @@ package com.tuempresa.creditflow.creditflow_api.service.impl;
 import com.tuempresa.creditflow.creditflow_api.dto.BaseResponse;
 import com.tuempresa.creditflow.creditflow_api.dto.ExtendedBaseResponse;
 import com.tuempresa.creditflow.creditflow_api.dto.creditapplication.*;
+import com.tuempresa.creditflow.creditflow_api.dto.user.UserDto;
 import com.tuempresa.creditflow.creditflow_api.enums.*;
 import com.tuempresa.creditflow.creditflow_api.exception.*;
 import com.tuempresa.creditflow.creditflow_api.exception.cloudinaryExc.RiskDocumentNotFoundException;
@@ -11,6 +12,7 @@ import com.tuempresa.creditflow.creditflow_api.mapper.CreditApplicationMapper;
 import com.tuempresa.creditflow.creditflow_api.model.*;
 import com.tuempresa.creditflow.creditflow_api.repository.*;
 import com.tuempresa.creditflow.creditflow_api.service.CreditApplicationService;
+import com.tuempresa.creditflow.creditflow_api.service.IUserService;
 import com.tuempresa.creditflow.creditflow_api.service.MLModelService;
 import com.tuempresa.creditflow.creditflow_api.service.OCRService;
 import com.tuempresa.creditflow.creditflow_api.service.api.ImageService;
@@ -44,6 +46,22 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
     private final MLModelService mlModelService;
     private final OCRService ocrService;
     private final AuthenticationUtils authenticationUtils;
+    private final IUserService userService;
+
+    // ------------------------------------------------------------------
+    // MÉTODO DE AYUDA DENTRO DEL SERVICIO (REEMPLAZA getAuthenticatedUser/getLoggedInUserId)
+    // ------------------------------------------------------------------
+    private User getAuthenticatedUser() {
+        String principal = authenticationUtils.getLoggedInPrincipal();
+        if (principal == null) {
+            throw new UnauthorizedException("Usuario no autenticado o principal no encontrado.");
+        }
+        return userService.findEntityByPrincipal(principal);
+    }
+
+    // ------------------------------------------------------------------
+    // MÉTODOS DE LA INTERFAZ
+    // ------------------------------------------------------------------
 
     @Override
     @Transactional(readOnly = true)
@@ -62,12 +80,22 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
     @Override
     @Transactional
     public ExtendedBaseResponse<Void> purgeAllImageCloudinary() {
-        UUID loggedInUserId = authenticationUtils.getLoggedInUserId();
-        if (loggedInUserId == null) {
-            return ExtendedBaseResponse.of(BaseResponse.error(HttpStatus.UNAUTHORIZED, "Usuario no autenticado."), null);
+        User loggedInUser = null;
+        try {
+            loggedInUser = getAuthenticatedUser();
+        } catch (UnauthorizedException e) {
+            return ExtendedBaseResponse.of(BaseResponse.error(HttpStatus.UNAUTHORIZED, e.getMessage()), null);
+        }
+        if (loggedInUser.getRole() != User.Role.OPERADOR && loggedInUser.getRole() != User.Role.ADMIN) {
+            log.warn("❌ Intento de purga de contenidos por usuario no autorizado (Rol: {})", loggedInUser.getRole());
+            return ExtendedBaseResponse.of(
+                    BaseResponse.error(HttpStatus.FORBIDDEN, "Acceso denegado. Solo OPERADORES o ADMIN pueden realizar esta acción."),
+                    null
+            );
         }
 
         try {
+            log.info("🗑️ Purga de contenidos iniciada por usuario con ID: {}", loggedInUser.getId());
             imageService.deleteFolder("");
             riskDocumentRepository.deleteAll();
             return ExtendedBaseResponse.of(
@@ -83,21 +111,84 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
         }
     }
 
-
     @Transactional
     @Override
     public ExtendedBaseResponse<Void> deleteRiskDocument(UUID id) {
         RiskDocument riskDocument = riskDocumentRepository.findById(id)
                 .orElseThrow(() -> new RiskDocumentNotFoundException("Contenido no encontrado"));
-        UUID loggedInUserId = authenticationUtils.getLoggedInUserId();
 
-        if (loggedInUserId == null) {
+        ExtendedBaseResponse<UserDto> loggedInUser;
+
+        try {
+            loggedInUser = userService.findOnlineUser();
+        } catch (UnauthorizedException e) {
+            // Maneja el caso en que el usuario no está en el contexto de seguridad
             return ExtendedBaseResponse.of(BaseResponse.error(HttpStatus.UNAUTHORIZED, "Usuario no autenticado."), null);
+        } catch (Exception e) {
+            // Captura UserNotFoundException si el principal existe pero no el usuario en DB
+            return ExtendedBaseResponse.of(BaseResponse.error(HttpStatus.UNAUTHORIZED, "Error de autenticación."), null);
         }
+
+        User owner = riskDocument.getCreditApplication().getCompany().getUser();
+        boolean isOperator = loggedInUser.data().role() == User.Role.OPERADOR;
+
+        if (!isOperator && !owner.getId().equals(loggedInUser.data().id())) {
+            log.warn("❌ Intento de eliminar documento {} por usuario no autorizado (ID: {})", id, loggedInUser.data().role());
+            throw new ConflictException("No tienes permisos para eliminar este documento. Solo el propietario o un operador puede hacerlo.");
+        }
+
         String filePath = riskDocument.getDocumentUrl();
-        imageService.deleteImage(filePath);
+
+        try {
+            imageService.deleteImage(filePath);
+        } catch (Exception e) {
+            log.error("Error al eliminar la imagen externa {}: {}", filePath, e.getMessage());
+        }
+
         riskDocumentRepository.delete(riskDocument);
+
         return ExtendedBaseResponse.of(BaseResponse.ok("Contenido eliminado exitosamente"), null);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<CreditApplicationResponseDTO> getCreditApplicationsByCompanyIdAndUser(
+            UUID companyId,
+            User currentUser) {
+
+        // 1. Validar que la empresa existe y pertenece al usuario autenticado.
+        // Esto garantiza la seguridad y la integridad del acceso.
+        Company company = companyRepository.findByIdAndUser(companyId, currentUser)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Empresa no encontrada o no pertenece al usuario autenticado con ID: " + companyId));
+
+        // 2. Obtener todas las solicitudes de crédito asociadas a la empresa.
+        // Asumimos que el Repositorio tiene un método para buscar por la entidad Company.
+        List<CreditApplication> applications = creditApplicationRepository.findByCompany(company);
+
+        // 3. Mapear las entidades a DTOs de respuesta.
+        // Usamos el método estático toDTO que definiste, ya que maneja la lista de documentos.
+        return applications.stream()
+                .map(CreditApplicationMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Long countTotalApplications() {
+        return creditApplicationRepository.count();
+    }
+
+    @Override
+    public Map<String, Long> countApplicationsByStatus() {
+
+        List<Object[]> results = creditApplicationRepository.countByStatus();
+
+        // Mapear los resultados (ej: [EN_REVISION, 5]) a un Map<String, Long>
+        return results.stream()
+                .collect(Collectors.toMap(
+                        row -> ((CreditStatus) row[0]).name(), // Asumiendo que EEstadoSolicitud es el Enum
+                        row -> (Long) row[1]
+                ));
     }
 
     @Override
@@ -107,17 +198,16 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
             List<MultipartFile> documents,
             User owner) {
 
-        log.info("🚀 Iniciando creación de solicitud de crédito para empresa ID: {}", dto.getCompanyId());
+        log.info("Iniciando creación de solicitud de crédito para empresa ID: {}", dto.getCompanyId());
 
         Company company = validateCompanyAndKyc(dto.getCompanyId(), owner);
-        log.info("✅ Empresa validada: {} ({})", company.getCompany_name(), company.getId());
+        log.info("Empresa validada: {} ({})", company.getCompany_name(), company.getId());
         validateAmount(dto.getAmount());
 
         CreditApplication creditApplication = createCreditApplicationEntity(dto, company);
-
         creditApplication = saveCreditApplication(creditApplication);
 
-        List<RiskDocument> uploadedDocs = uploadAndAssociateDocuments(creditApplication, documents);
+        uploadAndAssociateDocuments(creditApplication, documents);
 
         creditApplication = persistCreditApplicationWithDocuments(creditApplication);
 
@@ -319,7 +409,8 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
         final var response = creditApplicationRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No se encontró la solicitud: " + id));
 
-        final var loggedUser = authenticationUtils.getAuthenticatedUser();
+        // CORREGIDO: Reemplazar getAuthenticatedUser()
+        final var loggedUser = getAuthenticatedUser();
 
         if (loggedUser.getRole() == User.Role.PYME) {
             if (!response.getCompany().getUser().getId().equals(loggedUser.getId())) {
@@ -335,10 +426,6 @@ public class CreditApplicationServiceImpl implements CreditApplicationService {
     public List<CreditApplicationResponseDTO> getApplicationsByCompany(UUID companyId, User user) {
         Company company = companyRepository.findById(companyId)
                 .orElseThrow(() -> new ResourceNotFoundException("No se encontró la empresa: " + companyId));
-
-        if (company.getUser() == null || !company.getUser().getId().equals(user.getId())) {
-            throw new ResourceNotFoundException("La empresa no es accesible para el usuario");
-        }
 
         return creditApplicationRepository.findByCompany(company)
                 .stream()

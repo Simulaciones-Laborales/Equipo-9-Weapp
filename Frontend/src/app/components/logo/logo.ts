@@ -9,6 +9,6 @@ import { RouterLink } from '@angular/router';
   styleUrl: './logo.css',
 })
 export class Logo {
-  readonly size = input<'md' | 'lg'>('md');
+  readonly size = input<'md' | 'lg' | 'xl'>('md');
   readonly align = input<'left' | 'center'>('left');
 }

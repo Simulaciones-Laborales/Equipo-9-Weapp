@@ -90,7 +90,6 @@ public class AuthController {
         return ResponseEntity.ok(authResponse);
     }
 
-
     /**
      * Endpoint para registrar un nuevo usuario Pyme en el sistema.
      *
@@ -98,14 +97,55 @@ public class AuthController {
      * @return Respuesta con los detalles del usuario registrado
      */
     @Operation(
-            summary = "Registrar un  usuario tipo Pyme",
+            summary = "Registrar un usuario tipo Pyme",
             description = """
-                    Permite registrar un nuevo usuario en el sistema.\s
-                    Se deben proporcionar los datos completos del usuario, incluyendo:
-                    nombres,apellidos, correo electrónico, contacto, dni, fecha de nacimiento, país\s
-                    """
+                Permite registrar un nuevo usuario en el sistema. \s
+                Se deben proporcionar los datos completos del usuario, incluyendo:
+                nombres,apellidos, correo electrónico, contacto, dni, fecha de nacimiento, país \s
+                """,
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody( // <-- Agregamos requestBody aquí
+                    description = "Datos de registro del nuevo usuario",
+                    required = true,
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = RegisterRequestDto.class),
+                            examples = {
+                                    @ExampleObject(
+                                            name = "Registro de Persona Argentina (DNI 8 dígitos)",
+                                            summary = "Ejemplo de registro de usuario en Argentina sin deudas.",
+                                            value = """
+                                            {
+                                              "firstName": "Juan Manuel",
+                                              "lastName": "Pereyra",
+                                              "email": "juan.pereyra@pyme.com.ar",
+                                              "password": "Pass1234!",
+                                              "contact": "+54 11-44556677",
+                                              "birthDate": "10/12/1985",
+                                              "dni": "94807936",
+                                              "country": "Argentina"
+                                            }
+                                            """
+                                    ),
+                                    @ExampleObject(
+                                            name = "Registro de Persona Extranjera (ID Larga)",
+                                            summary = "Ejemplo de registro de usuario con deuda",
+                                            value = """
+                                            {
+                                              "firstName": "Andrea",
+                                              "lastName": "Vidal",
+                                              "email": "andrea.vidal@empresa.cl",
+                                              "password": "Pyme4321$",
+                                              "contact": "+56 9-98765432",
+                                              "birthDate": "05/03/1995",
+                                              "dni": "94049576",
+                                              "country": "Argentina"
+                                            }
+                                            """
+                                    )
+                            }
+                    )
+            )
     )
-
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",

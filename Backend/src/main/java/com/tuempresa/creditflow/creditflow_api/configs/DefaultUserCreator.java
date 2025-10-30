@@ -416,16 +416,110 @@ public class DefaultUserCreator implements CommandLineRunner {
 
         // 8 VERIFIED (Asociados a los 2 Operadores + 6 PYME)
         // Usuarios: sramirez (0), mgimenez (1), jmartinez (2), arodriguez (3), lcruz (4), gperez (5), cfuentes (6), vgarcia (7)
-        for (int i = 0; i < 8; i++) {
+        //sramirez (0)
             kycList.add(KycVerification.builder()
-                    .user(allUsers.get(i))
+                    .user(allUsers.get(0))
                     .status(KycStatus.VERIFIED)
                     .entityType(KycEntityType.USER)
                     .verificationNotes("Documentación de identidad personal aprobada y vigente.")
-                    .externalReferenceId("user-mock-dca05a69-2e8b-46de-b889-69be38d65b6"+i)
+                    .externalReferenceId("user-mock-dca05a69-2e8b-46de-b889-69be38d65b6"+0)
+                    .document1Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761604910/dni-frontal-1_xnge9w.png")
+                    .document2Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761604890/dni-dorso-1_shuwaj.png")
+                    .document3Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761604943/selfie-1_vzyeca.jpg")
                     .verificationDate(LocalDateTime.now().minusDays(15))
                     .build());
-        }
+
+        //mgimenez (1)
+        kycList.add(KycVerification.builder()
+                .user(allUsers.get(1))
+                .status(KycStatus.VERIFIED)
+                .entityType(KycEntityType.USER)
+                .verificationNotes("Documentación de identidad personal aprobada y vigente.")
+                .externalReferenceId("user-mock-dca05a69-2e8b-46de-b889-69be38d65b6"+1)
+                .document1Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761604912/dni-frontal-2_tiw1je.png")
+                .document2Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761604892/dni-dorso-2_u3zx4o.png")
+                .document3Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761606019/selfie-2_aly3sv.png")
+                .verificationDate(LocalDateTime.now().minusDays(20))
+                .build());
+
+        //jmartinez (2)
+        kycList.add(KycVerification.builder()
+                .user(allUsers.get(2))
+                .status(KycStatus.VERIFIED)
+                .entityType(KycEntityType.USER)
+                .verificationNotes("Documentación de identidad personal aprobada y vigente.")
+                .externalReferenceId("user-mock-dca05a69-2e8b-46de-b889-69be38d65b6"+2)
+                .document1Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761604914/dni-frontal-3_bpyugj.png")
+                .document2Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761604894/dni-dorso-3_i4jvgu.png")
+                .document3Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761604945/selfie-3_ljfe1m.jpg")
+                .verificationDate(LocalDateTime.now().minusDays(18))
+                .build());
+
+        //arodriguez (3)
+        kycList.add(KycVerification.builder()
+                .user(allUsers.get(3))
+                .status(KycStatus.VERIFIED)
+                .entityType(KycEntityType.USER)
+                .verificationNotes("Documentación de identidad personal aprobada y vigente.")
+                .externalReferenceId("user-mock-dca05a69-2e8b-46de-b889-69be38d65b6"+3)
+                .document1Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761604916/dni-frontal-4_zqvbcn.png")
+                .document2Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761604896/dni-dorso-4_llxk6m.png")
+                .document3Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761604931/selfie-4_c7xfsy.png")
+                .verificationDate(LocalDateTime.now().minusDays(21))
+                .build());
+
+        //lcruz(4)
+        kycList.add(KycVerification.builder()
+                .user(allUsers.get(4))
+                .status(KycStatus.VERIFIED)
+                .entityType(KycEntityType.USER)
+                .verificationNotes("Documentación de identidad personal aprobada y vigente.")
+                .externalReferenceId("user-mock-dca05a69-2e8b-46de-b889-69be38d65b6"+4)
+                .document1Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761604918/dni-frontal-5_flrfiw.png")
+                .document2Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761604898/dni-dorso-5_ydbgix.png")
+                .document3Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761604934/selfie-5_vgpkrx.png")
+                .verificationDate(LocalDateTime.now().minusDays(22))
+                .build());
+
+        //gperez(5)
+        kycList.add(KycVerification.builder()
+                .user(allUsers.get(5))
+                .status(KycStatus.VERIFIED)
+                .entityType(KycEntityType.USER)
+                .verificationNotes("Documentación de identidad personal aprobada y vigente.")
+                .externalReferenceId("user-mock-dca05a69-2e8b-46de-b889-69be38d65b6"+5)
+                .document1Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761604921/dni-frontal-6_xeoswr.png")
+                .document2Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761604900/dni-dorso-6_gxrkqz.png")
+                .document3Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761604936/selfie-6_axmubd.png")
+                .verificationDate(LocalDateTime.now().minusDays(50))
+                .build());
+
+        //cfuentes(6)
+        kycList.add(KycVerification.builder()
+                .user(allUsers.get(6))
+                .status(KycStatus.VERIFIED)
+                .entityType(KycEntityType.USER)
+                .verificationNotes("Documentación de identidad personal aprobada y vigente.")
+                .externalReferenceId("user-mock-dca05a69-2e8b-46de-b889-69be38d65b6"+6)
+                .document1Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761604923/dni-frontal-7_k5tivk.png")
+                .document2Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761604901/dni-dorso-7_hnixzm.png")
+                .document3Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761604937/selfie-7_gushm3.png")
+                .verificationDate(LocalDateTime.now().minusDays(20))
+                .build());
+
+        //vgarcia (7)
+        kycList.add(KycVerification.builder()
+                .user(allUsers.get(7))
+                .status(KycStatus.VERIFIED)
+                .entityType(KycEntityType.USER)
+                .verificationNotes("Documentación de identidad personal aprobada y vigente.")
+                .externalReferenceId("user-mock-dca05a69-2e8b-46de-b889-69be38d65b6"+7)
+                .document1Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761604925/dni-frontal-8_ih6isp.png")
+                .document2Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761604904/dni-dorso-8_rrdaig.png")
+                .document3Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761604940/selfie-8_vhetuk.png")
+                .verificationDate(LocalDateTime.now().minusDays(13))
+                .build());
+
 
         // 2 PENDING (Asociados a los PYME 7 y 8)
         // Usuarios: hlopez (8), mmorales (9)
@@ -433,16 +527,22 @@ public class DefaultUserCreator implements CommandLineRunner {
                 .user(allUsers.get(8)) // PYME 7: Héctor López
                 .status(KycStatus.PENDING)
                 .entityType(KycEntityType.USER)
-                .verificationNotes("Selfie requerida: la foto de prueba de vida no fue clara.")
+                .verificationNotes("Dni dorso poco visible")
                 .externalReferenceId("user-mock-dca05a69-2e8b-46de-b889-69be38d65b70")
+                .document1Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761604927/dni-frontal-9_y9fkrq.png")
+                .document2Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761604906/dni-dorso-9_r1g2e9.png")
+                .document3Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761604887/selfie-9_dhexgq.png")
                 .build());
 
         kycList.add(KycVerification.builder()
                 .user(allUsers.get(9)) // PYME 8: María Morales
                 .status(KycStatus.PENDING)
                 .entityType(KycEntityType.USER)
-                .verificationNotes("Comprobante de domicilio fiscal pendiente de subir (factura de servicio).")
+                .verificationNotes("Dni frontal poco visible")
                 .externalReferenceId("user-mock-dca05a69-2e8b-46de-b889-69be38d65b80")
+                .document1Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761604929/dni-frontal-10_pwjfbo.png")
+                .document2Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761604908/dni-dorso-10_keswqk.png")
+                .document3Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761604888/selfie-10_gzcakc.png")
                 .build());
 
         // 1 REJECTED (Asociado al PYME 9)
@@ -454,6 +554,9 @@ public class DefaultUserCreator implements CommandLineRunner {
                 .verificationNotes("Documento de identidad (DNI) expirado en la fecha de envío.")
                 .externalReferenceId("user-mock-dca05a69-2e8b-46de-b889-69be38d65b98")
                 .verificationDate(LocalDateTime.now().minusDays(5))
+                .document1Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761607008/dni-frontal-11_sqwayx.png")
+                .document2Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761607007/dni-dorso-11_nabv32.png")
+                .document3Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761604888/selfie-10_gzcakc.png")
                 .build());
 
         // --- 2. KYC TIPO COMPANY (7 Total: 5 VERIFIED, 2 PENDING) ---
@@ -467,8 +570,8 @@ public class DefaultUserCreator implements CommandLineRunner {
                     .verificationNotes("Estatutos y registros mercantiles verificados y aprobados.")
                     .externalReferenceId("company-mock-dca05a69-2e8b-46de-b889-69be38d65b60")
                     .document1Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761248147/ejemplo_documento_1_ssjfnv.pdf")
-                    .document1Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761248147/ejemplo_documento_4_svhtjf.pdf")
-                    .document1Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761248147/ejemplo_documento_3_hw2nlq.pdf")
+                    .document2Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761248147/ejemplo_documento_4_svhtjf.pdf")
+                    .document3Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761248147/ejemplo_documento_3_hw2nlq.pdf")
                     .verificationDate(LocalDateTime.now().minusMonths(1))
                     .build());
         }
@@ -480,6 +583,9 @@ public class DefaultUserCreator implements CommandLineRunner {
                 .entityType(KycEntityType.COMPANY)
                 .verificationNotes("Pendiente de presentar el último Balance de Cuentas (DJI).")
                 .externalReferenceId("company-mock-dca05a69-2e8b-46de-b889-69be38d65b68")
+                .document1Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761248147/ejemplo_documento_1_ssjfnv.pdf")
+                .document2Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761248147/ejemplo_documento_4_svhtjf.pdf")
+                .document3Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761248147/ejemplo_documento_3_hw2nlq.pdf")
                 .build());
 
         kycList.add(KycVerification.builder()
@@ -488,6 +594,9 @@ public class DefaultUserCreator implements CommandLineRunner {
                 .entityType(KycEntityType.COMPANY)
                 .verificationNotes("Se requiere el acta de nombramiento del representante legal.")
                 .externalReferenceId("company-mock-dca05a69-2e8b-46de-b889-69be38d65b63")
+                .document1Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761248147/ejemplo_documento_1_ssjfnv.pdf")
+                .document2Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761248147/ejemplo_documento_4_svhtjf.pdf")
+                .document3Url("https://res.cloudinary.com/dkkzwhtfx/image/upload/v1761248147/ejemplo_documento_3_hw2nlq.pdf")
                 .build());
 
         kycVerificationRepository.saveAll(kycList);
@@ -503,7 +612,7 @@ public class DefaultUserCreator implements CommandLineRunner {
                 // Compañía 1 (Dueño: Juan Martínez) - Alto Ingreso, KYC Verified
                 Company.builder()
                         .company_name("Soluciones Digitales SRL")
-                        .taxId("30712345674") // CUIT/Tax ID válido
+                        .taxId("20123456789") // CUIT/Tax ID válido
                         .annualIncome(new BigDecimal("2500000.00")) // Ingreso Alto
                         .user(pymeUsers.get(0))
                         .build(),
@@ -511,7 +620,7 @@ public class DefaultUserCreator implements CommandLineRunner {
                 // Compañía 2 (Dueño: Ana Rodríguez) - Ingreso Medio, KYC Verified
                 Company.builder()
                         .company_name("Distribuidora El Faro")
-                        .taxId("33698765432")
+                        .taxId("27876543217")
                         .annualIncome(new BigDecimal("1200000.00"))
                         .user(pymeUsers.get(1))
                         .build(),
@@ -519,7 +628,7 @@ public class DefaultUserCreator implements CommandLineRunner {
                 // Compañía 3 (Dueño: Luis Cruz) - Ingreso Medio, KYC Verified
                 Company.builder()
                         .company_name("Consultora Global SpA")
-                        .taxId("770543219")
+                        .taxId("30654321098")
                         .annualIncome(new BigDecimal("950000.00"))
                         .user(pymeUsers.get(2))
                         .build(),
@@ -527,7 +636,7 @@ public class DefaultUserCreator implements CommandLineRunner {
                 // Compañía 4 (Dueño: Gabriela Pérez) - Ingreso Bajo, KYC Verified
                 Company.builder()
                         .company_name("Alimentos Frescos E.I.R.L.")
-                        .taxId("21887766551")
+                        .taxId("33998877665")
                         .annualIncome(new BigDecimal("450000.00"))
                         .user(pymeUsers.get(3))
                         .build(),
@@ -535,7 +644,7 @@ public class DefaultUserCreator implements CommandLineRunner {
                 // Compañía 5 (Dueño: Carlos Fuentes) - Ingreso Alto, KYC Pending
                 Company.builder()
                         .company_name("Constructora Alfa")
-                        .taxId("30654321098")
+                        .taxId("20456789013")
                         .annualIncome(new BigDecimal("3500000.00"))
                         .user(pymeUsers.get(4))
                         .build(),
@@ -543,7 +652,7 @@ public class DefaultUserCreator implements CommandLineRunner {
                 // Compañía 6 (Dueño: Valeria García) - Ingreso Medio, KYC Pending
                 Company.builder()
                         .company_name("Agencia Marketing Pro")
-                        .taxId("33701234567")
+                        .taxId("34500000004")
                         .annualIncome(new BigDecimal("800000.00"))
                         .user(pymeUsers.get(5))
                         .build(),
@@ -551,7 +660,7 @@ public class DefaultUserCreator implements CommandLineRunner {
                 // Compañía 7 (Dueño: Héctor López) - Ingreso Alto, KYC Pending
                 Company.builder()
                         .company_name("Transportes Rápidos S.R.L.")
-                        .taxId("30509876541")
+                        .taxId("23112233440")
                         .annualIncome(new BigDecimal("1800000.00"))
                         .user(pymeUsers.get(6))
                         .build(),
@@ -559,7 +668,7 @@ public class DefaultUserCreator implements CommandLineRunner {
                 // Compañía 8 (Dueño: María Morales) - Ingreso Bajo, KYC Pending
                 Company.builder()
                         .company_name("Tienda de Regalos")
-                        .taxId("20443322119")
+                        .taxId("24987654321")
                         .annualIncome(new BigDecimal("300000.00"))
                         .user(pymeUsers.get(7))
                         .build(),
@@ -567,7 +676,7 @@ public class DefaultUserCreator implements CommandLineRunner {
                 // Compañía 9 (Dueño: Javier Rojas) - Ingreso Medio
                 Company.builder()
                         .company_name("Desarrollos Web 3.0")
-                        .taxId("765432109")
+                        .taxId("30717171714")
                         .annualIncome(new BigDecimal("1100000.00"))
                         .user(pymeUsers.get(8))
                         .build(),
@@ -575,7 +684,7 @@ public class DefaultUserCreator implements CommandLineRunner {
                 // Compañía 10 (Dueño: Sandra Díaz) - Ingreso Medio
                 Company.builder()
                         .company_name("Logística Sur S.A.")
-                        .taxId("30998877665")
+                        .taxId("27101010102")
                         .annualIncome(new BigDecimal("1500000.00"))
                         .user(pymeUsers.get(9))
                         .build(),
@@ -583,7 +692,7 @@ public class DefaultUserCreator implements CommandLineRunner {
                 // Compañía 11 (Dueño: Eduardo Castillo) - Ingreso Bajo
                 Company.builder()
                         .company_name("Cafetería El Grano")
-                        .taxId("33112233445")
+                        .taxId("27101010103")
                         .annualIncome(new BigDecimal("600000.00"))
                         .user(pymeUsers.get(10))
                         .build(),
@@ -591,7 +700,7 @@ public class DefaultUserCreator implements CommandLineRunner {
                 // Compañía 12 (Dueño: Martín González) - Ingreso Bajo
                 Company.builder()
                         .company_name("Estudio Contable MX")
-                        .taxId("27445566778")
+                        .taxId("27101010109")
                         .annualIncome(new BigDecimal("750000.00"))
                         .user(pymeUsers.get(11))
                         .build()

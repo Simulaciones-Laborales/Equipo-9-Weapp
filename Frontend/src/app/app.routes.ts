@@ -1,11 +1,15 @@
 import { Routes } from '@angular/router';
 import { authGuard } from '@core/guards/auth-guard';
 import { loggedGuard } from '@core/guards/logged-guard';
+import { UserRole } from '@core/models/user-model';
+import HomeComponent from '@features/home/pages/home/home.component';
+import NotFound from '@features/not-found/not-found';
 
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () => import('./features/home/pages/home/home.component'),
+    component: HomeComponent,
+    title: 'Bienvenido',
   },
   {
     path: 'auth',
@@ -16,14 +20,17 @@ export const routes: Routes = [
     path: 'pyme',
     canActivate: [loggedGuard],
     loadChildren: () => import('./features/pyme/pyme.routes'),
+    data: { roles: [UserRole.PYME] },
   },
   {
     path: 'operador',
     canActivate: [loggedGuard],
     loadChildren: () => import('./features/operator/operator.routes'),
+    data: { roles: [UserRole.OPERADOR] },
   },
   {
     path: '**',
-    loadComponent: () => import('./features/not-found/not-found'),
+    component: NotFound,
+    title: 'Oops...',
   },
 ];

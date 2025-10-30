@@ -1,9 +1,10 @@
 <a routerLink="/">
   <h1
-    class="text-primary-500 text-shadow-sm text-shadow-primary-200 relative z-40 hover:text-primary-600 hover:text-shadow-md transition-[box-shadow,_text-shadow,_color] duration-200"
+    class="text-primary-500 text-shadow-sm text-shadow-primary-200 relative z-40 hover:text-primary-600 hover:text-shadow-md transition-[box-shadow,text-shadow,color] duration-200"
     [ngClass]="{
       'text-2xl sm:text-3xl md:text-4xl font-bold': size() === 'md',
-      'text-4xl sm:text-5xl font-extrabold': size() === 'lg',
+      'font-extrabold text-4xl sm:text-5xl': size() === 'lg' || size() === 'xl',
+      'md:text-6xl ': size() === 'xl',
       'text-left': align() === 'left',
       'text-center': align() === 'center'
     }"
