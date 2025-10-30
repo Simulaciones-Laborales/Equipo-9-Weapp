@@ -3,7 +3,7 @@ import {
   provideBrowserGlobalErrorListeners,
   provideZoneChangeDetection,
 } from '@angular/core';
-import { provideRouter, withPreloading } from '@angular/router';
+import { provideRouter, TitleStrategy, withPreloading } from '@angular/router';
 
 import { routes } from './app.routes';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
@@ -14,6 +14,7 @@ import { tokenInterceptor } from '@core/interceptors/token-interceptor';
 import { httpInterceptor } from '@core/interceptors/http-interceptor';
 import { MessageService } from 'primeng/api';
 import { RolePreloadingStrategy } from '@core/strategies/role-preloading-strategy';
+import { AppTitleStrategy } from '@core/strategies/app-title-strategy';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -35,5 +36,6 @@ export const appConfig: ApplicationConfig = {
       },
     }),
     MessageService,
+    { provide: TitleStrategy, useClass: AppTitleStrategy },
   ],
 };

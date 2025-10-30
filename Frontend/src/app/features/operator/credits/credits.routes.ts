@@ -5,6 +5,7 @@ export default [
   {
     path: '',
     component: Credits,
+    title: 'Solicitudes de Crédito',
   },
   {
     path: ':id',
