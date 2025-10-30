@@ -10,10 +10,12 @@ export default [
     path: 'nueva-solicitud',
     loadComponent: () => import('./new-credit-application/new-credit-application'),
     data: { preload: true },
+    title: 'Nueva Solicitud',
   },
   {
     path: ':creditId/historial',
     loadComponent: () => import('./history/history'),
     data: { preload: true },
+    title: 'Seguimiento',
   },
 ] as Routes;

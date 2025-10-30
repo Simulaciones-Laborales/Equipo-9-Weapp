@@ -15,6 +15,7 @@ export default [
         path: 'dashboard',
         loadComponent: () => import('./dashboard/dashboard'),
         data: { preload: true },
+        title: 'Panel de Estadísticas',
       },
       {
         path: 'clientes',

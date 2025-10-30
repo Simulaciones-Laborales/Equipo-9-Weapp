@@ -15,6 +15,7 @@ export default [
         path: 'dashboard',
         loadComponent: () => import('./dashboard/dashboard'),
         data: { preload: true },
+        title: 'Inicio',
       },
       {
         path: 'empresas',
@@ -25,6 +26,7 @@ export default [
         path: 'perfil',
         loadComponent: () => import('./profile/profile'),
         data: { preload: true },
+        title: 'Perfil',
       },
     ],
   },

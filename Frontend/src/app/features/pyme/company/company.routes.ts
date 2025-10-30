@@ -10,11 +10,13 @@ export default [
         path: '',
         loadComponent: () => import('./pages/list/list'),
         data: { preload: true },
+        title: 'Empresas',
       },
       {
         path: 'registro-empresa',
         loadComponent: () => import('./pages/new-company/new-company'),
         data: { preload: true },
+        title: 'Registro de Empresa',
       },
       {
         path: ':id/solicitudes-de-credito',
@@ -25,6 +27,7 @@ export default [
         path: ':id/verificacion',
         loadComponent: () => import('./pages/kyc-verification/kyc-verification'),
         data: { preload: true },
+        title: 'Verificación de Usuario',
       },
     ],
   },

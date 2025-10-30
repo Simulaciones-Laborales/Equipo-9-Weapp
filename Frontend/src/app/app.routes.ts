@@ -9,6 +9,7 @@ export const routes: Routes = [
   {
     path: '',
     component: HomeComponent,
+    title: 'Bienvenido',
   },
   {
     path: 'auth',
@@ -30,5 +31,6 @@ export const routes: Routes = [
   {
     path: '**',
     component: NotFound,
+    title: 'Oops...',
   },
 ];
