@@ -59,7 +59,7 @@ export const Store = signalStore(
       if (kyc.status === KYCVerificationStatus.REVIEW_REQUIRED) {
         return {
           showForm: false,
-          message: 'Tu verificación requiere de una nueva revisión.',
+          message: 'Tu verificación está en revisión.',
           redirect: false,
         };
       }
