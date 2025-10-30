@@ -9,5 +9,6 @@ export default [
   {
     path: ':id',
     loadChildren: () => import('./details/details.routes'),
+    data: { preload: true },
   },
 ] as Routes;

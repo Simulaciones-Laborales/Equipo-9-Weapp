@@ -9,9 +9,11 @@ export default [
   {
     path: 'register',
     loadComponent: () => import('./register/register'),
+    data: { preload: true },
   },
   {
     path: 'login',
     loadComponent: () => import('./login/login'),
+    data: { preload: true },
   },
 ] as Routes;
